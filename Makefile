@@ -23,15 +23,15 @@ LIBRARY_PATH = -L$(CONDA_PREFIX)/lib
 YAML_LINK = -lyaml-cpp
 FMT_LINK = -lfmt
 
-LINKS = $(YAML_LINK) $(FMT_LINK)
-
+LINKS = $(YAML_LINK) $(FMT_LINK) 
+	
 # build both reaction parser and yaml library
 all: $(EXE)
 
 # build just the reaction parser
 $(EXE): $(OBJECTS)
 	@echo "Building $(EXE)"
-	@$(CXX) $(CXXFLAGS) $(INCLUDE_PATH) $(LIBRARY_PATH) -I$(INCDIR) $(OBJECTS) $(SRC) -o $(EXE) $(LINKS)
+	@$(CXX) $(CXXFLAGS) $(INCLUDE_PATH) $(LIBRARY_PATH) -I$(INCDIR) $(OBJECTS) $(SRC) -o $(EXE) $(LINKS) -Wl,-rpath,$(CONDA_PREFIX)/lib
 	@echo "$(EXE) built successfully!"
 
 # build all of the source files for the parser

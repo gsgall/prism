@@ -1,3 +1,6 @@
 [submodule "doc/moose"]
 	path = doc/moose
 	url = https://github.com/idaholab/moose.git
+[submodule "units"]
+	path = units
+	url = https://github.com/LLNL/units.git
