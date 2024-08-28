@@ -44,6 +44,6 @@ git submodule update --init units
   cd units
   mkdir -p build
   cd build
-  cmake -DUNITS_BASE_TYPE=uint64_t -DCMAKE_C_COMPILER=$CONDA_PREFIX/bin/clang -DCMAKE_CXX_COMPILER=$CONDA_PREFIX/bin/clang++ -DCMAKE_CXX_STANDARD=17 -DUNITS_INSTALL=ON -Wno-dev -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
+  cmake  -DCMAKE_C_COMPILER=$CONDA_PREFIX/bin/clang -DCMAKE_CXX_COMPILER=$CONDA_PREFIX/bin/clang++ -DCMAKE_CXX_STANDARD=17 -DUNITS_INSTALL=ON -Wno-dev -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX ..
   make install -j 10
 ```
