@@ -22,8 +22,9 @@ LIBRARY_PATH = -L$(CONDA_PREFIX)/lib
 
 YAML_LINK = -lyaml-cpp
 FMT_LINK = -lfmt
+UNITS_LINK = -lunits 
 
-LINKS = $(YAML_LINK) $(FMT_LINK) 
+LINKS = $(YAML_LINK) $(FMT_LINK) $(UNITS_LINK)
 	
 # build both reaction parser and yaml library
 all: $(EXE)
