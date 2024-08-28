@@ -1,3 +1,4 @@
+.cache
 *.dSYM
 build
 main
@@ -19,3 +20,4 @@ win*
 *.so
 *.out
 __pycache__
+compile_commands.json
