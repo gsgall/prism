@@ -1,0 +1,48 @@
+[
+  {
+    "arguments": [
+      "/Users/graysongall/miniforge/envs/prism-dev/bin/clang++",
+      "-std=c++17",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-g",
+      "-Iinclude/input",
+      "-I/Users/graysongall/miniforge/envs/prism-dev/include",
+      "-c",
+      "-o",
+      "build/Registrar.o",
+      "src/Registrar.C"
+    ],
+    "directory": "/Users/graysongall/projects/prism/input",
+    "file": "/Users/graysongall/projects/prism/input/src/Registrar.C",
+    "output": "/Users/graysongall/projects/prism/input/build/Registrar.o"
+  },
+  {
+    "arguments": [
+      "/Users/graysongall/miniforge/envs/prism-dev/bin/clang++",
+      "-c",
+      "-B/Users/graysongall/miniforge/envs/prism-dev/bin",
+      "-fuse-ld=lld",
+      "-std=c++17",
+      "-O3",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-g",
+      "-I/Users/graysongall/miniforge/envs/prism-dev/include",
+      "-Iinclude",
+      "build/Registrar.o",
+      "-Wl,-rpath,/Users/graysongall/miniforge/envs/prism-dev/lib",
+      "-o",
+      "main",
+      "main.C"
+    ],
+    "directory": "/Users/graysongall/projects/prism/input",
+    "file": "/Users/graysongall/projects/prism/input/main.C",
+    "output": "/Users/graysongall/projects/prism/input/main"
+  }
+]
