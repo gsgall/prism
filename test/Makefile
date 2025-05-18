@@ -59,7 +59,11 @@ $(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.C
 
 $(TEST_EXECUTABLE): $(TEST_OBJECTS) $(PROJECT_OBJECTS) $(HELPER_OBJECTS)
 	@mkdir -p output
+<<<<<<< HEAD
 	@$(CXX) $(CXXFLAGS) -B$(CONDA_PREFIX)/bin -I$(PROJECT_INCLUDE) -I$(HELPER_INCLUDE) -I$(CONDA_INCLUDE_DIR) -L$(CONDA_LIB_DIR) -lgtest -lgtest_main -lyaml-cpp -lfmt -o $@ $^ -Wl,-rpath,$(CONDA_PREFIX)/lib 
+=======
+	@$(CXX) -B$(CONDA_PREFIX)/bin -fuse-ld=lld $(CXXFLAGS) -I$(PROJECT_INCLUDE) -I$(HELPER_INCLUDE) -I$(CONDA_INCLUDE_DIR) -L$(CONDA_LIB_DIR) -lgtest -lgtest_main -lyaml-cpp -lfmt -o $@ $^  -Wl,-rpath,$(CONDA_PREFIX)/lib
+>>>>>>> 4a47924 (removing extra files)
 .PHONY: all clean coverage clean-coverage
 
 
