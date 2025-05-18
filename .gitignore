@@ -19,7 +19,6 @@ win*
 *.so
 *.out
 __pycache__
-<<<<<<< HEAD
 *.html
 *.json
 conda/noarch
@@ -29,6 +28,4 @@ osx-arm64
 *.idx
 *.json
 .cache
-=======
-*.idx
->>>>>>> 4a47924 (removing extra files)
+compile_commands.json
