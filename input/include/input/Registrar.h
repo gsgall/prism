@@ -1,6 +1,4 @@
 #include <cstdlib>
-#include <filesystem>
-#include <system_error>
 #include <unordered_set>
 #include <unordered_map>
 #include <iostream>
@@ -52,7 +50,6 @@ public:
     return 0;
   }
 
-
   static char addBlock(const std::string & app, const std::string & block_name, const std::string & file, const unsigned int line)
   {
     const auto & app_res = checkAppRegistration(app); 
@@ -91,6 +88,7 @@ public:
     msg << "is registered.";
     return std::make_pair(true, msg.str());
   }
+
   static std::pair<bool, std::string> checkBlockRegistration(std::string app, std::string block_name)
   {
     std::stringstream msg;

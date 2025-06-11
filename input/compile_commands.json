@@ -1,7 +1,7 @@
 [
   {
     "arguments": [
-      "/Users/graysongall/miniforge/envs/prism-dev/bin/clang++",
+      "/Users/graysongall/miniforge/envs/prism/bin/clang++",
       "-std=c++17",
       "-O3",
       "-Wall",
@@ -10,21 +10,21 @@
       "-Werror",
       "-g",
       "-Iinclude/input",
-      "-I/Users/graysongall/miniforge/envs/prism-dev/include",
+      "-I/Users/graysongall/miniforge/envs/prism/include",
       "-c",
       "-o",
       "build/Registrar.o",
       "src/Registrar.C"
     ],
-    "directory": "/Users/graysongall/projects/prism/input",
-    "file": "/Users/graysongall/projects/prism/input/src/Registrar.C",
-    "output": "/Users/graysongall/projects/prism/input/build/Registrar.o"
+    "directory": "/Users/graysongall/projects/prism-personal/input",
+    "file": "/Users/graysongall/projects/prism-personal/input/src/Registrar.C",
+    "output": "/Users/graysongall/projects/prism-personal/input/build/Registrar.o"
   },
   {
     "arguments": [
-      "/Users/graysongall/miniforge/envs/prism-dev/bin/clang++",
+      "/Users/graysongall/miniforge/envs/prism/bin/clang++",
       "-c",
-      "-B/Users/graysongall/miniforge/envs/prism-dev/bin",
+      "-B/Users/graysongall/miniforge/envs/prism/bin",
       "-fuse-ld=lld",
       "-std=c++17",
       "-O3",
@@ -33,16 +33,16 @@
       "-Wpedantic",
       "-Werror",
       "-g",
-      "-I/Users/graysongall/miniforge/envs/prism-dev/include",
+      "-I/Users/graysongall/miniforge/envs/prism/include",
       "-Iinclude",
       "build/Registrar.o",
-      "-Wl,-rpath,/Users/graysongall/miniforge/envs/prism-dev/lib",
+      "-Wl,-rpath,/Users/graysongall/miniforge/envs/prism/lib",
       "-o",
       "main",
       "main.C"
     ],
-    "directory": "/Users/graysongall/projects/prism/input",
-    "file": "/Users/graysongall/projects/prism/input/main.C",
-    "output": "/Users/graysongall/projects/prism/input/main"
+    "directory": "/Users/graysongall/projects/prism-personal/input",
+    "file": "/Users/graysongall/projects/prism-personal/input/main.C",
+    "output": "/Users/graysongall/projects/prism-personal/input/main"
   }
 ]
