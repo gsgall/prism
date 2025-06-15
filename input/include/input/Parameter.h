@@ -1,25 +1,66 @@
 #include <string>
+#include <optional>
+#include "boost/outcome.hpp"
+#include "boost/outcome/result.hpp"
 
-namespace input {
+namespace outcome = BOOST_OUTCOME_V2_NAMESPACE;
+namespace YAML
+{
+class Node;
+}
 
-class ParameterBase {
+namespace input
+{
+
+template <typename T>
+std::string typeName();
+
+template <typename T>
+std::string parseErrorMessage(const std::string & name, const YAML::Node & node, const bool vector);
+
+std::string missingParamErrorMessage(const std::string & name);
+
+class ParameterBase
+{
 public:
-  ParameterBase();
-  virtual ~ParameterBase() = default;
-  const std::string & description() const {return _description;}
-  bool defaultProvided() const {return _default_provided;}
+  ParameterBase(const std::string name, const std::string description, const bool required);
+
+  const std::string & description() const { return _description; }
+  const std::string & name() const { return _name; }
+
 protected:
-  std::string _description;
-  bool _default_provided;
+  const std::string _name;
+  const std::string _description;
+  const bool _required;
 };
 
-template<typename T>
+template <typename T>
 class Parameter : public ParameterBase
 {
-  Parameter();
+public:
+  Parameter(const std::string name, const std::string description);
+  Parameter(const std::string name, const T default_value, const std::string description);
+
+  outcome::result<void, std::string> parseInput(const YAML::Node & node);
+  const std::optional<T> value() const { return _value; }
 
 private:
-  T _value;
-  T _default_value;
+  std::optional<T> _value;
+};
+
+template <typename T>
+class Parameter<std::vector<T>> : public ParameterBase
+{
+public:
+  Parameter(const std::string name, const std::string description);
+  Parameter(const std::string name,
+            const std::vector<T> default_value,
+            const std::string description);
+
+  outcome::result<void, std::string> parseInput(const YAML::Node & node);
+  const std::optional<std::vector<T>> value() const { return _value; }
+
+private:
+  std::optional<std::vector<T>> _value;
 };
 }

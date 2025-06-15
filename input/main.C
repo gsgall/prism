@@ -1,8 +1,6 @@
 #include "input/input.h"
-#include <cstdio>
+#include "yaml-cpp/yaml.h"
 #include <boost/outcome.hpp>
-namespace outcome = BOOST_OUTCOME_V2_NAMESPACE;
-
 registerApp(Test);
 registerInputBlock(Test, TestBlock);
 
@@ -29,7 +27,50 @@ print_stuff(int test, std::string other)
 int
 main()
 {
-  identifier::print_stuff(0, "this is something");
-  LOG_ERROR("This is a test");
+  auto p = input::Parameter<std::vector<std::string>>("test", "this is a test parameter");
+  auto p2 = input::Parameter<double>("test2", "this is a test parameter");
+
+  YAML::Node input;
+
+  // input["test"] = "[first, second, third]";
+  //  input["test"] = YAML::Load("[first, second, third]");
+  // input["test"] = YAML::Load("first");
+  input["test"] = "test";
+  //  input["test2"] = "2.0";
+  //  if (p.value())
+  //    std::cout << p.value().value() << std::endl;
+  //  else
+  //    std::cout << "No value" << std::endl;
+  //
+  if (const auto & result = p.parseInput(input))
+  {
+    if (const auto & vec_opt = p.value(); vec_opt.has_value())
+    {
+      for (const auto & i : vec_opt.value())
+      {
+        std::cout << i << " ";
+      }
+      std::cout << std::endl;
+    }
+  }
+  else
+    std::cout << result.error() << std::endl;
+
+  if (const auto & result = p2.parseInput(input))
+  {
+    std::cout << p2.value().value() << std::endl;
+  }
+  else
+  {
+    std::cout << result.error() << std::endl;
+  }
+  //    if (const auto & vec_opt = p.value(); vec_opt.has_value())
+  //    {
+  //      for (const auto & i : vec_opt.value())
+  //      {
+  //        std::cout << i << " ";
+  //      }
+  //      std::cout << std::endl;
+  //    }
   return EXIT_SUCCESS;
 }
