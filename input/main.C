@@ -1,6 +1,7 @@
 #include "input/input.h"
 #include "yaml-cpp/yaml.h"
 #include <boost/outcome.hpp>
+#include <memory>
 registerApp(Test);
 registerInputBlock(Test, TestBlock);
 
@@ -30,7 +31,11 @@ main()
   auto p = input::Parameter<std::vector<std::string>>("test", "this is a test parameter");
   auto p2 = input::Parameter<double>("test2", "this is a test parameter");
 
-  YAML::Node input;
+  std::vector<std::unique_ptr<input::ParameterBase>> test = {
+      std::make_unique<input::Parameter<unsigned int>>("test", "test")};
+
+  for (const auto & i : test)
+    std::cout << dynamic_cast<type>() YAML::Node input;
 
   // input["test"] = "[first, second, third]";
   //  input["test"] = YAML::Load("[first, second, third]");

@@ -1,5 +1,6 @@
 #include <string>
 #include <optional>
+#include <typeindex>
 #include "boost/outcome.hpp"
 #include "boost/outcome/result.hpp"
 
@@ -23,10 +24,12 @@ std::string missingParamErrorMessage(const std::string & name);
 class ParameterBase
 {
 public:
+  virtual ~ParameterBase() = default;
   ParameterBase(const std::string name, const std::string description, const bool required);
 
   const std::string & description() const { return _description; }
   const std::string & name() const { return _name; }
+  virtual const std::type_index type() const = 0;
 
 protected:
   const std::string _name;
@@ -39,10 +42,12 @@ class Parameter : public ParameterBase
 {
 public:
   Parameter(const std::string name, const std::string description);
+
   Parameter(const std::string name, const T default_value, const std::string description);
 
   outcome::result<void, std::string> parseInput(const YAML::Node & node);
   const std::optional<T> value() const { return _value; }
+  virtual const std::type_index type() const override { return typeid(T); }
 
 private:
   std::optional<T> _value;
@@ -59,6 +64,8 @@ public:
 
   outcome::result<void, std::string> parseInput(const YAML::Node & node);
   const std::optional<std::vector<T>> value() const { return _value; }
+
+  virtual const std::type_index type() const override { return typeid(std::vector<T>); }
 
 private:
   std::optional<std::vector<T>> _value;

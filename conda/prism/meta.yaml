@@ -8,11 +8,13 @@ requirements:
     - {{ compiler('cxx') }}
     - fmt
     - yaml-cpp
+    - boost
 
   run:
     - make
     - fmt
     - yaml-cpp
+    - boost
 
 channels:
   - conda-forge

@@ -134,8 +134,8 @@ DefaultTableWriter::addNotes(const std::vector<std::string> & notes)
       _note_count++;
       _note_numbers[note] = _note_count;
       _inverse_note_numbers[_note_count] = note;
-      numbers.push_back(_note_count);
     }
+    numbers.push_back(_note_numbers[note]);
   }
   sort(numbers.begin(), numbers.end());
 

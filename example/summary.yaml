@@ -1,180 +1,73 @@
-# 2 species lumped into 1
+# 14 species lumped into 1
 lumped-species:
-  - lumped: Ar*
-    actual: [Ar(a), Ar(b)]
+  - lumped: H2*
+    actual: [H2(v1), H2(v10), H2(v11), H2(v12), H2(v13), H2(v14), H2(v2), H2(v3), H2(v4), H2(v5), H2(v6), H2(v7), H2(v8), H2(v9)]
 
 # species which are never consumed
 all-sources:
-  - species: [Ar+, Ar2, Ar^r]
+  - species: [H2(v0)]
 # species which are only in balanced reactions
 # or which have been explicitly marked as constant in the input file
 constant-species:
-  - species: [Ar]
+  - species: []
 # species which are only consumed
 all-sinks:
-  - species: []
+  - species: [H2*]
 
 
 unique-species:
-  - count: 6
-  - name: Ar*
+  - count: 2
+  - name: H2(v0)
     id: 0
-  - name: e
+  - name: H2*
     id: 1
-  - name: Ar+
-    id: 2
-  - name: Ar2
-    id: 3
-  - name: Ar^r
-    id: 4
-  - name: Ar
-    id: 5
 
 
-reaction-summary:
-  - Ar*:
-    - rate-based: 7
+reacion-summary:
+  - H2(v0):
+    - rate-based: 6
+>>>>>>> 2e9956d (Working on improving the parameters object for ease of use)
       sources:
-        - count: 1
-        - Ar + e -> Ar(a) + e
+        - count: 6
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+
+      balanced:
+        - count: 0
+
+      sinks:
+        - count: 0
+
+    - xsec-based: 0
+      sources:
+        - count: 0
+
+      balanced:
+        - count: 0
+
+      sinks:
+        - count: 0
+
+  - H2*:
+    - rate-based: 6
+      sources:
+        - count: 0
 
       balanced:
         - count: 0
 
       sinks:
         - count: 6
-        - Ar(b) + e -> Ar+ + 2e
-        - Ar(a) + e -> Ar + e
-        - Ar(b) + e -> Ar^r + e
-        - 2Ar(a) -> Ar+ + Ar + e
-        - Ar(b) + Ar -> 2Ar
-        - Ar(a) + 2Ar -> Ar2 + Ar
-
-    - xsec-based: 0
-      sources:
-        - count: 0
-
-      balanced:
-        - count: 0
-
-      sinks:
-        - count: 0
-
-  - e:
-    - rate-based: 7
-      sources:
-        - count: 3
-        - Ar + e -> Ar+ + 2e
-        - Ar(b) + e -> Ar+ + 2e
-        - 2Ar(a) -> Ar+ + Ar + e
-
-      balanced:
-        - count: 4
-        - Ar + e -> Ar(a) + e
-        - Ar(a) + e -> Ar + e
-        - Ar(b) + e -> Ar^r + e
-        - Ar + e -> Ar + e
-
-      sinks:
-        - count: 0
-
-    - xsec-based: 0
-      sources:
-        - count: 0
-
-      balanced:
-        - count: 0
-
-      sinks:
-        - count: 0
-
-  - Ar+:
-    - rate-based: 3
-      sources:
-        - count: 3
-        - Ar + e -> Ar+ + 2e
-        - Ar(b) + e -> Ar+ + 2e
-        - 2Ar(a) -> Ar+ + Ar + e
-
-      balanced:
-        - count: 0
-
-      sinks:
-        - count: 0
-
-    - xsec-based: 0
-      sources:
-        - count: 0
-
-      balanced:
-        - count: 0
-
-      sinks:
-        - count: 0
-
-  - Ar2:
-    - rate-based: 1
-      sources:
-        - count: 1
-        - Ar(a) + 2Ar -> Ar2 + Ar
-
-      balanced:
-        - count: 0
-
-      sinks:
-        - count: 0
-
-    - xsec-based: 0
-      sources:
-        - count: 0
-
-      balanced:
-        - count: 0
-
-      sinks:
-        - count: 0
-
-  - Ar^r:
-    - rate-based: 1
-      sources:
-        - count: 1
-        - Ar(b) + e -> Ar^r + e
-
-      balanced:
-        - count: 0
-
-      sinks:
-        - count: 0
-
-    - xsec-based: 0
-      sources:
-        - count: 0
-
-      balanced:
-        - count: 0
-
-      sinks:
-        - count: 0
-
-# This species was requested to be constant in the mechanism
-# As a result it is not included in the transient species list
-  - Ar:
-    - rate-based: 7
-      sources:
-        - count: 3
-        - Ar(a) + e -> Ar + e
-        - 2Ar(a) -> Ar+ + Ar + e
-        - Ar(b) + Ar -> 2Ar
-
-      balanced:
-        - count: 1
-        - Ar + e -> Ar + e
-
-      sinks:
-        - count: 3
-        - Ar + e -> Ar(a) + e
-        - Ar + e -> Ar+ + 2e
-        - Ar(a) + 2Ar -> Ar2 + Ar
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
+        - H2* -> H2(v0)
 
     - xsec-based: 0
       sources:

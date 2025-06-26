@@ -21,7 +21,7 @@ main()
 // main(int /*argc*/, char**argv[]*/)
 {
   auto & np = prism::NetworkParser::instance();
-  np.parseNetwork("example/simple_argon_rate.yaml");
+  np.parseNetwork("hydrogen_test.yaml");
   np.writeReactionTable("example/table.tex");
   np.writeSpeciesSummary("example/summary.yaml");
 
