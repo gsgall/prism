@@ -1,8 +1,8 @@
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -Werror
 CXXFLAGS = -std=c++17 -O3 $(WARNING_FLAGS) -g
 # Source file and executable name
-SRC = main.C
-EXE = main
+SRC = prism.C
+EXE = prism
 
 PROJECT = prism
 # Directories

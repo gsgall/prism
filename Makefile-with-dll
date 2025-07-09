@@ -1,8 +1,8 @@
 WARNING_FLAGS = -Wall -Wextra -Wpedantic -Werror
 CXXFLAGS = -std=c++17 $(WARNING_FLAGS)
 # Source file and executable name
-SRC = main.C
-EXE = main
+SRC = prism.C
+EXE = prism
 
 # adding include to look in the conda environment
 INCLUDE_PATH = -I$(CONDA_PREFIX)/include
