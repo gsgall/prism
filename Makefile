@@ -1,4 +1,4 @@
-WARNING_FLAGS = -Wall -Wextra -Wpedantic -Werror
+WARNING_FLAGS = -Wall -Wextra -Wpedantic -Werror 
 CXXFLAGS = -std=c++17 -O3 $(WARNING_FLAGS) -g
 # Source file and executable name
 SRC = main.C
@@ -16,12 +16,13 @@ HEADERS = $(wildcard $(INCDIR)/*.h)
 OBJECTS = $(patsubst $(SRCDIR)/%.C,$(BUILDDIR)/%.o,$(SOURCES))
 
 # adding include to look in the conda environment
-INCLUDE_PATH = -I$(CONDA_PREFIX)/include
+INCLUDE_PATH = -isystem$(CONDA_PREFIX)/include
 # link instructions to look in the conda environment
 LIBRARY_PATH = -L$(CONDA_PREFIX)/lib
 
 YAML_LINK = -lyaml-cpp
 FMT_LINK = -lfmt
+BOOST_LINK = -lboost
 
 LINKS = $(YAML_LINK) $(FMT_LINK)
 

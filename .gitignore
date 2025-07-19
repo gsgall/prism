@@ -35,5 +35,5 @@ osx-arm64
 *.log
 *.pdf
 *.xml
-*.gz
-
+*.gz*
+*old*

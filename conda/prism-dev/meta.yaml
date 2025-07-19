@@ -4,6 +4,7 @@ package:
 
 requirements:
   build:
+    - boost=1.82.0*
     - make
     - fmt
     - lcov
@@ -25,6 +26,7 @@ requirements:
     - {{ prism_libstdcxx_devel }}             # [linux]
 
   run:
+    - boost=1.82.0*
     - make
     - fmt
     - lcov

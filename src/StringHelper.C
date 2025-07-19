@@ -15,7 +15,7 @@
 #include <iostream>
 #include <fstream>
 #include "fmt/core.h"
-#include "InvalidInput.h"
+// #include "InvalidInput.h"
 
 using namespace std;
 
@@ -213,66 +213,67 @@ printRed(const string & s)
   cout << makeRed(s);
 }
 
-vector<vector<double>>
-readDataFromFile(const std::string & file,
-                 const std::string & delimiter,
-                 const unsigned int num_columns)
-{
-
-  vector<vector<double>> all_data = vector<vector<double>>(num_columns);
-  // Create an input file stream
-  std::ifstream data_input(file);
-
-  // Check if the file was opened successfully
-  if (!data_input.is_open())
-    throw InvalidInput("Unable to open data file '" + file + "'");
-
-  std::string line;
-  // Read the file line by line
-  unsigned int line_count = 0;
-  while (getline(data_input, line))
-  {
-    line_count++;
-    if (line.find(delimiter) == string::npos)
-    {
-      throw InvalidInput("Unable to find delimiter '" + delimiter + "' on line " +
-                         to_string(line_count) + " of file '" + file + "'");
-    }
-
-    if (line.find(delimiter) == 0)
-    {
-      throw InvalidInput("Delimiter '" + delimiter + "' may not be found on line " +
-                         to_string(line_count) + " of file '" + file + "'\n" +
-                         "The delimieter may also have been found at the beginning of the line");
-    }
-
-    const auto & string_data = splitByDelimiter(line, delimiter);
-    if (string_data.size() != num_columns)
-    {
-      data_input.close();
-      throw InvalidInput("Line " + to_string(line_count) + " in file '" + file + "' contains " +
-                         to_string((unsigned int)string_data.size()) + " value" +
-                         ((unsigned int)string_data.size() == 1 ? "" : "s") +
-                         " when it should contain " + to_string(num_columns) + " value" +
-                         (num_columns == 1 ? "" : "s"));
-    }
-
-    try
-    {
-      for (unsigned int i = 0; i < num_columns; ++i)
-        all_data[i].push_back(stod(string_data[i]));
-    }
-    catch (exception & e)
-    {
-      data_input.close();
-      throw InvalidInput("There was an issue parsing something on line " + to_string(line_count) +
-                         " in file '" + file + "'.");
-    }
-  }
-
-  // Close the file
-  data_input.close();
-
-  return all_data;
-}
+// vector<vector<double>>
+// readDataFromFile(const std::string & file,
+//                  const std::string & delimiter,
+//                  const unsigned int num_columns)
+//{
+//
+//   vector<vector<double>> all_data = vector<vector<double>>(num_columns);
+//   // Create an input file stream
+//   std::ifstream data_input(file);
+//
+//   // Check if the file was opened successfully
+//   if (!data_input.is_open())
+//     throw InvalidInput("Unable to open data file '" + file + "'");
+//
+//   std::string line;
+//   // Read the file line by line
+//   unsigned int line_count = 0;
+//   while (getline(data_input, line))
+//   {
+//     line_count++;
+//     if (line.find(delimiter) == string::npos)
+//     {
+//       throw InvalidInput("Unable to find delimiter '" + delimiter + "' on line " +
+//                          to_string(line_count) + " of file '" + file + "'");
+//     }
+//
+//     if (line.find(delimiter) == 0)
+//     {
+//       throw InvalidInput("Delimiter '" + delimiter + "' may not be found on line " +
+//                          to_string(line_count) + " of file '" + file + "'\n" +
+//                          "The delimieter may also have been found at the beginning of the line");
+//     }
+//
+//     const auto & string_data = splitByDelimiter(line, delimiter);
+//     if (string_data.size() != num_columns)
+//     {
+//       data_input.close();
+//       throw InvalidInput("Line " + to_string(line_count) + " in file '" + file + "' contains " +
+//                          to_string((unsigned int)string_data.size()) + " value" +
+//                          ((unsigned int)string_data.size() == 1 ? "" : "s") +
+//                          " when it should contain " + to_string(num_columns) + " value" +
+//                          (num_columns == 1 ? "" : "s"));
+//     }
+//
+//     try
+//     {
+//       for (unsigned int i = 0; i < num_columns; ++i)
+//         all_data[i].push_back(stod(string_data[i]));
+//     }
+//     catch (exception & e)
+//     {
+//       data_input.close();
+//       throw InvalidInput("There was an issue parsing something on line " + to_string(line_count)
+//       +
+//                          " in file '" + file + "'.");
+//     }
+//   }
+//
+//   // Close the file
+//   data_input.close();
+//
+//   return all_data;
+// }
 }

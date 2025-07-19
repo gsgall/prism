@@ -78,6 +78,4 @@ const double ROOM_TEMP_EV = 0.025;
 const double N_A = 6.02214179E+23;
 /// elemental charge in C
 const double ELEMENTAL_CHARGE = 1.602176487E-19;
-typedef unsigned int ReactionId;
-typedef unsigned int SpeciesId;
 }
