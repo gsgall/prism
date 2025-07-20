@@ -143,13 +143,13 @@ splitByCapital(const string & s)
 
   int capital_idx = findFirstCapital(s);
 
-  // case for no capitals just give the string back
+  // if there are no capitals then we will just give back an empty container
   if (capital_idx == -1)
-    return {s};
+    return {};
 
   // case for a single character string
   if (capital_idx == 0 && s.length() == 1)
-    return {s};
+    return {};
 
   string sub_s = s;
 
@@ -183,8 +183,8 @@ formatScientific(const float val)
 
   float mantissa = val / std::pow(10, exponent);
 
-  if (exponent == 0)
-    return fmt::format("{:.2f}", mantissa);
+  if (exponent > -2 && exponent < 2)
+    return fmt::format("{:0.2f}", val);
 
   return fmt::format("{:.2f}", mantissa) + "$\\times 10^{" + fmt::format("{:d}", exponent) + "}$";
 }

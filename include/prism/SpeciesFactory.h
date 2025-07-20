@@ -42,11 +42,14 @@ public:
    * message if it was not able to be created
    */
   outcome::result<SpeciesId, std::string> speciesId(const std::string & name);
+  const std::vector<Species> & species() const noexcept;
 
 private:
   outcome::result<void, std::string> checkName(const std::string & name) noexcept;
 
-  const std::vector<SpeciesId> decomposeSpecies(const std::string & name);
+  outcome::result<const std::vector<SpeciesId>, std::string>
+  decomposeSpecies(const std::string & name);
+
   std::vector<Species> _species;
   /// the mass of every species on the periodic table
   /// these are molar masses in g / mol

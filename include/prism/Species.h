@@ -63,6 +63,8 @@ public:
    */
   SpeciesId id() const noexcept;
 
+  const std::vector<SpeciesId> & subSpecies() const noexcept;
+
 private:
   SpeciesId _id;
   std::vector<SpeciesId> _sub_species;

@@ -29,6 +29,12 @@ Species::id() const noexcept
 {
   return _id;
 }
+
+const std::vector<SpeciesId> &
+Species::subSpecies() const noexcept
+{
+  return _sub_species;
+}
 }
 
 // const vector<SubSpecies>

@@ -1,4 +1,4 @@
-////* This file is a part of PRISM: Plasma Reaction Input SysteM,
+
 ////* A library for parcing chemical reaction networks for plasma chemistry
 ////* https://github.com/NCSU-ComPS-Group/prism
 ////*
@@ -146,8 +146,47 @@
 //   return EXIT_SUCCESS;
 // }
 #include <cstdlib>
+#include <iterator>
+#include <vector>
+#include <iostream>
+#include "prism/SpeciesFactory.h"
 int
 main()
 {
+
+  auto factory = prism::SpeciesFactory();
+
+  //  if (auto res = factory.speciesId("Ar"); !res)
+  //    std::cout << res.error() << std::endl;
+  //
+  //  if (auto res = factory.speciesId("Ar(alpha)"); !res)
+  //    std::cout << res.error() << std::endl;
+  //
+  if (auto res = factory.speciesId("Ar(A"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar(A)"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar*(A)"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar2CF4H3+4(test)"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar2C(test)F4H3+4(test)"); !res)
+    std::cout << res.error() << std::endl;
+
+  for (const auto & s : factory.species())
+  {
+    std::cout << s.name() << ": " << s.id() << std::endl;
+
+    for (const auto id : s.subSpecies())
+      std::cout << id << std::endl;
+
+    std::cout << std::endl;
+  }
+
+  // Species s = Species("Ar2CF4H3+4(test)");
   return EXIT_SUCCESS;
 }
