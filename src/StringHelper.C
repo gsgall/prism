@@ -13,49 +13,43 @@
 #include <cctype>
 #include <cmath>
 #include <iostream>
-#include <fstream>
-#include <iterator>
 #include <optional>
-#include "boost/outcome/success_failure.hpp"
 #include "fmt/core.h"
-// #include "InvalidInput.h"
-
-using namespace std;
 
 namespace prism
 {
-const string WHITESPACE = " \n\r\t\f\v";
+const std::string WHITESPACE = " \n\r\t\f\v";
 
 void
-ltrim(string & s)
+ltrim(std::string & s)
 {
   size_t start = s.find_first_not_of(WHITESPACE);
-  s = (start == string::npos) ? "" : s.substr(start);
+  s = (start == std::string::npos) ? "" : s.substr(start);
 }
 
 void
-rtrim(string & s)
+rtrim(std::string & s)
 {
   size_t end = s.find_last_not_of(WHITESPACE);
-  s = (end == string::npos) ? "" : s.substr(0, end + 1);
+  s = (end == std::string::npos) ? "" : s.substr(0, end + 1);
 }
 
 void
-trim(string & s)
+trim(std::string & s)
 {
   ltrim(s);
   rtrim(s);
 }
 
-vector<string>
-splitByDelimiter(const string & s, const string & d)
+std::vector<std::string>
+splitByDelimiter(const std::string & s, const std::string & d)
 {
-  vector<string> sub_s;
+  std::vector<std::string> sub_s;
   auto temp_s = s;
   size_t d_idx;
-  string left;
+  std::string left;
 
-  while (temp_s.find(d) != string::npos)
+  while (temp_s.find(d) != std::string::npos)
   {
     d_idx = temp_s.find(d);
     left = temp_s.substr(0, temp_s.find(d));
@@ -71,7 +65,7 @@ splitByDelimiter(const string & s, const string & d)
 }
 
 int
-findFirstCapital(const string & s)
+findFirstCapital(const std::string & s)
 {
   for (size_t i = 0; i < s.length(); ++i)
     if (isupper(s[i]))
@@ -81,7 +75,7 @@ findFirstCapital(const string & s)
 }
 
 int
-findFirstSpecial(const string & s)
+findFirstSpecial(const std::string & s)
 {
   for (size_t i = 0; i < s.length(); ++i)
     if (!isalnum(s[i]))
@@ -90,7 +84,7 @@ findFirstSpecial(const string & s)
 }
 
 int
-findFirstNonLetter(const string & s)
+findFirstNonLetter(const std::string & s)
 {
   for (size_t i = 0; i < s.length(); ++i)
     if (!isalpha(s[i]))
@@ -100,7 +94,7 @@ findFirstNonLetter(const string & s)
 }
 
 int
-findFirstLetter(const string & s)
+findFirstLetter(const std::string & s)
 {
   for (size_t i = 0; i < s.length(); ++i)
     if (isalpha(s[i]))
@@ -110,7 +104,7 @@ findFirstLetter(const string & s)
 }
 
 int
-findFirstNonNumber(const string & s)
+findFirstNonNumber(const std::string & s)
 {
   for (size_t i = 0; i < s.length(); ++i)
     if (!isdigit(s[i]))
@@ -120,7 +114,7 @@ findFirstNonNumber(const string & s)
 }
 
 int
-findFirstNumber(const string & s)
+findFirstNumber(const std::string & s)
 {
   for (size_t i = 0; i < s.length(); ++i)
     if (isdigit(s[i]))
@@ -130,7 +124,7 @@ findFirstNumber(const string & s)
 }
 
 int
-findFirstNonSpecial(const string & s)
+findFirstNonSpecial(const std::string & s)
 {
   for (size_t i = 0; i < s.length(); ++i)
     if (isalnum(s[i]))
@@ -139,10 +133,10 @@ findFirstNonSpecial(const string & s)
   return -1;
 }
 
-vector<string>
-splitByCapital(const string & s)
+std::vector<std::string>
+splitByCapital(const std::string & s)
 {
-  vector<string> parts;
+  std::vector<std::string> parts;
 
   int capital_idx = findFirstCapital(s);
 
@@ -150,13 +144,13 @@ splitByCapital(const string & s)
   if (capital_idx == -1)
     return {s};
 
-  // case for a single character string
+  // case for a single character std::string
   if (capital_idx == 0 && s.length() == 1)
     return {s};
 
-  string sub_s = s;
+  std::string sub_s = s;
 
-  vector<int> cut_locations;
+  std::vector<int> cut_locations;
 
   while (capital_idx != -1)
   {
@@ -174,7 +168,7 @@ splitByCapital(const string & s)
   return parts;
 }
 
-string
+std::string
 formatScientific(const double val)
 {
   int exponent = 0;
@@ -253,7 +247,7 @@ clearBalancedSymbols(const std::string & s) noexcept
       if (curr == closers[i])
       {
         if (stack.empty() || stack.top() != openers[i])
-          return nullopt;
+          return std::nullopt;
         filtered.push_back(curr);
         stack.pop();
         break;
@@ -262,42 +256,42 @@ clearBalancedSymbols(const std::string & s) noexcept
   }
 
   if (!stack.empty())
-    return nullopt;
+    return std::nullopt;
 
   return filtered;
 }
 
-string
-makeGreen(const string & s)
+std::string
+makeGreen(const std::string & s)
 {
   return "\033[32m" + s + "\033[0m";
 }
 
-string
-makeRed(const string & s)
+std::string
+makeRed(const std::string & s)
 {
   return "\033[31m" + s + "\033[0m";
 }
 
 void
-printGreen(const string & s)
+printGreen(const std::string & s)
 {
-  cout << makeGreen(s);
+  std::cout << makeGreen(s);
 }
 
 void
-printRed(const string & s)
+printRed(const std::string & s)
 {
-  cout << makeRed(s);
+  std::cout << makeRed(s);
 }
 
-// vector<vector<double>>
+// std::vector<vector<double>>
 // readDataFromFile(const std::string & file,
 //                  const std::string & delimiter,
 //                  const unsigned int num_columns)
 //{
 //
-//   vector<vector<double>> all_data = vector<vector<double>>(num_columns);
+//   std::vector<vector<double>> all_data = std::vector<vector<double>>(num_columns);
 //   // Create an input file stream
 //   std::ifstream data_input(file);
 //
@@ -311,7 +305,7 @@ printRed(const string & s)
 //   while (getline(data_input, line))
 //   {
 //     line_count++;
-//     if (line.find(delimiter) == string::npos)
+//     if (line.find(delimiter) == std::string::npos)
 //     {
 //       throw InvalidInput("Unable to find delimiter '" + delimiter + "' on line " +
 //                          to_string(line_count) + " of file '" + file + "'");
@@ -324,8 +318,8 @@ printRed(const string & s)
 //                          "The delimieter may also have been found at the beginning of the line");
 //     }
 //
-//     const auto & string_data = splitByDelimiter(line, delimiter);
-//     if (string_data.size() != num_columns)
+//     const auto & std::string_data = splitByDelimiter(line, delimiter);
+//     if (std::string_data.size() != num_columns)
 //     {
 //       data_input.close();
 //       throw InvalidInput("Line " + to_string(line_count) + " in file '" + file + "' contains " +
@@ -338,7 +332,7 @@ printRed(const string & s)
 //     try
 //     {
 //       for (unsigned int i = 0; i < num_columns; ++i)
-//         all_data[i].push_back(stod(string_data[i]));
+//         all_data[i].push_back(stod(std::string_data[i]));
 //     }
 //     catch (exception & e)
 //     {
