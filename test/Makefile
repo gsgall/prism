@@ -1,5 +1,3 @@
-# Compiler and flags
-TESTING_FLAG = -DTESTING
 # flags for code coverage testing
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 # flags for memory leakage testing
