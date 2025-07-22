@@ -14,6 +14,9 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <iterator>
+#include <optional>
+#include "boost/outcome/success_failure.hpp"
 #include "fmt/core.h"
 // #include "InvalidInput.h"
 
@@ -145,11 +148,11 @@ splitByCapital(const string & s)
 
   // if there are no capitals then we will just give back an empty container
   if (capital_idx == -1)
-    return {};
+    return {s};
 
   // case for a single character string
   if (capital_idx == 0 && s.length() == 1)
-    return {};
+    return {s};
 
   string sub_s = s;
 
@@ -172,7 +175,7 @@ splitByCapital(const string & s)
 }
 
 string
-formatScientific(const float val)
+formatScientific(const double val)
 {
   int exponent = 0;
 
@@ -181,12 +184,87 @@ formatScientific(const float val)
 
   exponent = static_cast<int>(std::floor(std::log10(std::abs(val))));
 
-  float mantissa = val / std::pow(10, exponent);
+  double mantissa = val / std::pow(static_cast<double>(10), static_cast<double>(exponent));
 
   if (exponent > -2 && exponent < 2)
     return fmt::format("{:0.2f}", val);
 
   return fmt::format("{:.2f}", mantissa) + "$\\times 10^{" + fmt::format("{:d}", exponent) + "}$";
+}
+
+bool
+balancedSymbols(const std::string & s)
+{
+  std::stack<char> stack;
+  std::vector<char> openers = {'(', '{', '['};
+  std::vector<char> closers = {')', '}', ']'};
+
+  for (const auto curr : s)
+  {
+    for (const auto o : openers)
+    {
+      if (curr == o)
+      {
+        stack.push(curr);
+        break;
+      }
+    }
+
+    for (size_t i = 0; i < closers.size(); i++)
+    {
+      if (curr == closers[i])
+      {
+        if (stack.empty() || stack.top() != openers[i])
+          return false;
+        stack.pop();
+      }
+    }
+  }
+
+  return stack.empty();
+}
+
+std::optional<std::string>
+clearBalancedSymbols(const std::string & s) noexcept
+{
+
+  std::stack<char> stack;
+  std::vector<char> openers = {'(', '{', '['};
+  std::vector<char> closers = {')', '}', ']'};
+
+  std::string filtered;
+  for (const auto curr : s)
+  {
+    for (const auto o : openers)
+    {
+      if (curr == o)
+      {
+        stack.push(curr);
+        filtered.push_back(curr);
+        break;
+      }
+    }
+
+    if (stack.empty())
+      filtered.push_back(curr);
+
+    for (size_t i = 0; i < closers.size(); i++)
+    {
+      if (curr == closers[i])
+      {
+        if (stack.empty() || stack.top() != openers[i])
+          return nullopt;
+        filtered.push_back(curr);
+        stack.pop();
+        break;
+      }
+    }
+  }
+
+  if (!stack.empty())
+    return nullopt;
+
+  return filtered;
 }
 
 string

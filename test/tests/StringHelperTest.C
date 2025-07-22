@@ -131,9 +131,9 @@ TEST(StringHelper, findFirstNumber)
 TEST(StringHelper, splitByCapital)
 {
   std::string test = "lkasdfoiwkj";
-  std::vector<std::string> result = {};
+  std::vector<std::string> result = {test};
 
-  EXPECT_TRUE(prism::splitByCapital(test).empty());
+  EXPECT_EQ(prism::splitByCapital(test), result);
 
   test = "Arh2Hs2JG";
   result = {"Arh2", "Hs2", "J", "G"};
@@ -143,6 +143,7 @@ TEST(StringHelper, splitByCapital)
 
 TEST(StringHelper, formatScientific)
 {
+  EXPECT_EQ(prism::formatScientific(4.80e-45), "4.80$\\times 10^{-45}$");
   EXPECT_EQ(prism::formatScientific(3.25e14), "3.25$\\times 10^{14}$");
   EXPECT_EQ(prism::formatScientific(3.25e3), "3.25$\\times 10^{3}$");
   EXPECT_EQ(prism::formatScientific(3.25e-3), "3.25$\\times 10^{-3}$");
@@ -152,4 +153,57 @@ TEST(StringHelper, formatScientific)
   EXPECT_EQ(prism::formatScientific(0.1), "0.10");
   EXPECT_EQ(prism::formatScientific(0.01), "1.00$\\times 10^{-2}$");
   EXPECT_EQ(prism::formatScientific(0.001), "1.00$\\times 10^{-3}$");
+}
+
+TEST(StringHelper, balancedSymbols)
+{
+
+  std::string test = "(";
+  EXPECT_FALSE(prism::balancedSymbols(test));
+  test = ")";
+  EXPECT_FALSE(prism::balancedSymbols(test));
+  test = "()";
+  EXPECT_TRUE(prism::balancedSymbols(test));
+  test = "[{()}]";
+  EXPECT_TRUE(prism::balancedSymbols(test));
+  test = "[()()]{}";
+  EXPECT_TRUE(prism::balancedSymbols(test));
+  test = "([]";
+  EXPECT_FALSE(prism::balancedSymbols(test));
+  test = "([{]})";
+  EXPECT_FALSE(prism::balancedSymbols(test));
+
+  EXPECT_FALSE(prism::balancedSymbols(test));
+  test = "(asdflkj)";
+  EXPECT_TRUE(prism::balancedSymbols(test));
+  test = "[lkjfd034{13498(adsf)AFLdA}8402LKsld]";
+  EXPECT_TRUE(prism::balancedSymbols(test));
+  test = "[asdflk340(098234DKLJF)(asdf9)983m,nxcv]{09134ldasfk}";
+}
+
+TEST(StringHelper, clearBalancedSymbols)
+{
+
+  auto res = prism::clearBalancedSymbols("thadf(this is a test)");
+  EXPECT_TRUE(res.has_value());
+  EXPECT_EQ(res.value(), "thadf()");
+
+  res = prism::clearBalancedSymbols("thadf");
+  EXPECT_TRUE(res.has_value());
+  EXPECT_EQ(res.value(), "thadf");
+
+  res = prism::clearBalancedSymbols("09430934{[](this is something)}eroreoijkl");
+  EXPECT_TRUE(res.has_value());
+  EXPECT_EQ(res.value(), "09430934{[]()}eroreoijkl");
+
+  EXPECT_FALSE(res = prism::clearBalancedSymbols("("));
+  EXPECT_FALSE(res = prism::clearBalancedSymbols(")"));
+  EXPECT_FALSE(res = prism::clearBalancedSymbols("([]"));
+
+  res = prism::clearBalancedSymbols("[()()]{}");
+  EXPECT_TRUE(res.has_value());
+  EXPECT_EQ(res.value(), "[()()]{}");
+  res = prism::clearBalancedSymbols("[lkjfd034{13498(adsf)AFLdA}8402LKsld]");
+  EXPECT_TRUE(res);
+  EXPECT_EQ(res.value(), "[{()}]");
 }

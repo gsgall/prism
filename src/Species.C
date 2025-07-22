@@ -14,7 +14,7 @@ namespace prism
 {
 
 Species::Species(const SpeciesInitialData & data)
-  : _id(data.id), _sub_species(data.sub_species), _name(data.name)
+  : _id(data.id), _charge(data.charge), _sub_species_data(data.sub_species_data), _name(data.name)
 {
 }
 
@@ -30,10 +30,16 @@ Species::id() const noexcept
   return _id;
 }
 
-const std::vector<SpeciesId> &
-Species::subSpecies() const noexcept
+int
+Species::charge() const noexcept
 {
-  return _sub_species;
+  return _charge;
+}
+
+const std::vector<SubSpeciesData> &
+Species::subSpeciesData() const noexcept
+{
+  return _sub_species_data;
 }
 }
 

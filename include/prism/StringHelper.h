@@ -10,6 +10,7 @@
 //*
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -111,7 +112,7 @@ int findFirstNonSpecial(const std::string & s);
  */
 std::vector<std::string> splitByCapital(const std::string & s);
 
-std::string formatScientific(const float val);
+std::string formatScientific(const double val);
 
 /**
  * Method add the green escape color to the std::string and prints
@@ -143,6 +144,23 @@ std::string makeGreen(const std::string & s);
  */
 std::string makeRed(const std::string & s);
 
+/**
+ * Checks to see if a string potentially containing parenthesis, or braces is valid or not.
+ * @param s the string potentially containing the symbols that need to be balanced
+ * @returns true if there is a balanced set of parenthesis or if the string contains none of these
+ * special characters as well false if not
+ */
+bool balancedSymbols(const std::string & s);
+
+/**
+ * Removes the content in a string that contains balanced symbol sets
+ * #Ex: {[](this is something)} -> {[]()}
+ *
+ * @param s the string to remove the content from
+ * @returns a result object which contains the string with the content within the symbols removed on
+ * success and an error if there is a mismatched set of symbols
+ */
+std::optional<std::string> clearBalancedSymbols(const std::string & s) noexcept;
 /**
  * Colleces data from files which have columns of data seperated by a
  * delimiter

@@ -33,11 +33,19 @@ struct ReactionData
   int stoic_coeff;
 };
 
+struct SubSpeciesData
+{
+  SpeciesId id;
+  unsigned int sub_script;
+};
+
 struct SpeciesInitialData
 {
   SpeciesId id;
+  int charge;
   std::string name;
-  std::vector<SpeciesId> sub_species;
+  std::string modifier;
+  std::vector<SubSpeciesData> sub_species_data;
 };
 /**
  * The species object which represents the products
@@ -57,17 +65,20 @@ public:
    */
   const std::string & name() const noexcept;
 
+  int charge() const noexcept;
+
   /**
    * Getter method for the name of a species object
    * @return the name of the current species
    */
   SpeciesId id() const noexcept;
 
-  const std::vector<SpeciesId> & subSpecies() const noexcept;
+  const std::vector<SubSpeciesData> & subSpeciesData() const noexcept;
 
 private:
   SpeciesId _id;
-  std::vector<SpeciesId> _sub_species;
+  const int _charge;
+  std::vector<SubSpeciesData> _sub_species_data;
   const std::string _name;
 };
 }

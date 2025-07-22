@@ -15,7 +15,6 @@
 #include "PrismTypes.h"
 
 #include "Species.h"
-#include "boost/outcome.hpp"
 #include "boost/outcome/result.hpp"
 
 namespace outcome = BOOST_OUTCOME_V2_NAMESPACE;
@@ -45,9 +44,17 @@ public:
   const std::vector<Species> & species() const noexcept;
 
 private:
-  outcome::result<void, std::string> checkName(const std::string & name) noexcept;
+  /**
+   *
+   */
+  outcome::result<std::tuple<std::string, std::string, int>, std::string>
+  trimSpeciesModifier(const std::string & name) const noexcept;
 
-  outcome::result<const std::vector<SpeciesId>, std::string>
+  std::string subSpeciesBase(const std::string & name) const noexcept;
+
+  outcome::result<void, std::string> checkName(const std::string & name) const noexcept;
+
+  outcome::result<const std::vector<SubSpeciesData>, std::string>
   decomposeSpecies(const std::string & name);
 
   std::vector<Species> _species;

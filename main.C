@@ -156,37 +156,65 @@ main()
 
   auto factory = prism::SpeciesFactory();
 
-  //  if (auto res = factory.speciesId("Ar"); !res)
-  //    std::cout << res.error() << std::endl;
-  //
-  //  if (auto res = factory.speciesId("Ar(alpha)"); !res)
-  //    std::cout << res.error() << std::endl;
-  //
+  if (auto res = factory.speciesId("Ar"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar(alpha)"); !res)
+    std::cout << res.error() << std::endl;
+
   if (auto res = factory.speciesId("Ar(A"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar(A)"); !res)
+  if (auto res = factory.speciesId("Ar2(AAAA)"); !res)
     std::cout << res.error() << std::endl;
 
   if (auto res = factory.speciesId("Ar*(A)"); !res)
     std::cout << res.error() << std::endl;
 
+  if (auto res = factory.speciesId("Ar*(2A*)"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar*(2A*)"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("H3+4(test)"); !res)
+    std::cout << res.error() << std::endl;
+
   if (auto res = factory.speciesId("Ar2CF4H3+4(test)"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar2CF4H3+4*T"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar2CF4H3+4(T)"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("H3-4(*T)"); !res)
     std::cout << res.error() << std::endl;
 
   if (auto res = factory.speciesId("Ar2C(test)F4H3+4(test)"); !res)
     std::cout << res.error() << std::endl;
 
+  if (auto res = factory.speciesId("Ar2C*F4H3+4(test)"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar2CF4H3+4(test)lkasdf"); !res)
+    std::cout << res.error() << std::endl;
+
+  if (auto res = factory.speciesId("Ar2CF4H3+4ads(test)"); !res)
+    std::cout << res.error() << std::endl;
+
   for (const auto & s : factory.species())
   {
-    std::cout << s.name() << ": " << s.id() << std::endl;
+    std::cout << s.name() << " : " << s.id() << " : charge " << s.charge() << std::endl;
 
-    for (const auto id : s.subSpecies())
-      std::cout << id << std::endl;
+    for (const auto data : s.subSpeciesData())
+      std::cout << "  " << factory.species()[data.id].name() << ": " << data.sub_script
+                << std::endl;
 
     std::cout << std::endl;
   }
-
+  //
   // Species s = Species("Ar2CF4H3+4(test)");
   return EXIT_SUCCESS;
 }
