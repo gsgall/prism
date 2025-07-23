@@ -43,6 +43,7 @@ struct SpeciesInitialData
 {
   SpeciesId id;
   int charge;
+  double mass;
   std::string name;
   std::string modifier;
   std::vector<SubSpeciesData> sub_species_data;
@@ -67,6 +68,8 @@ public:
 
   int charge() const noexcept;
 
+  double mass() const noexcept;
+
   /**
    * Getter method for the name of a species object
    * @return the name of the current species
@@ -78,6 +81,7 @@ public:
 private:
   SpeciesId _id;
   const int _charge;
+  const double _mass;
   std::vector<SubSpeciesData> _sub_species_data;
   const std::string _name;
 };

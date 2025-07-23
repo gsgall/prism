@@ -36,4 +36,5 @@ TEST(SpeciesFactory, InvalidSpeciesNames)
   EXPECT_FALSE(factory.speciesId("Ar2C*F4H3+4(test)"));
   EXPECT_FALSE(factory.speciesId("Ar2CF4H3+4(test)lkasdf"));
   EXPECT_FALSE(factory.speciesId("Ar2CF4H3+4ads(test)"));
+  EXPECT_FALSE(factory.speciesId("Z"));
 }

@@ -3,9 +3,7 @@
 //* https://github.com/NCSU-ComPS-Group/prism
 //*
 //* Licensed under MIT, please see LICENSE for details
-//* https://opensource.org/license/mit
-//*
-//* Copyright 2024, North Carolina State University
+//* https://opensource.org/license/mit * * Copyright 2024, North Carolina State University
 //* ALL RIGHTS RESERVED
 //*
 #include "Species.h"
@@ -14,7 +12,11 @@ namespace prism
 {
 
 Species::Species(const SpeciesInitialData & data)
-  : _id(data.id), _charge(data.charge), _sub_species_data(data.sub_species_data), _name(data.name)
+  : _id(data.id),
+    _charge(data.charge),
+    _mass(data.mass),
+    _sub_species_data(data.sub_species_data),
+    _name(data.name)
 {
 }
 
@@ -41,6 +43,13 @@ Species::subSpeciesData() const noexcept
 {
   return _sub_species_data;
 }
+
+double
+Species::mass() const noexcept
+{
+  return _mass;
+}
+
 }
 
 // const vector<SubSpecies>

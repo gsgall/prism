@@ -10,16 +10,11 @@
 //*
 #include "SpeciesFactory.h"
 #include <algorithm>
-#include <cinttypes>
 #include <cstdlib>
-#include <iostream>
-#include <locale>
 #include <sstream>
 #include "StringHelper.h"
 #include <iomanip>
-#include <sys/resource.h>
 #include <tuple>
-#include <utility>
 #include "PrismErrorHelper.h"
 #include "boost/outcome/success_failure.hpp"
 
@@ -31,7 +26,7 @@ SpeciesFactory::SpeciesFactory() {}
 outcome::result<SpeciesId, std::string>
 SpeciesFactory::speciesId(const std::string & name)
 {
-  auto it = std::find_if(
+  const auto it = std::find_if(
       _species.begin(), _species.end(), [name](const Species & s) { return s.name() == name; });
 
   if (it != _species.end())
@@ -39,7 +34,7 @@ SpeciesFactory::speciesId(const std::string & name)
     return it->id();
   }
 
-  if (auto res = checkName(name); !res)
+  if (const auto res = checkName(name); !res)
   {
     std::stringstream msg;
     msg << "Invalid species name " << std::quoted(name);
@@ -58,6 +53,14 @@ SpeciesFactory::speciesId(const std::string & name)
     if (input_data.modifier.empty() && findFirstNonLetter(name) == -1)
     {
       input_data.id = _species.size();
+      const auto it = _masses.find(input_data.name);
+      if (it == _masses.end())
+      {
+        std::stringstream msg;
+        msg << "Unable to compute species mass. No mass available for sub species "
+            << std::quoted(input_data.name);
+        return outcome::failure(errorMessage(msg.str()));
+      }
       _species.push_back(Species(input_data));
       return input_data.id;
     }
@@ -79,6 +82,14 @@ SpeciesFactory::speciesId(const std::string & name)
   }
 
   input_data.id = _species.size();
+  input_data.mass = 0;
+  for (const auto & sub_data : input_data.sub_species_data)
+  {
+    input_data.mass += static_cast<double>(sub_data.sub_script) * _species[sub_data.id].mass();
+  }
+
+  // now change the mass by the mass of the electron for the charge state of the species
+  input_data.mass -= static_cast<double>(input_data.charge) * _masses["e"];
   _species.push_back(Species(input_data));
 
   return input_data.id;
@@ -119,29 +130,29 @@ SpeciesFactory::decomposeSpecies(const std::string & name)
   const auto potental_sub_names = splitByCapital(name);
 
   auto sub_data = std::vector<SubSpeciesData>();
-  for (auto it = potental_sub_names.begin(); it != potental_sub_names.end(); it++)
+  for (const auto & sub_name : potental_sub_names)
   {
     auto & data = sub_data.emplace_back();
 
-    if (const auto res = speciesId(subSpeciesBase(*it)))
+    if (const auto res = speciesId(subSpeciesBase(sub_name)))
     {
       data.id = res.value();
     }
     else
     {
       std::stringstream msg;
-      msg << "Unable to get id of subspecies: " << std::quoted(subSpeciesBase(*it));
+      msg << "Unable to get id of subspecies: " << std::quoted(subSpeciesBase(sub_name));
       return outcome::failure(appendErrorMessage(res, msg.str()));
     }
 
-    const auto num_idx = findFirstNumber(*it);
+    const auto num_idx = findFirstNumber(sub_name);
     if (num_idx == -1)
     {
       data.sub_script = 1;
       continue;
     }
 
-    data.sub_script = std::stoi(it->substr(num_idx, it->length()));
+    data.sub_script = std::stoi(sub_name.substr(num_idx, sub_name.length()));
   }
   return sub_data;
 }
