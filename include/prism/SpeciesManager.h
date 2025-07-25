@@ -9,29 +9,28 @@
 //* ALL RIGHTS RESERVED
 //*
 #pragma once
+#include "PrismTypes.h"
+#include "Species.h"
+
 #include <string>
 #include <unordered_map>
 
-#include "PrismTypes.h"
-
-#include "Species.h"
 #include "boost/outcome/result.hpp"
 
 namespace outcome = BOOST_OUTCOME_V2_NAMESPACE;
 
 namespace prism
 {
-class Reaction;
 
 /**
- * This factory creates and stores, and passes around all of the species
- * that exist in a reaction mechanism
- * The end user should never use this
+ * The manager is responsible for validating, creating and storing species objects which exist in
+ * the system
  */
-class SpeciesFactory
+class SpeciesManager
 {
 public:
-  SpeciesFactory();
+  SpeciesManager();
+
   /**
    * Given a species name this will return that species id
    * if a species with that name does not currently exist in the system then a species object will
@@ -40,13 +39,11 @@ public:
    * @returns A result object which contains the id if it was able to be created or an error
    * message if it was not able to be created
    */
-  outcome::result<SpeciesId, std::string> speciesId(const std::string & name);
+  const outcome::result<SpeciesId, std::string> speciesId(const std::string & name) noexcept;
+
   const std::vector<Species> & species() const noexcept;
 
 private:
-  /**
-   *
-   */
   outcome::result<std::tuple<std::string, std::string, int>, std::string>
   trimSpeciesModifier(const std::string & name) const noexcept;
 

@@ -66,9 +66,10 @@ public:
    */
   const std::string & name() const noexcept;
 
-  int charge() const noexcept;
+  double charge() const noexcept;
+  int chargeNumber() const noexcept;
 
-  double mass() const noexcept;
+  double molarMass() const noexcept;
 
   /**
    * Getter method for the name of a species object

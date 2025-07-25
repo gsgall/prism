@@ -149,67 +149,67 @@
 #include <iterator>
 #include <vector>
 #include <iostream>
-#include "prism/SpeciesFactory.h"
+#include "prism/SpeciesManager.h"
 int
 main()
 {
 
-  auto factory = prism::SpeciesFactory();
+  auto manager = prism::SpeciesManager();
 
-  if (auto res = factory.speciesId("Ar"); !res)
+  if (auto res = manager.speciesId("Ar"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar(alpha)"); !res)
+  if (auto res = manager.speciesId("Ar(alpha)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar(A"); !res)
+  if (auto res = manager.speciesId("Ar(A"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar2(AAAA)"); !res)
+  if (auto res = manager.speciesId("Ar2(AAAA)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar*(A)"); !res)
+  if (auto res = manager.speciesId("Ar*(A)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar*(2A*)"); !res)
+  if (auto res = manager.speciesId("Ar*(2A*)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar*(2A*)"); !res)
+  if (auto res = manager.speciesId("Ar*(2A*)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("H3+4(test)"); !res)
+  if (auto res = manager.speciesId("H3+4(test)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar2CF4H3+4(test)"); !res)
+  if (auto res = manager.speciesId("Ar2CF4H3+4(test)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar2CF4H3+4*T"); !res)
+  if (auto res = manager.speciesId("Ar2CF4H3+4*T"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar2CF4H3+4(T)"); !res)
+  if (auto res = manager.speciesId("Ar2CF4H3+4(T)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("H3-4(*T)"); !res)
+  if (auto res = manager.speciesId("H3-4(*T)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar2C(test)F4H3+4(test)"); !res)
+  if (auto res = manager.speciesId("Ar2C(test)F4H3+4(test)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar2C*F4H3+4(test)"); !res)
+  if (auto res = manager.speciesId("Ar2C*F4H3+4(test)"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar2CF4H3+4(test)lkasdf"); !res)
+  if (auto res = manager.speciesId("Ar2CF4H3+4(test)lkasdf"); !res)
     std::cout << res.error() << std::endl;
 
-  if (auto res = factory.speciesId("Ar2CF4H3+4ads(test)"); !res)
+  if (auto res = manager.speciesId("Ar2CF4H3+4ads(test)"); !res)
     std::cout << res.error() << std::endl;
 
-  for (const auto & s : factory.species())
+  for (const auto & s : manager.species())
   {
     std::cout << s.name() << " : " << s.id() << " : charge " << s.charge() << std::endl;
 
     for (const auto data : s.subSpeciesData())
-      std::cout << "  " << factory.species()[data.id].name() << ": " << data.sub_script
+      std::cout << "  " << manager.species()[data.id].name() << ": " << data.sub_script
                 << std::endl;
 
     std::cout << std::endl;

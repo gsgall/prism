@@ -8,23 +8,23 @@
 //* Copyright 2024, North Carolina State University
 //* ALL RIGHTS RESERVED
 //*
-#include "SpeciesFactory.h"
+#include "SpeciesManager.h"
+#include "StringHelper.h"
+#include "PrismErrorHelper.h"
+
 #include <algorithm>
 #include <cstdlib>
 #include <sstream>
-#include "StringHelper.h"
 #include <iomanip>
 #include <tuple>
-#include "PrismErrorHelper.h"
-#include "boost/outcome/success_failure.hpp"
 
 namespace prism
 {
 
-SpeciesFactory::SpeciesFactory() {}
+SpeciesManager::SpeciesManager() {}
 
-outcome::result<SpeciesId, std::string>
-SpeciesFactory::speciesId(const std::string & name)
+const outcome::result<SpeciesId, std::string>
+SpeciesManager::speciesId(const std::string & name) noexcept
 {
   const auto it = std::find_if(
       _species.begin(), _species.end(), [name](const Species & s) { return s.name() == name; });
@@ -43,49 +43,55 @@ SpeciesFactory::speciesId(const std::string & name)
 
   auto input_data = SpeciesInitialData();
   input_data.name = name;
-  if (const auto res = trimSpeciesModifier(name))
+  // base case where we have no modifier on the species object
+  // if there are only letters and there is only a single capital letter then we have a base case
+  // where we can create the species directly
+  if (findFirstNonLetter(name) == -1 && splitByCapital(name).size() == 1)
   {
-    input_data.modifier = std::get<1>(res.value());
-    input_data.charge = std::get<2>(res.value());
-    // base case to break the cyclic calling between this and decompose species
-    // we will check if there is an elemental name something like Ar or H i.e no numbers and no
-    // modifier
-    if (input_data.modifier.empty() && findFirstNonLetter(name) == -1)
-    {
-      input_data.id = _species.size();
-      const auto it = _masses.find(input_data.name);
-      if (it == _masses.end())
-      {
-        std::stringstream msg;
-        msg << "Unable to compute species mass. No mass available for sub species "
-            << std::quoted(input_data.name);
-        return outcome::failure(errorMessage(msg.str()));
-      }
-      _species.push_back(Species(input_data));
-      return input_data.id;
-    }
-    // other wise there is still some decomposition to be done
-    if (const auto res2 = decomposeSpecies(std::get<0>(res.value())))
-      input_data.sub_species_data = res2.value();
-    else
+    input_data.modifier = "";
+    input_data.charge = 0;
+    input_data.sub_species_data = {};
+    const auto it = _masses.find(input_data.name);
+    if (it == _masses.end())
     {
       std::stringstream msg;
-      msg << "Unable to decompose species " << std::quoted(name);
-      return outcome::failure(appendErrorMessage(res, msg.str()));
+      msg << "Unable to compute species mass. No mass available for sub species "
+          << std::quoted(input_data.name);
+      return outcome::failure(errorMessage(msg.str()));
     }
+    input_data.mass = it->second;
+    input_data.id = _species.size();
+    _species.push_back(Species(input_data));
+    return input_data.id;
   }
-  else
+
+  const auto res = trimSpeciesModifier(name);
+  if (!res)
   {
     std::stringstream msg;
     msg << "Unable to decompose species " << std::quoted(name);
     return outcome::failure(appendErrorMessage(res, msg.str()));
   }
 
-  input_data.id = _species.size();
   input_data.mass = 0;
+  input_data.modifier = std::get<1>(res.value());
+  input_data.charge = std::get<2>(res.value());
+
+  // other wise there is still some decomposition to be done
+  const auto res2 = decomposeSpecies(std::get<0>(res.value()));
+  if (!res2)
+  {
+    std::stringstream msg;
+    msg << "Unable to decompose species " << std::quoted(name);
+    return outcome::failure(appendErrorMessage(res, msg.str()));
+  }
+
+  input_data.sub_species_data = res2.value();
+  input_data.id = _species.size();
+
   for (const auto & sub_data : input_data.sub_species_data)
   {
-    input_data.mass += static_cast<double>(sub_data.sub_script) * _species[sub_data.id].mass();
+    input_data.mass += static_cast<double>(sub_data.sub_script) * _species[sub_data.id].molarMass();
   }
 
   // now change the mass by the mass of the electron for the charge state of the species
@@ -96,14 +102,14 @@ SpeciesFactory::speciesId(const std::string & name)
 }
 
 outcome::result<void, std::string>
-SpeciesFactory::checkName(const std::string & name) const noexcept
+SpeciesManager::checkName(const std::string & name) const noexcept
 {
   if (name.empty())
   {
     return outcome::failure("Species names must not be empty strings.");
   }
   std::stringstream err_msg;
-  if (name[0] == 'e' || name[0] == 'E')
+  if (name[0] == 'e' && name.length() > 1)
   {
     if (name.length() > 1)
     {
@@ -125,7 +131,7 @@ SpeciesFactory::checkName(const std::string & name) const noexcept
 }
 
 outcome::result<const std::vector<SubSpeciesData>, std::string>
-SpeciesFactory::decomposeSpecies(const std::string & name)
+SpeciesManager::decomposeSpecies(const std::string & name)
 {
   const auto potental_sub_names = splitByCapital(name);
 
@@ -134,18 +140,17 @@ SpeciesFactory::decomposeSpecies(const std::string & name)
   {
     auto & data = sub_data.emplace_back();
 
-    if (const auto res = speciesId(subSpeciesBase(sub_name)))
-    {
-      data.id = res.value();
-    }
-    else
+    const auto res = speciesId(subSpeciesBase(sub_name));
+    if (!res)
     {
       std::stringstream msg;
       msg << "Unable to get id of subspecies: " << std::quoted(subSpeciesBase(sub_name));
       return outcome::failure(appendErrorMessage(res, msg.str()));
     }
 
+    data.id = res.value();
     const auto num_idx = findFirstNumber(sub_name);
+
     if (num_idx == -1)
     {
       data.sub_script = 1;
@@ -158,7 +163,7 @@ SpeciesFactory::decomposeSpecies(const std::string & name)
 }
 
 std::string
-SpeciesFactory::subSpeciesBase(const std::string & name) const noexcept
+SpeciesManager::subSpeciesBase(const std::string & name) const noexcept
 {
   auto base_end = findFirstNonLetter(name);
   // case for no other modifiers
@@ -169,7 +174,7 @@ SpeciesFactory::subSpeciesBase(const std::string & name) const noexcept
 }
 
 outcome::result<std::tuple<std::string, std::string, int>, std::string>
-SpeciesFactory::trimSpeciesModifier(const std::string & name) const noexcept
+SpeciesManager::trimSpeciesModifier(const std::string & name) const noexcept
 {
   if (name.compare("hnu") == 0)
     return std::make_tuple(name, "", 0);
@@ -187,15 +192,16 @@ SpeciesFactory::trimSpeciesModifier(const std::string & name) const noexcept
 
   // we need to keep a copy of this for the sake of error messages later on
   const auto full_modifier = modifier;
+  const auto res = clearBalancedSymbols(modifier);
 
-  if (const auto res = clearBalancedSymbols(modifier); !res)
+  if (!res)
   {
     std::stringstream msg;
     msg << "Invalid modifier due to unbalanced symbols " << std::quoted(modifier);
     return outcome::failure(errorMessage(msg.str()));
   }
-  else
-    modifier = res.value();
+
+  modifier = res.value();
 
   // at this point if there are any letters in the modifer we know that we have come accross
   // a species modifer that is invlid. All text that is not a species name should be within some
@@ -246,7 +252,7 @@ SpeciesFactory::trimSpeciesModifier(const std::string & name) const noexcept
 }
 
 const std::vector<Species> &
-SpeciesFactory::species() const noexcept
+SpeciesManager::species() const noexcept
 {
   return _species;
 }

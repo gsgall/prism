@@ -7,6 +7,7 @@
 //* ALL RIGHTS RESERVED
 //*
 #include "Species.h"
+#include "PrismConstants.h"
 
 namespace prism
 {
@@ -32,8 +33,14 @@ Species::id() const noexcept
   return _id;
 }
 
-int
+double
 Species::charge() const noexcept
+{
+  return _charge * ELEMENTAL_CHARGE;
+}
+
+int
+Species::chargeNumber() const noexcept
 {
   return _charge;
 }
@@ -45,83 +52,13 @@ Species::subSpeciesData() const noexcept
 }
 
 double
-Species::mass() const noexcept
+Species::molarMass() const noexcept
 {
   return _mass;
 }
 
 }
 
-// const vector<SubSpecies>
-// Species::decomposeSpecies()
-//{
-//  vector<string> temp_parts = splitByCapital(_name);
-//  vector<string> parts;
-//  for (auto part : temp_parts)
-//  {
-//    if (parts.size() == 0)
-//    {
-//      parts.push_back(part);
-//      continue;
-//    }
-//    // if the last character of the most recently added part contains '(' but no closing
-//    // paranthesis then we need to check to see if the last character of this next part is ')'
-//    // this way we consider everything in the () to be a modifier even if it contains a capital
-//    // letter example case of this is Ar(S) or even Ar(aas2d3S)
-//    if ((parts.back().find("(") != string::npos && parts.back().find(")") == string::npos) &&
-//        part.back() == ')')
-//    {
-//      // get the last element
-//      auto temp_part = parts.back();
-//      // remove the element from the list
-//      parts.pop_back();
-//      // combine the current part and the previously added part
-//      temp_part += part;
-//      // add it back to the vector
-//      parts.push_back(temp_part);
-//      continue;
-//    }
-//
-//    parts.push_back(part);
-//  }
-//
-//  vector<SubSpecies> sub_sp;
-//
-//  for (auto part : parts)
-//    sub_sp.push_back(SubSpecies(part));
-//
-//  return sub_sp;
-//}
-//
-// void
-// Species::setMass()
-//{
-//  float total_mass = 0;
-//  for (SubSpecies s : _sub_species)
-//    total_mass += s.molarMass();
-//  _molar_mass = total_mass;
-//  _mass = 1e-3 * total_mass / N_A;
-//}
-//
-// void
-// Species::setCharge()
-//{
-//  int total_num = 0;
-//  for (SubSpecies s : _sub_species)
-//    total_num += s.chargeNumber();
-//  _charge_num = total_num;
-//  _charge = _charge_num * ELEMENTAL_CHARGE;
-//}
-//
-// void
-// Species::setLatexName()
-//{
-//  string total_name = "";
-//  for (SubSpecies s : _sub_species)
-//    total_name += s.latexRepresentation();
-//  _latex_name = total_name;
-//}
-//
 // bool
 // Species::operator==(const Species & other) const
 //{
@@ -149,27 +86,7 @@ Species::mass() const noexcept
 //{
 //  return !(*this == other);
 //}
-//
-// const std::vector<shared_ptr<const Reaction>>
-// Species::convertToSharedPtr(const std::vector<std::weak_ptr<const Reaction>> & vec) const
-//{
-//  vector<shared_ptr<const Reaction>> temp_list;
-//  for (auto r_wp : vec)
-//    temp_list.push_back(r_wp.lock());
-//
-//  return temp_list;
-//}
-//
-// void
-// Species::setNeutralGroundState()
-//{
-//  string temp = "";
-//  for (auto sub : _sub_species)
-//    temp += sub.neutralGroundState();
-//
-//  _neutral_ground_state = temp;
-//}
-//
+
 // string
 // Species::to_string() const
 //{
@@ -193,7 +110,7 @@ Species::mass() const noexcept
 //  string_rep << endl;
 //  return string_rep.str();
 //}
-//
+
 // string
 // to_string(const std::shared_ptr<prism::Species> & s)
 //{
