@@ -24,6 +24,9 @@ TEST(SpeciesManager, ValidSpeciesNames)
   EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(test)"));
   EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(T)"));
   EXPECT_TRUE(manager.speciesId("H3-4(*T)"));
+  EXPECT_TRUE(manager.speciesId("e"));
+  EXPECT_TRUE(manager.speciesId("E"));
+  EXPECT_TRUE(manager.speciesId("hnu"));
 }
 
 TEST(SpeciesManager, InvalidSpeciesNames)

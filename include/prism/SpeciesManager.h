@@ -39,7 +39,8 @@ public:
    * @returns A result object which contains the id if it was able to be created or an error
    * message if it was not able to be created
    */
-  const outcome::result<SpeciesId, std::string> speciesId(const std::string & name) noexcept;
+  const outcome::result<const SpeciesId, const std::string>
+  speciesId(const std::string & name) noexcept;
 
   const std::vector<Species> & species() const noexcept;
 

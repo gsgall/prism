@@ -145,76 +145,52 @@
 //   }
 //   return EXIT_SUCCESS;
 // }
+//
+#include "include/prism/PrismTypes.h"
+
 #include <cstdlib>
-#include <iterator>
-#include <vector>
 #include <iostream>
 #include "prism/SpeciesManager.h"
+#include "prism/ReactionManager.h"
+
+void
+tryReaction(prism::ReactionManager & manager, const std::string & equation)
+{
+
+  auto res = manager.reactionId(equation);
+
+  if (!res)
+  {
+    std::cerr << res.error() << std::endl;
+    return;
+  }
+
+  const auto rxn = manager.reactions()[res.value()];
+  std::cout << res.value() << " : " << rxn.equation() << std::endl;
+
+  std::cout << "  Reactants" << std::endl;
+  for (const auto & r : rxn.reactants())
+  {
+    std::cout << "    " << r.id << " : " << r.occurances << std::endl;
+  }
+  std::cout << "  Products" << std::endl;
+  for (const auto & r : rxn.products())
+  {
+    std::cout << "    " << r.id << " : " << r.occurances << std::endl;
+  }
+}
+
 int
 main()
 {
+  auto species_manager = prism::SpeciesManager();
+  auto reaction_manager = prism::ReactionManager(species_manager);
 
-  auto manager = prism::SpeciesManager();
+  tryReaction(reaction_manager, "Ar + e -> Ar + e");
+  tryReaction(reaction_manager, "Ar + Ar -> Ar + Ar");
+  tryReaction(reaction_manager, "2Ar -> Ar + Ar");
+  tryReaction(reaction_manager, "2Ar -> 2Ar");
+  tryReaction(reaction_manager, "Ar + Ar -> 2Ar");
 
-  if (auto res = manager.speciesId("Ar"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar(alpha)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar(A"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar2(AAAA)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar*(A)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar*(2A*)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar*(2A*)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("H3+4(test)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar2CF4H3+4(test)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar2CF4H3+4*T"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar2CF4H3+4(T)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("H3-4(*T)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar2C(test)F4H3+4(test)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar2C*F4H3+4(test)"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar2CF4H3+4(test)lkasdf"); !res)
-    std::cout << res.error() << std::endl;
-
-  if (auto res = manager.speciesId("Ar2CF4H3+4ads(test)"); !res)
-    std::cout << res.error() << std::endl;
-
-  for (const auto & s : manager.species())
-  {
-    std::cout << s.name() << " : " << s.id() << " : charge " << s.charge() << std::endl;
-
-    for (const auto data : s.subSpeciesData())
-      std::cout << "  " << manager.species()[data.id].name() << ": " << data.sub_script
-                << std::endl;
-
-    std::cout << std::endl;
-  }
-  //
-  // Species s = Species("Ar2CF4H3+4(test)");
   return EXIT_SUCCESS;
 }

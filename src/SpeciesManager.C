@@ -11,9 +11,12 @@
 #include "SpeciesManager.h"
 #include "StringHelper.h"
 #include "PrismErrorHelper.h"
+#include "boost/outcome/success_failure.hpp"
 
 #include <algorithm>
 #include <cstdlib>
+#include <exception>
+#include <locale>
 #include <sstream>
 #include <iomanip>
 #include <tuple>
@@ -23,7 +26,7 @@ namespace prism
 
 SpeciesManager::SpeciesManager() {}
 
-const outcome::result<SpeciesId, std::string>
+const outcome::result<const SpeciesId, const std::string>
 SpeciesManager::speciesId(const std::string & name) noexcept
 {
   const auto it = std::find_if(
@@ -61,7 +64,7 @@ SpeciesManager::speciesId(const std::string & name) noexcept
     }
     input_data.mass = it->second;
     input_data.id = _species.size();
-    _species.push_back(Species(input_data));
+    _species.emplace_back(input_data);
     return input_data.id;
   }
 
@@ -96,7 +99,7 @@ SpeciesManager::speciesId(const std::string & name) noexcept
 
   // now change the mass by the mass of the electron for the charge state of the species
   input_data.mass -= static_cast<double>(input_data.charge) * _masses["e"];
-  _species.push_back(Species(input_data));
+  _species.emplace_back(input_data);
 
   return input_data.id;
 }
@@ -119,7 +122,7 @@ SpeciesManager::checkName(const std::string & name) const noexcept
   }
   else
   {
-    if (name != "hnu" && findFirstCapital(name) == -1)
+    if (name != "e" && name != "hnu" && findFirstCapital(name) == -1)
     {
       err_msg << "Species: " << std::quoted(name);
       err_msg << ": Heavy species names must be capitalized.";
@@ -157,7 +160,18 @@ SpeciesManager::decomposeSpecies(const std::string & name)
       continue;
     }
 
-    data.sub_script = std::stoi(sub_name.substr(num_idx, sub_name.length()));
+    try
+    {
+      data.sub_script = std::stoi(sub_name.substr(num_idx, sub_name.length()));
+    }
+    catch (const std::exception & e)
+    {
+      std::stringstream msg;
+      msg << "Unable to parse species subscript "
+          << std::quoted(sub_name.substr(num_idx, sub_name.length())) << ". ";
+      msg << e.what();
+      return outcome::failure(errorMessage(msg.str()));
+    }
   }
   return sub_data;
 }
@@ -230,7 +244,19 @@ SpeciesManager::trimSpeciesModifier(const std::string & name) const noexcept
     const auto charge_end = findFirstNonNumber(modifier);
     if (charge_end != -1)
     {
-      charge *= std::stoi(modifier.substr(0, charge_end));
+      try
+      {
+        charge *= std::stoi(modifier.substr(0, charge_end));
+      }
+      catch (const std::exception & e)
+      {
+        std::stringstream msg;
+        msg << "Unable to parse species charge " << std::quoted(modifier.substr(0, charge_end))
+            << ". ";
+        msg << e.what();
+        return outcome::failure(msg.str());
+      }
+
       modifier = modifier.substr(charge_end, modifier.length());
     }
   }

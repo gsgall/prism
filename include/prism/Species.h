@@ -17,38 +17,6 @@ namespace prism
 {
 
 /**
- * Struct for a quick way to access which reactions the species is in
- * Since we keep track of rate_based and xsec_based reactions seperately
- * there will be two sets of ids
- * a set of ids from 0-(n-1) for rate-based reactions (corrisponding to their index in the)
- * vector you can get from rateBasedReactions
- * the same is true for cross section based reactions
- */
-struct ReactionData
-{
-  /// the id of a given reaction that this species is a part of
-  ReactionId id;
-  /// the species stoichiometry for the species in the reaction
-  /// with the prescribed if
-  int stoic_coeff;
-};
-
-struct SubSpeciesData
-{
-  SpeciesId id;
-  unsigned int sub_script;
-};
-
-struct SpeciesInitialData
-{
-  SpeciesId id;
-  int charge;
-  double mass;
-  std::string name;
-  std::string modifier;
-  std::vector<SubSpeciesData> sub_species_data;
-};
-/**
  * The species object which represents the products
  * and reactants in the reaction
  */
