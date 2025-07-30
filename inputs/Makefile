@@ -1,0 +1,46 @@
+WARNING_FLAGS = -Wall -Wextra -Wpedantic -Werror 
+CXXFLAGS = -std=c++17 $(WARNING_FLAGS) -g
+# Source file and executable name
+SRC = main.C
+EXE = main
+
+PROJECT = inputs
+# Directories
+SRCDIR = src
+INCDIR = include
+BUILDDIR = build
+
+# Source and header files
+SOURCES = $(wildcard $(SRCDIR)/*.C)
+HEADERS = $(wildcard $(INCDIR)/*.h)
+OBJECTS = $(patsubst $(SRCDIR)/%.C,$(BUILDDIR)/%.o,$(SOURCES))
+
+# adding include to look in the conda environment
+INCLUDE_PATH = -isystem$(CONDA_PREFIX)/include
+# link instructions to look in the conda environment
+LIBRARY_PATH = -L$(CONDA_PREFIX)/lib
+
+YAML_LINK = -lyaml-cpp
+
+LINKS = $(YAML_LINK) 
+
+# build both reaction parser and yaml library
+all: $(EXE)
+
+# build just the reaction parser
+$(EXE): $(OBJECTS)
+	@echo "Building $(EXE)"
+	@$(CXX) -B$(CONDA_PREFIX)/bin $(CXXFLAGS) $(INCLUDE_PATH) $(LIBRARY_PATH) -I$(INCDIR) $(OBJECTS) $(SRC) -o $(EXE) $(LINKS) -Wl,-rpath,$(CONDA_PREFIX)/lib
+	@echo "$(EXE) built successfully!"
+
+# build all of the source files for the parser
+$(BUILDDIR)/%.o: $(SRCDIR)/%.C
+	@mkdir -p $(@D)
+	@echo "Building $<"
+	@$(CXX) $(CXXFLAGS) -I$(INCDIR)/$(PROJECT) $(INCLUDE_PATH) -c $< -o $@
+	@echo "$< built successfully"
+# clean up the parser
+clean:
+	@rm -rf *.dSYM
+	@rm -f $(EXE)
+	@rm  -rf build
