@@ -1,34 +1,33 @@
 //* This file is a part of PRISM: Plasma Reaction Input SysteM,
 //* A library for parcing chemical reaction networks for plasma chemistry
-//* https://github.com/NCSU-ComPS-Group/prism
-//*
+//* https://github.com/NCSU-ComPS-Group/prism *
 //* Licensed under MIT, please see LICENSE for details
 //* https://opensource.org/license/mit
 //*
 //* Copyright 2024, North Carolina State University
 //* ALL RIGHTS RESERVED
 //*
-#include <cstdlib>
-#include <exception>
-#include <iostream>
-#include <stdlib.h>
+#include <boost/outcome/success_failure.hpp>
 
+#include "inputs/InputParameters.h"
+#include <iostream>
+#include "inputs/ParamMacros.h"
 #include "yaml-cpp/yaml.h"
-#include "inputs/Parameter.h"
+#include <vector>
 int
 main()
 {
   YAML::Node node;
-  node["test"] = YAML::Load("[1, 2, 3, 4]");
+  node["test"] = YAML::Load("[-1]");
 
-  auto param =
-      std::make_unique<inputs::ParameterBase>(inputs::Parameter<std::string>("test", "", true));
-
-  auto res = param->validate(node);
-  if (!res)
-    std::cout << res.error() << std::endl;
-  else
-    std::cout << "Parsing Success!" << std::endl;
+  node.as<std::vector<unsigned int>>();
+  //  auto params = inputs::InputParameters();
+  //
+  //  addRequiredParam("test", "this does something", params, unsigned int);
+  //  std::cout << params.getParam<unsigned int>("test") << std::endl;
+  //  params.addParam<int>("test", 0, "this does something");
+  //  params.addRequiredParam<unsigned int>("another", "this does something else");
+  //  params.addParam<unsigned int>("test", 0, "this does something");
 
   return EXIT_SUCCESS;
 }
