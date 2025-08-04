@@ -1,6 +1,6 @@
 //* This file is a part of PRISM: Plasma Reaction Input SysteM,
-//* A library for parcing chemical reaction networks for plasma chemistry
-//* https://github.com/NCSU-ComPS-Group/prism
+//* A library for parcing chemical reaction networks for plasma chemistry *
+// https://github.com/NCSU-ComPS-Group/prism
 //*
 //* Licensed under MIT, please see LICENSE for details
 //* https://opensource.org/license/mit
@@ -28,9 +28,9 @@ class InputParameters
 public:
   InputParameters();
 
+  const std::vector<std::unique_ptr<InputParameters>> & subBlocks(const std::string & name) const
+      noexcept(false);
   void addRepeatedSubBlock(const std::string & name, InputParameters & params);
-
-  void addSubBlock(const std::string & name, InputParameters & params);
 
   void addDescription(const std::string & description) noexcept;
 
@@ -151,9 +151,12 @@ public:
     }
   }
 
+  std::unique_ptr<InputParameters> cloneTemplate() const noexcept;
+
 private:
-  bool _allow_multiple_subblocks;
-  std::vector<std::shared_ptr<InputParameters>> _sub_block;
+  std::unordered_map<std::string, std::unique_ptr<InputParameters>> _sub_block_templates;
+
+  std::unordered_map<std::string, std::vector<std::unique_ptr<InputParameters>>> _sub_blocks;
   /// a description for the purpose of these input parameters
   std::string _description;
   std::unordered_map<std::string, std::unique_ptr<ParameterBase>> _params;

@@ -170,7 +170,7 @@ Parameter<T>::setFromNode(const YAML::Node & node) noexcept
     msg << "Parameter " << std::quoted(_name) << " with contents \"" << node[_name]
         << "\" is invalid.";
     msg << " Could not parse as type " << std::quoted(utils::typeName<T>()) << std::endl;
-    return outcome::failure(errorMessage(msg.str()) + "\n" + e.what());
+    return outcome::failure(errorMessage(msg.str()) + "\n");
   }
 
   // We still need to check for duplicate keys in map types since yaml-cpp does not
