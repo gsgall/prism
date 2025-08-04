@@ -20,16 +20,23 @@
 int
 main()
 {
-  std::unique_ptr<inputs::ParameterBase> param = std::make_unique<inputs::Parameter<int>>(
-      "test", 1, "this parameter does something", [](const int &) { return outcome::success(); });
+  std::unique_ptr<inputs::ParameterBase> param = std::make_unique<inputs::Parameter<unsigned int>>(
+      "test",
+      1,
+      "this parameter does something",
+      [](const unsigned int &) { return outcome::success(); });
 
-  YAML::Node node;
-  node["test"] = 1;
+  const auto res = param->set((unsigned int)(1));
 
-  const auto res = param->setFromNode(node);
   if (!res)
     std::cout << res.error() << std::endl;
 
+  const auto res2 = param->value();
+
+  if (!res2)
+    std::cout << res2.error() << std::endl;
+
+  //  std::cout << std::any_cast<int>(param2->value()) << std::endl;
   //  YAML::Node nodes = YAML::LoadFile("test.yaml");
   //
   //  //  for (const auto & node : nodes["latex-overrides"])

@@ -134,7 +134,7 @@ Parameter<T>::set(std::any value) noexcept
 {
   try
   {
-    std::any_cast<T>(value);
+    _value = std::any_cast<T>(value);
     return outcome::success();
   }
   catch (const std::bad_any_cast & e)

@@ -60,4 +60,9 @@ TEST(ParameterTest, SettingValue)
   EXPECT_FALSE(param->set("this is a string"));
   EXPECT_FALSE(param->set(std::vector<int>({1, 2, 3})));
   EXPECT_TRUE(param->set((unsigned int)(1)));
+
+  const auto res = param->value();
+
+  EXPECT_TRUE(res) << res.error();
+  //  EXPECT_EQ(std::any_cast<unsigned int>(res.value()), (unsigned int)(1));
 }
