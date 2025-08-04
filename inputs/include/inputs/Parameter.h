@@ -11,6 +11,7 @@
 #pragma once
 
 #include <any>
+#include <memory>
 #include <optional>
 #include <string>
 
@@ -31,8 +32,9 @@ class ParameterBase
 public:
   virtual ~ParameterBase() = default;
 
-  const outcome::result<void, std::string> set(std::any value) noexcept;
-  const outcome::result<void, std::string> setFromNode(const YAML::Node & node) noexcept;
+  virtual const outcome::result<void, std::string> set(std::any value) noexcept = 0;
+  virtual const outcome::result<void, std::string>
+  setFromNode(const YAML::Node & node) noexcept = 0;
 
   bool required() const noexcept;
   const std::string & name() const noexcept;
@@ -42,6 +44,12 @@ public:
   const std::string & function() const noexcept;
   int lineNumber() const noexcept;
   const outcome::result<std::any, std::string> value() const noexcept;
+
+  /**
+   * Method for copying all of the member variables into the new parameter except for the _value
+   * member variable
+   */
+  virtual std::unique_ptr<ParameterBase> cloneTemplate() const noexcept = 0;
 
 protected:
   ParameterBase(const std::string & name,
@@ -58,9 +66,6 @@ protected:
   const int _line_number;
   std::optional<std::any> _value;
   std::optional<std::any> _default_value;
-
-  std::function<const outcome::result<void, std::string>(const std::any)> _setter_validator;
-  std::function<const outcome::result<std::any, std::string>(const YAML::Node &)> _type_validater;
   std::function<const outcome::result<void, std::string>(const std::any &)> _additional_validater;
 };
 
@@ -75,5 +80,10 @@ public:
             const std::string & file = "",
             const std::string & function = "",
             const int line_number = -1);
+
+  virtual std::unique_ptr<ParameterBase> cloneTemplate() const noexcept override;
+  virtual const outcome::result<void, std::string> set(std::any value) noexcept override;
+  virtual const outcome::result<void, std::string>
+  setFromNode(const YAML::Node & node) noexcept override;
 };
 }

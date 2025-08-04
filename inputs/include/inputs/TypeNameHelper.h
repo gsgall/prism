@@ -12,11 +12,19 @@
 
 #include <string>
 
+namespace YAML
+{
+class Node;
+}
+
 namespace inputs
 {
 namespace utils
 {
 template <typename T>
 std::string typeName();
+
+const std::string getNodeTypeString(const YAML::Node & node) noexcept;
+
 }
 }

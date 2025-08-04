@@ -6,18 +6,19 @@
 
 TEST(ParameterTest, BasicGetters)
 {
-  auto param = std::make_unique<inputs::ParameterBase>(
-      inputs::Parameter<int>("test",
-                             "this parameter does something",
-                             std::nullopt,
-                             [](const int &) { return outcome::success(); }));
+  std::unique_ptr<inputs::ParameterBase> param =
+      std::make_unique<inputs::Parameter<int>>("test",
+                                               std::nullopt,
+                                               "this parameter does something",
+                                               [](const int &) { return outcome::success(); });
 
   EXPECT_EQ(param->name(), "test");
   EXPECT_EQ(param->description(), "this parameter does something");
   EXPECT_TRUE(param->required());
 
-  param = std::make_unique<inputs::ParameterBase>(inputs::Parameter<int>(
-      "test", "this parameter does something", 1, [](const int &) { return outcome::success(); }));
+  param = std::make_unique<inputs::Parameter<int>>(
+      "test", 1, "this parameter does something", [](const int &) { return outcome::success(); });
+
   EXPECT_EQ(param->name(), "test");
   EXPECT_EQ(param->description(), "this parameter does something");
   EXPECT_FALSE(param->required());
@@ -37,23 +38,23 @@ TEST(ParameterTest, InvalidMap)
   YAML::Node node;
   node["test"] = YAML::Load("{A: 1, A:2}");
 
-  auto param = std::make_unique<inputs::ParameterBase>(
-      inputs::Parameter<std::unordered_map<std::string, double>>(
+  std::unique_ptr<inputs::ParameterBase> param =
+      std::make_unique<inputs::Parameter<std::unordered_map<std::string, double>>>(
           "test",
-          "this parameter does something",
           std::nullopt,
-          [](const std::unordered_map<std::string, double> &) { return outcome::success(); }));
+          "this parameter does something",
+          [](const std::unordered_map<std::string, double> &) { return outcome::success(); });
 
   EXPECT_FALSE(param->setFromNode(node));
 }
 
 TEST(ParameterTest, SettingValue)
 {
-  auto param = std::make_unique<inputs::ParameterBase>(
-      inputs::Parameter<unsigned int>("test",
-                                      "this parameter does something",
-                                      std::nullopt,
-                                      [](const unsigned int &) { return outcome::success(); }));
+  std::unique_ptr<inputs::ParameterBase> param = std::make_unique<inputs::Parameter<unsigned int>>(
+      "test",
+      std::nullopt,
+      "this parameter does something",
+      [](const unsigned int &) { return outcome::success(); });
 
   EXPECT_FALSE(param->set(int(1)));
   EXPECT_FALSE(param->set("this is a string"));

@@ -7,27 +7,59 @@
 //* Copyright 2024, North Carolina State University
 //* ALL RIGHTS RESERVED
 //*
+#include <algorithm>
 #include <boost/outcome/success_failure.hpp>
 
+#include "inputs/Parameter.h"
 #include "inputs/InputParameters.h"
-#include <iostream>
-#include "inputs/ParamMacros.h"
 #include "yaml-cpp/yaml.h"
+#include <iostream>
 #include <vector>
+#include <yaml-cpp/node/parse.h>
+#include <any>
 int
 main()
 {
-  YAML::Node node;
-  node["test"] = YAML::Load("[-1]");
+  std::unique_ptr<inputs::ParameterBase> param = std::make_unique<inputs::Parameter<int>>(
+      "test", 1, "this parameter does something", [](const int &) { return outcome::success(); });
 
-  node.as<std::vector<unsigned int>>();
+  YAML::Node node;
+  node["test"] = 1;
+
+  const auto res = param->setFromNode(node);
+  if (!res)
+    std::cout << res.error() << std::endl;
+
+  //  YAML::Node nodes = YAML::LoadFile("test.yaml");
+  //
+  //  //  for (const auto & node : nodes["latex-overrides"])
+  //  //    std::cout << node << std::endl << std::endl;
+  //  //  std::cout << nodes["latex-overrides"] << std::endl;
+  //
   //  auto params = inputs::InputParameters();
   //
-  //  addRequiredParam("test", "this does something", params, unsigned int);
-  //  std::cout << params.getParam<unsigned int>("test") << std::endl;
-  //  params.addParam<int>("test", 0, "this does something");
-  //  params.addRequiredParam<unsigned int>("another", "this does something else");
-  //  params.addParam<unsigned int>("test", 0, "this does something");
+  //  addRequiredParam("species", "", params, std::vector<std::string>);
+  //    addRequiredParam("bibliography",
+  //                     "The file that contains the bibtex references for the
+  //                     mechanism", params, std::string);
+  //
+  //  addParam("data-path",
+  //           "./",
+  //           "The path to the folder where any input data for the mechanism is
+  //           placed", params, std::string);
+  //
+  //  addParam("data-delimiter",
+  //           ",",
+  //           "The tokens which seperate the columns in any data files
+  //           provided", params, std::string);
+  //
+  //  addParam("constant-species",
+  //           {},
+  //           "A list of species in the mechanism which are in the reaction
+  //           mechanism but do not " "evolve over time", params,
+  //           std::vector<std::string>);
+
+  //  params.readFromNodes(nodes["latex-overrides"]);
 
   return EXIT_SUCCESS;
 }

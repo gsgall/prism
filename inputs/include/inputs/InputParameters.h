@@ -11,20 +11,32 @@
 #pragma once
 
 #include "TypeNameHelper.h"
-#include "unordered_map"
+#include <unordered_map>
 #include <any>
 #include <iomanip>
 #include <memory>
 #include <stdexcept>
 #include "Parameter.h"
 #include "InputErrorHelper.h"
+
 namespace inputs
 {
 
 class InputParameters
 {
+
 public:
   InputParameters();
+
+  void addRepeatedSubBlock(const std::string & name, InputParameters & params);
+
+  void addSubBlock(const std::string & name, InputParameters & params);
+
+  void addDescription(const std::string & description) noexcept;
+
+  const std::string & description() const noexcept;
+
+  void readFromNodes(const YAML::Node & node) noexcept(false);
 
   template <typename T>
   void
@@ -37,8 +49,8 @@ public:
   {
     duplicateParamChecker(name);
 
-    _params[name] = std::make_unique<ParameterBase>(
-        Parameter<T>(name, std::nullopt, description, validator, file, function, line_number));
+    _params[name] = std::make_unique<Parameter<T>>(
+        name, std::nullopt, description, validator, file, function, line_number);
   }
 
   template <typename T>
@@ -68,8 +80,8 @@ public:
   {
     duplicateParamChecker(name);
 
-    _params[name] = std::make_unique<ParameterBase>(
-        Parameter<T>(name, default_value, description, validator, file, function, line_number));
+    _params[name] = std::make_unique<Parameter<T>>(
+        name, default_value, description, validator, file, function, line_number);
   }
 
   template <typename T>
@@ -114,7 +126,7 @@ public:
 
     if (_params.count(name) == 0)
     {
-      throw std::invalid_argument(error_message());
+      throw std::invalid_argument("\n" + errorMessage(error_message()));
     }
     const auto res = _params.at(name)->value();
     if (!res)
@@ -140,8 +152,13 @@ public:
   }
 
 private:
-  void duplicateParamChecker(const std::string & name) const noexcept(false);
+  bool _allow_multiple_subblocks;
+  std::vector<std::shared_ptr<InputParameters>> _sub_block;
+  /// a description for the purpose of these input parameters
+  std::string _description;
   std::unordered_map<std::string, std::unique_ptr<ParameterBase>> _params;
+
+  void duplicateParamChecker(const std::string & name) const noexcept(false);
 };
 
 }

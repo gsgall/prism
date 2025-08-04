@@ -10,6 +10,8 @@
 //*
 #include "TypeNameHelper.h"
 #include <unordered_map>
+#include <yaml-cpp/node/node.h>
+#include <yaml-cpp/node/type.h>
 
 namespace inputs
 {
@@ -87,5 +89,25 @@ template std::string typeName<std::unordered_map<std::string, int>>();
 template std::string typeName<std::unordered_map<std::string, unsigned int>>();
 template std::string typeName<std::unordered_map<std::string, double>>();
 template std::string typeName<std::unordered_map<std::string, std::string>>();
+
+const std::string
+getNodeTypeString(const YAML::Node & node) noexcept
+{
+  switch (node.Type())
+  {
+    case YAML::NodeType::Null:
+      return "Null";
+    case YAML::NodeType::Scalar:
+      return "Scalar";
+    case YAML::NodeType::Sequence:
+      return "Sequence";
+    case YAML::NodeType::Map:
+      return "Map";
+    case YAML::NodeType::Undefined:
+      return "Undefined";
+    default:
+      return "Unknown";
+  }
+}
 }
 }
