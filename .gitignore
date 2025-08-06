@@ -12,9 +12,6 @@ linux*
 osx*
 win*
 *.bak
-*.yaml
-*.yml
-*.tex
 *.vscode
 *.so
 *.out

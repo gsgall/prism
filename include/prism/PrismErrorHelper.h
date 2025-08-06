@@ -11,7 +11,7 @@
  * @returns a new string with the previous error string appended below the new message
  */
 #define appendErrorMessage(result, message)                                                        \
-  errorWithContext(message, __FILE__, __LINE__, __PRETTY_FUNCTION__) + "\n" + result.error()
+  errorWithContext(message, __FILE__, __LINE__, __FUNCTION__) + "\n" + result.error()
 
 /**
  * Adds additional context to the error message it will add
@@ -21,7 +21,7 @@
  * @param message a string which contains a new error message to add additional context
  * @returns a new string with the previous error string appended below the new message
  */
-#define errorMessage(message) errorWithContext(message, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#define errorMessage(message) errorWithContext(message, __FILE__, __LINE__, __FUNCTION__)
 
 const std::string
 errorWithContext(const std::string & message, const char * file, int line, const char * function);

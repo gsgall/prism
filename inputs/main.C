@@ -1,11 +1,11 @@
 //* This file is a part of PRISM: Plasma Reaction Input SysteM,
-//* A library for parcing chemical reaction networks for plasma chemistry
-//* https://github.com/NCSU-ComPS-Group/prism * * Licensed under MIT, please see LICENSE for details
+//* A library for parcing chemical reaction networks for plasma chemistry *
+// https://github.com/NCSU-ComPS-Group/prism * * Licensed under MIT, please see LICENSE for details
 //* https://opensource.org/license/mit
 //*
 //* Copyright 2024, North Carolina State University
 //* ALL RIGHTS RESERVED
-//*
+
 #include <algorithm>
 #include <boost/outcome/success_failure.hpp>
 
@@ -14,6 +14,7 @@
 #include "yaml-cpp/yaml.h"
 #include <iostream>
 #include <stdexcept>
+#include <unordered_map>
 #include <vector>
 #include <yaml-cpp/exceptions.h>
 #include <yaml-cpp/node/parse.h>
@@ -26,10 +27,6 @@ main()
 
   YAML::Node nodes = YAML::LoadFile("test.yaml");
 
-  //  for (const auto & node : nodes["latex-overrides"])
-  //    std::cout << node << std::endl << std::endl;
-  //  std::cout << nodes["latex-overrides"] << std::endl;
-
   auto params = inputs::InputParameters();
 
   addRequiredCheckedParam(
@@ -41,6 +38,7 @@ main()
                   << std::endl
                   << std::endl;
         return outcome::success();
+        //        return outcome::failure("Invalid file");
       },
       params,
       std::string);
@@ -69,54 +67,75 @@ main()
                                                       "the species that needs a latex override");
   override.addRequiredParam<std::vector<std::string>>("latex",
                                                       "the latex representation for the species");
-  params.addRepeatedSubBlock("latex-overrides", override);
+  params.addRepeatedBlock("latex-overrides", override);
 
   auto lumped = inputs::InputParameters();
   lumped.addRequiredParam<std::string>("lumped", "the lumped state for the species");
   lumped.addRequiredParam<std::vector<std::string>>(
       "actual", "the actual states which are being lumped together");
-  params.addRepeatedSubBlock("lumped-species", lumped);
+  params.addRepeatedBlock("lumped-species", lumped);
 
+  auto rxn_base = inputs::InputParameters();
+  rxn_base.addRequiredParam<std::string>("reaction", "The chemical reaction to be parsed.");
+
+  rxn_base.addParam<std::vector<std::string>>(
+      "notes", {}, "Any notes for things that are important to know about the reaction.");
+
+  rxn_base.addRequiredParam<std::vector<std::string>>(
+      "references", "A list of bibtex keys for the sources where the reaction data came from.");
+
+  auto rxn_constant = rxn_base;
+
+  rxn_constant.addRequiredParam<double>("rate",
+                                        "The constant rate that the reaction is occuring at");
+
+  auto rxn_arr = rxn_base;
+
+  rxn_arr.addRequiredParam<std::unordered_map<std::string, double>>(
+      "params", "Coefficients for an arrhenius reaction type equation");
+
+  params.addRepeatedTypedBlock("rate-based", "constant", rxn_constant);
+  params.addRepeatedTypedBlock("rate-based", "arrhenius", rxn_arr);
   params.readFromNodes(nodes);
-
-  std::cout << "Printing the inputs " << std::endl << std::endl;
-
-  std::cout << "bibliography: " << params.getParam<std::string>("bibliography") << std::endl;
-  std::cout << "data-path: " << params.getParam<std::string>("data-path") << std::endl;
-  std::cout << "data-delimiter: " << params.getParam<std::string>("data-delimiter") << std::endl;
-
-  std::cout << "constant-species: " << std::endl;
-  for (const auto & cs : params.getParam<std::vector<std::string>>("constant-species"))
-    std::cout << "  " << cs << std::endl;
-
-  std::cout << "latex-overrides: " << std::endl;
-  for (const auto & op : params.subBlocks("latex-overrides"))
-  {
-    std::cout << "  species: ";
-    for (const auto & sp : op->getParam<std::vector<std::string>>("species"))
-    {
-      std::cout << sp << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "  latex: ";
-    for (const auto & sp : op->getParam<std::vector<std::string>>("latex"))
-    {
-      std::cout << sp << " ";
-    }
-    std::cout << std::endl;
-  }
-
-  std::cout << "lumped-species: " << std::endl;
-  for (const auto & ls : params.subBlocks("lumped-species"))
-  {
-    std::cout << "  lumped: " << ls->getParam<std::string>("lumped") << std::endl;
-    std::cout << "  actual: ";
-    for (const auto & a : ls->getParam<std::vector<std::string>>("actual"))
-    {
-      std::cout << a << " ";
-    }
-    std::cout << std::endl;
-  }
-
+  // params.addRepeatedSubBlock("latex-overrides", override);
+  //   std::cout << "Printing the inputs " << std::endl << std::endl;
+  //   std::cout << "bibliography: " << params.getParam<std::string>("bibliography") <<
+  //   std::endl; std::cout << "data-path: " << params.getParam<std::string>("data-path") <<
+  //   std::endl; std::cout << "data-delimiter: " <<
+  //   params.getParam<std::string>("data-delimiter") << std::endl;
+  //
+  //   std::cout << "constant-species: " << std::endl;
+  //   for (const auto & cs : params.getParam<std::vector<std::string>>("constant-species"))
+  //     std::cout << "  " << cs << std::endl;
+  //
+  //   std::cout << "latex-overrides: " << std::endl;
+  //   for (const auto & op : params.subBlocks("latex-overrides"))
+  //   {
+  //     std::cout << "  species: ";
+  //     for (const auto & sp : op->getParam<std::vector<std::string>>("species"))
+  //     {
+  //       std::cout << sp << " ";
+  //     }
+  //     std::cout << std::endl;
+  //     std::cout << "  latex: ";
+  //     for (const auto & sp : op->getParam<std::vector<std::string>>("latex"))
+  //     {
+  //       std::cout << sp << " ";
+  //     }
+  //     std::cout << std::endl;
+  //   }
+  //
+  //   std::cout << "lumped-species: " << std::endl;
+  //   for (const auto & ls : params.subBlocks("lumped-species"))
+  //   {
+  //     std::cout << "  lumped: " << ls->getParam<std::string>("lumped") << std::endl;
+  //     std::cout << "  actual: ";
+  //     for (const auto & a : ls->getParam<std::vector<std::string>>("actual"))
+  //     {
+  //       std::cout << a << " ";
+  //     }
+  //     std::cout << std::endl;
+  //   }
+  //
   return EXIT_SUCCESS;
 }

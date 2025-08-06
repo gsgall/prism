@@ -10,6 +10,7 @@
 //*
 #include "InputParameters.h"
 #include "InputErrorHelper.h"
+#include <algorithm>
 #include <boost/outcome/success_failure.hpp>
 #include <iomanip>
 #include <iostream>
@@ -20,6 +21,7 @@
 #include <stdexcept>
 #include <unistd.h>
 #include <unordered_map>
+#include <unordered_set>
 #include <yaml-cpp/emittermanip.h>
 #include "TypeNameHelper.h"
 
@@ -35,13 +37,35 @@ namespace inputs
 
 InputParameters::InputParameters() {};
 
-const std::vector<std::unique_ptr<InputParameters>> &
-InputParameters::subBlocks(const std::string & name) const noexcept(false)
+InputParameters::InputParameters(const InputParameters & other)
 {
-  if (_sub_block_templates.count(name) == 0)
+  for (const auto & [key, param] : other._params)
+    _params[key] = param->cloneTemplate();
+
+  for (const auto & [key, input_template] : other._block_templates)
+    _block_templates[key] = input_template->cloneTemplate();
+}
+
+InputParameters &
+InputParameters::operator=(const InputParameters & other)
+{
+
+  for (const auto & [key, param] : other._params)
+    _params[key] = param->cloneTemplate();
+
+  for (const auto & [key, input_template] : other._block_templates)
+    _block_templates[key] = input_template->cloneTemplate();
+
+  return *this;
+}
+
+const std::vector<std::unique_ptr<InputParameters>> &
+InputParameters::blocks(const std::string & name) const noexcept(false)
+{
+  if (_block_templates.count(name) == 0)
     throw std::invalid_argument("No subblock with name " + name + " declared");
 
-  return _sub_blocks.at(name);
+  return _blocks.at(name);
 }
 
 void
@@ -69,97 +93,36 @@ InputParameters::readFromNodes(const YAML::Node & node) noexcept(false)
     throw std::invalid_argument("\n" + errorMessage(msg.str()));
   }
 
-  std::stringstream failures;
-  // the first thing we are going to be doing is to check that there are no parameters that have not
-  // been declared in the input
-  // we should also check to make sure that there are no parameters that have been supplied twice
-  std::unordered_map<std::string, int> provided_params;
-  for (const auto & input_pairs : node)
+  std::stringstream errors;
+  // the first thing that we will do is check to make sure that there are no blocks provided that
+  // are no declared as valid inputs
+  // this will hold the parameter name and the line on which it was provided first
+  std::unordered_map<std::string, unsigned int> provided_keys;
+  for (const auto & input_pair : node)
   {
-    bool found = false;
+    const auto input_key = input_pair.first.as<std::string>();
 
-    // if the parameter is the subblock naem then we don't need to check all of the other parameters
-    if (_sub_block_templates.count(input_pairs.first.as<std::string>()) == 1)
-      goto duplicate_check;
-
-    for (const auto & param_pairs : _params)
-    {
-      if (input_pairs.first.as<std::string>() == param_pairs.first)
-      {
-        found = true;
-        break;
-      }
-    }
-    // if the parameter is not allowed then we report it and move onto the next one
-    if (!found)
+    if (_params.count(input_key) == 0 && _block_templates.count(input_key) == 0 &&
+        _typed_block_templates.count(input_key) == 0)
     {
       std::stringstream msg;
-      msg << "Extra parameter " << std::quoted(input_pairs.first.as<std::string>())
-          << " found on line " << input_pairs.first.Mark().line + 1 << " with contents: \""
-          << input_pairs.first << ": " << input_pairs.second << "\"";
-      failures << std::endl << errorMessage(msg.str());
-      continue;
-    }
-  duplicate_check:
-    // now we can check to see if there are any nodes that have been provided more than once in the
-    // same block
-    if (provided_params.count(input_pairs.first.as<std::string>()) != 0)
-    {
-      const std::string & param_name = input_pairs.first.as<std::string>();
-      std::stringstream msg;
-      msg << "Parameter " << std::quoted(param_name)
-          << " provided multiple times. Parameter found on line " << provided_params[param_name]
-          << " and on line " << input_pairs.first.Mark().line + 1 << ".";
-      failures << std::endl << errorMessage(msg.str());
+      msg << "Undeclared parameter " << std::quoted(input_key) << " found on line "
+          << input_pair.first.Mark().line + 1 << ".";
+      errors << errorMessage(msg.str()) << "\n\n";
       continue;
     }
 
-    provided_params[input_pairs.first.as<std::string>()] = input_pairs.first.Mark().line + 1;
-  }
-
-  if (!failures.str().empty())
-    failures << std::endl;
-
-  for (const auto & [key, param] : _params)
-  {
-    if (const auto res = param->setFromNode(node); !res)
+    if (const auto & [it, inserted] =
+            provided_keys.insert({input_key, input_pair.first.Mark().line + 1});
+        !inserted)
     {
       std::stringstream msg;
-      msg << "Failure parsing parameter " << std::quoted(param->name()) << " of type "
-          << param->typeName() << " provided on line " << node[key].Mark().line + 1 << std::endl;
-
-      failures << "\n"
-               << errorMessage(msg.str())
-               << errorWithContext("Parameter declaration location\n",
-                                   param->file().c_str(),
-                                   param->lineNumber(),
-                                   param->function().c_str())
-               << res.error();
+      msg << "Duplicate parameter " << std::quoted(input_key) << " provided on line " << it->second
+          << " and on line " << input_pair.first.Mark().line + 1 << ".";
+      errors << errorMessage(msg.str()) << "\n\n";
     }
   }
-
-  /// now this will read all of the subblocks inputs that we are interested in
-  for (const auto & [name, sub_templ] : _sub_block_templates)
-  {
-    // adding an empty vector for every single sub block
-    _sub_blocks[name] = std::vector<std::unique_ptr<InputParameters>>();
-
-    for (const auto inputs : node[name])
-    {
-      _sub_blocks[name].push_back(sub_templ->cloneTemplate());
-
-      _sub_blocks[name].back()->readFromNodes(inputs);
-    }
-  }
-
-  if (!failures.str().empty())
-  {
-    std::stringstream msg;
-    msg << "\n\nInput errors found in node starting at line " << node.Mark().line + 1 << "\n\n"
-        << node << "\n"
-        << failures.str();
-    throw std::invalid_argument(msg.str());
-  }
+  std::cout << errors.str() << std::endl;
 }
 
 void
@@ -200,12 +163,31 @@ InputParameters::cloneTemplate() const noexcept
 }
 
 void
-InputParameters::addRepeatedSubBlock(const std::string & name, InputParameters & params)
+InputParameters::addRepeatedBlock(const std::string & name, const InputParameters & params)
 {
-  if (_sub_block_templates.count(name) != 0)
+  // TODO: add more checking and validation here
+  // we should also probably add a check for required versus not
+  if (_block_templates.count(name) != 0)
+    // TODO: add a better error message in this case
     throw std::invalid_argument("blag");
 
-  _sub_block_templates[name] = params.cloneTemplate();
+  _block_templates[name] = params.cloneTemplate();
 }
 
+void
+InputParameters::addRepeatedTypedBlock(const std::string & name,
+                                       const std::string & type,
+                                       const InputParameters & params)
+{
+  // TODO: add more checking and validation here
+  // we should also probably add a check for required versus not
+  if (_typed_block_templates.count(name) != 0 && _typed_block_templates.at(name).count(type) != 0)
+    // TODO: add a better error message in this case
+    throw std::invalid_argument("sub block type already registered");
+
+  _typed_block_templates.try_emplace(name);
+  _typed_block_templates.at(name).emplace(type, params.cloneTemplate());
+  _typed_block_templates.at(name).at(type)->addRequiredParam<std::string>(
+      "type", "the type for this block");
+}
 }

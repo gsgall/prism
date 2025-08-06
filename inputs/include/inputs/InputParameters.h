@@ -11,6 +11,7 @@
 #pragma once
 
 #include "TypeNameHelper.h"
+#include <algorithm>
 #include <unordered_map>
 #include <any>
 #include <iomanip>
@@ -28,9 +29,30 @@ class InputParameters
 public:
   InputParameters();
 
-  const std::vector<std::unique_ptr<InputParameters>> & subBlocks(const std::string & name) const
+  /**
+   * This constructor copies the template information from the other input parameter.
+   * However, this will not copy the description to the new input parameter since this is intended
+   * to be used as a way to append input parameters not create multiple of the same input parameter
+   * objects
+   * @param other the InputParameter object that has all of the parameters declared that you want
+   * the first to have
+   */
+  ///@{
+  InputParameters(const InputParameters & other);
+  InputParameters & operator=(const InputParameters & other);
+  ///@}
+
+  InputParameters(InputParameters &&) noexcept = default;
+  InputParameters & operator=(InputParameters &&) noexcept = default;
+
+  const std::vector<std::unique_ptr<InputParameters>> & blocks(const std::string & name) const
       noexcept(false);
-  void addRepeatedSubBlock(const std::string & name, InputParameters & params);
+
+  void addRepeatedBlock(const std::string & name, const InputParameters & params) noexcept(false);
+
+  void addRepeatedTypedBlock(const std::string & name,
+                             const std::string & type,
+                             const InputParameters & params) noexcept(false);
 
   void addDescription(const std::string & description) noexcept;
 
@@ -154,9 +176,14 @@ public:
   std::unique_ptr<InputParameters> cloneTemplate() const noexcept;
 
 private:
-  std::unordered_map<std::string, std::unique_ptr<InputParameters>> _sub_block_templates;
+  std::unordered_map<std::string, std::unique_ptr<InputParameters>> _block_templates;
+  std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<InputParameters>>>
+      _typed_block_templates;
 
-  std::unordered_map<std::string, std::vector<std::unique_ptr<InputParameters>>> _sub_blocks;
+  std::unordered_map<std::string, std::vector<std::unique_ptr<InputParameters>>> _blocks;
+  std::unordered_map<std::string,
+                     std::unordered_map<std::string, std::vector<std::unique_ptr<InputParameters>>>>
+      _typed_blocks;
   /// a description for the purpose of these input parameters
   std::string _description;
   std::unordered_map<std::string, std::unique_ptr<ParameterBase>> _params;

@@ -1,0 +1,40 @@
+test: 1
+test: 2
+#test: 3
+#
+#test2: -1
+
+#test1: -1
+#test3: this is another parameter
+
+data-path: test/inputs/data/
+data-path: test/inputs/data/
+bibliography: test/inputs/argon_works.bib
+data-delimiter: ","
+constant-species: [Ar]
+
+#latex-overrides:
+#  - species: [Ar(a), Ar(b), Ar^r]
+#    latex: [Ar$\left(\alpha\right)$, Ar$\left(\beta\right)$, Ar$^r$]
+#  - species: [Ar(a), Ar(b), Ar^r]
+#    latex: [Ar$\left(\alpha\right)$, Ar$\left(\beta\right)$, Ar$^r$]
+#
+#lumped-species:
+#  - lumped: Ar*
+#    actual: [Ar(a), Ar(b)]
+#  - lumped: N2*
+#    actual: [N2(a), N2(b)]
+
+rate-based:
+  - type: constant
+    reaction: A + B
+    references: [content]
+    rate: 10
+
+  - type: arrhenius
+    reaction: A + B
+    references: [content]
+    notes: [stuff]
+    params: {A: 10, b: 10}
+    
+
