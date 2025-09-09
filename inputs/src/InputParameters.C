@@ -318,26 +318,12 @@ InputParameters::readFromNodes(const YAML::Node & node, const std::string & file
 void
 InputParameters::duplicateParamChecker(const std::string & name) const noexcept(false)
 {
-  if (_params.count(name) == 0)
+  if (_params.count(name) == 0 && _block_templates.count(name) == 0 &&
+      _typed_block_templates.count(name) == 0)
     return;
 
-  std::stringstream msg, msg2;
-
-  const auto & param = _params.at(name);
-  if (!param->file().empty() && !param->function().empty() && param->lineNumber() != -1)
-  {
-    msg << "\n"
-        << errorWithContext("Previous parameter declaration location.",
-                            param->file().c_str(),
-                            param->lineNumber(),
-                            param->function().c_str());
-  }
-
-  msg2 << "Param with name " << std::quoted(name) << " and type " << std::quoted(param->typeName())
-       << " already exists.";
-  msg << "\n" << errorWithContext(msg2.str(), __FILE__, __LINE__, __FUNCTION__);
-
-  throw std::invalid_argument(msg.str());
+  throw std::invalid_argument("Could not add  parameter with name \"" + name +
+                              "\" another input already has this name");
 }
 
 std::unique_ptr<InputParameters>
@@ -359,24 +345,37 @@ InputParameters::addRepeatedBlock(const std::string & name,
                                   const std::string & function,
                                   const int line)
 {
-  if (_block_templates.count(name) != 0)
+
+  if (_params.count(name) != 0)
   {
-    auto & param = _block_templates[name];
-    std::string msg;
-    msg += "\n" + errorMessage("Unable to add repeated block with name \"" + name + "\"");
 
-    if (!file.empty() && !function.empty() && line != -1)
-      msg += "\n" + errorWithContext(
-                        "Attempted declaration location", file.c_str(), line, function.c_str());
+    std::string msg = "\n" + errorMessage("Unable to add repeated block with name \"" + name +
+                                          "\" there is already a parameter with this name");
 
-    if (!param->_file.empty() && !param->_function.empty() && param->_line != -1)
+    const auto & param = _params.at(name);
+    if (!param->file().empty() && !param->function().empty() && param->lineNumber() != -1)
       msg += ("\n" + errorWithContext("Previous declaration location",
-                                      param->_file.c_str(),
-                                      param->_line,
-                                      param->_function.c_str()));
-
+                                      param->file().c_str(),
+                                      param->lineNumber(),
+                                      param->function().c_str()));
     throw std::invalid_argument(msg);
   }
+
+  if (_block_templates.count(name) != 0)
+  {
+    std::string msg = "\n" + errorMessage("Unable to add repeated block with name \"" + name +
+                                          "\" there is already a block with this name");
+    throw std::invalid_argument(msg);
+  }
+
+  if (_typed_block_templates.count(name) != 0)
+  {
+    std::string msg;
+    msg += "\n" + errorMessage("Unable to add repeated block with name \"" + name + "\"" +
+                               " there is already a typed block with this name");
+    throw std::invalid_argument(msg);
+  }
+
   _block_templates[name] = params.cloneTemplate();
   _block_templates[name]->_file = file;
   _block_templates[name]->_function = function;
@@ -412,12 +411,47 @@ InputParameters::addRepeatedTypedBlock(const std::string & name,
                                        const std::string & function,
                                        const int line)
 {
+  if (_params.count(name) != 0)
+  {
+
+    std::string msg = "\n" + errorMessage("Unable to add repeated block with name \"" + name +
+                                          "\" there is already a parameter with this name");
+
+    const auto & param = _params.at(name);
+    if (!param->file().empty() && !param->function().empty() && param->lineNumber() != -1)
+      msg += ("\n" + errorWithContext("Previous declaration location",
+                                      param->file().c_str(),
+                                      param->lineNumber(),
+                                      param->function().c_str()));
+    throw std::invalid_argument(msg);
+  }
+
+  if (_block_templates.count(name) != 0)
+  {
+    auto & param = _block_templates[name];
+    std::string msg = "\n" + errorMessage("Unable to add repeated typed block with name \"" + name +
+                                          "\" there is already an untyped block with this name");
+
+    if (!file.empty() && !function.empty() && line != -1)
+      msg += "\n" + errorWithContext(
+                        "Attempted declaration location", file.c_str(), line, function.c_str());
+
+    if (!param->_file.empty() && !param->_function.empty() && param->_line != -1)
+      msg += ("\n" + errorWithContext("Previous declaration location",
+                                      param->_file.c_str(),
+                                      param->_line,
+                                      param->_function.c_str()));
+
+    throw std::invalid_argument(msg);
+  }
+
   if (_typed_block_templates.count(name) != 0 && _typed_block_templates.at(name).count(type) != 0)
   {
     auto & param = _typed_block_templates[name][type];
     std::string msg;
-    msg += "\n" + errorMessage("Unable to add repeated typed block with name \"" + name + "\"" +
-                               " and type \"" + type + "\"");
+    msg += "\n" +
+           errorMessage("Unable to add repeated typed block with name \"" + name + "\"" +
+                        " and type \"" + type + "\" another repeated typed block already exists");
 
     if (!file.empty() && !function.empty() && line != -1)
       msg += "\n" + errorWithContext(

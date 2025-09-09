@@ -183,3 +183,37 @@ TEST(InputParametersTest, UserProvidedDuplicateKeys)
   const std::string errors = params.parseInput(input_stream);
   ASSERT_FALSE(errors.empty());
 }
+
+TEST(InputParametersTest, CollidingParameterNames)
+{
+  auto params = inputs::InputParameters();
+  ASSERT_NO_THROW(declareParam("param", "value", "just a regular param", params, std::string));
+  EXPECT_THROW(declareParam("param", -1.0, "a double", params, double), std::invalid_argument);
+
+  auto block = inputs::InputParameters();
+
+  ASSERT_NO_THROW(declareParam("param", "value", "just a regular param", block, std::string));
+  EXPECT_THROW(declareRepeatedBlock("param", block, params), std::invalid_argument);
+  EXPECT_THROW(declareRequiredRepeatedBlock("param", block, params), std::invalid_argument);
+
+  EXPECT_THROW(declareRepeatedTypedBlock("param", "type", block, params), std::invalid_argument);
+  EXPECT_THROW(declareRequiredRepeatedTypedBlock("param", "type", block, params),
+               std::invalid_argument);
+
+  ASSERT_NO_THROW(declareRequiredRepeatedBlock("block", block, params));
+  EXPECT_THROW(declareRepeatedBlock("block", block, params), std::invalid_argument);
+  EXPECT_THROW(declareRequiredRepeatedBlock("block", block, params), std::invalid_argument);
+  EXPECT_THROW(declareRepeatedTypedBlock("block", "type", block, params), std::invalid_argument);
+  EXPECT_THROW(declareRequiredRepeatedTypedBlock("block", "type", block, params),
+               std::invalid_argument);
+  EXPECT_THROW(declareParam("block", -1, "an int", params, int), std::invalid_argument);
+
+  ASSERT_NO_THROW(declareRequiredRepeatedTypedBlock("block2", "type", block, params));
+  EXPECT_THROW(declareRepeatedBlock("block2", block, params), std::invalid_argument);
+  EXPECT_THROW(declareRequiredRepeatedBlock("block2", block, params), std::invalid_argument);
+  EXPECT_THROW(declareRepeatedTypedBlock("block2", "type", block, params), std::invalid_argument);
+  EXPECT_THROW(declareRequiredRepeatedTypedBlock("block2", "type", block, params),
+               std::invalid_argument);
+
+  EXPECT_THROW(declareParam("block2", -1, "an int", params, int), std::invalid_argument);
+}
