@@ -64,5 +64,4 @@ TEST(ParameterTest, SettingValue)
   const auto res = param->value();
 
   EXPECT_TRUE(res) << res.error();
-  //  EXPECT_EQ(std::any_cast<unsigned int>(res.value()), (unsigned int)(1));
 }

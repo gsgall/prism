@@ -10,8 +10,10 @@
 #include "InputParameters.h"
 #include "InputErrorHelper.h"
 
+#include <boost/config/detail/suffix.hpp>
 #include <cstdlib>
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -61,10 +63,14 @@ InputParameters::operator=(const InputParameters & other)
 }
 
 const std::vector<std::unique_ptr<InputParameters>> &
-InputParameters::blocks(const std::string & name) const noexcept(false)
+InputParameters::getBlocks(const std::string & name) const noexcept(false)
 {
   if (_block_templates.count(name) == 0)
     throw std::invalid_argument("No subblock with name " + name + " declared");
+
+  if (_blocks.count(name) == 0)
+    throw std::invalid_argument("Block with name \"" + name +
+                                "\" was declared but was not provided as input");
 
   return _blocks.at(name);
 }
@@ -160,12 +166,13 @@ InputParameters::checkForRequiredParamsAndBlocks(
 
   for (const auto & name : _required_blocks)
   {
-    if (provided_keys.count(name) == 1)
-      continue;
-
-    std::stringstream msg;
-    msg << "Required block" << std::quoted(name) << " was not provided\n";
-    errors << errorMessage(msg.str());
+    if (provided_keys.count(name) == 0)
+    {
+      std::stringstream msg;
+      msg << "Required block " << std::quoted(name) << " was not provided\n";
+      errors << errorMessage(msg.str());
+      return errors.str();
+    }
 
     if (!nodes[name].IsSequence())
     {
@@ -234,6 +241,28 @@ InputParameters::checkForRequiredParamsAndBlocks(
 }
 
 const std::string
+InputParameters::parseBlocks(const YAML::Node & node, const std::string & block_name) noexcept
+{
+  std::stringstream errors;
+
+  // we are not reporting an error about required blocks here since another functions checks that
+  // required blocks are provided and this would just add the same message twice so if the block is
+  // not in the input we'll just do nothing
+  if (!node[block_name].IsDefined())
+  {
+    return "";
+  }
+
+  for (const YAML::Node input_block : node[block_name])
+  {
+    auto & block =
+        _blocks[block_name].emplace_back(_block_templates.at(block_name)->cloneTemplate());
+    errors << block->readFromNodes(input_block, "");
+  }
+  return errors.str();
+}
+
+const std::string
 InputParameters::readFromNodes(const YAML::Node & node, const std::string & filepath) noexcept
 {
   std::stringstream errors;
@@ -270,6 +299,11 @@ InputParameters::readFromNodes(const YAML::Node & node, const std::string & file
     if (!filepath.empty())
       msg << " of " << std::quoted(filepath) << ".";
     errors << appendErrorMessage(res, msg.str());
+  }
+
+  for (const auto & [block_name, _] : _block_templates)
+  {
+    errors << parseBlocks(node, block_name);
   }
 
   if (errors.str().empty())
@@ -435,4 +469,5 @@ InputParameters::addRequiredRepeatedTypedBlock(const std::string & name,
         e.what());
   }
 }
+
 }

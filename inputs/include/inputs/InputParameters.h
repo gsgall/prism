@@ -47,7 +47,7 @@ public:
   InputParameters & operator=(InputParameters &&) noexcept = default;
 
   [[nodiscard]] const std::vector<std::unique_ptr<InputParameters>> &
-  blocks(const std::string & name) const noexcept(false);
+  getBlocks(const std::string & name) const noexcept(false);
 
   void addRepeatedBlock(const std::string & name,
                         const InputParameters & params,
@@ -89,6 +89,8 @@ public:
   [[nodiscard]] const std::string readFromNodes(const YAML::Node & node,
                                                 const std::string & filepath) noexcept;
 
+  [[nodiscard]] const std::string parseBlocks(const YAML::Node & node,
+                                              const std::string & block_name) noexcept;
   /**
    * Checks the provided nodes to make sure that none of the parameters that have been declared are
    * missing
@@ -104,7 +106,7 @@ public:
    * level keys are allowed to be repeated.
    * @param nodes the YAML::Node structure containing the parsed input file
    */
-  const std::pair<std::unordered_map<std::string, unsigned int>, std::string>
+  [[nodiscard]] const std::pair<std::unordered_map<std::string, unsigned int>, std::string>
   invalidKeyAndDuplicateCheck(const YAML::Node & nodes) noexcept;
 
   /**
@@ -189,7 +191,7 @@ public:
   }
 
   template <typename T>
-  T getParam(const std::string & name)
+  [[nodiscard]] T getParam(const std::string & name) noexcept(false)
   {
 
     const auto error_message = [this, &name]() -> const std::string

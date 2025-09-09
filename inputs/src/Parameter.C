@@ -12,6 +12,7 @@
 #include "InputErrorHelper.h"
 #include <iomanip>
 #include <iostream>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <sstream>
@@ -150,16 +151,6 @@ template <typename T>
 const outcome::result<void, std::string>
 Parameter<T>::setFromNode(const YAML::Node & node) noexcept
 {
-  // this is removed since the InputParameter object will check to make sure that the node
-  // if there a valid use case for this we can add it back in later
-  //  if (!node[_name].IsDefined())
-  //  {
-  //    std::stringstream msg;
-  //    msg << "Error around line " << node.Mark().line + 1 << ". ";
-  //    msg << "Parameter " << std::quoted(_name) << " not found in input";
-  //    return outcome::failure(errorMessage(msg.str()));
-  //  }
-
   try
   {
     // At this point we will check to make sure we can parse the node as the intended type
@@ -183,16 +174,16 @@ Parameter<T>::setFromNode(const YAML::Node & node) noexcept
                 std::is_same_v<T, std::unordered_map<std::string, std::string>>)
   {
     std::unordered_set<std::string> keys;
-    for (const auto & pair : node)
+    for (const auto & pair : node[_name])
     {
-      if (keys.count(pair.first.as<std::string>()) != 0)
+      if (keys.count(pair.first.template as<std::string>()) != 0)
       {
         std::stringstream msg;
-        msg << "Duplicate key " << std::quoted(pair.first.as<std::string>()) << " found in node \""
-            << node << "\".";
+        msg << "Duplicate key " << std::quoted(pair.first.template as<std::string>())
+            << " found in node \"" << node << "\".";
         return outcome::failure(errorMessage(msg.str()));
       }
-      keys.insert(pair.first.as<std::string>());
+      keys.insert(pair.first.template as<std::string>());
     }
   }
 
