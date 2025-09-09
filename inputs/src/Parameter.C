@@ -150,13 +150,15 @@ template <typename T>
 const outcome::result<void, std::string>
 Parameter<T>::setFromNode(const YAML::Node & node) noexcept
 {
-  if (!node[_name].IsDefined())
-  {
-    std::stringstream msg;
-    msg << "Error around line " << node.Mark().line + 1 << ". ";
-    msg << "Parameter " << std::quoted(_name) << " not found in input";
-    return outcome::failure(errorMessage(msg.str()));
-  }
+  // this is removed since the InputParameter object will check to make sure that the node
+  // if there a valid use case for this we can add it back in later
+  //  if (!node[_name].IsDefined())
+  //  {
+  //    std::stringstream msg;
+  //    msg << "Error around line " << node.Mark().line + 1 << ". ";
+  //    msg << "Parameter " << std::quoted(_name) << " not found in input";
+  //    return outcome::failure(errorMessage(msg.str()));
+  //  }
 
   try
   {

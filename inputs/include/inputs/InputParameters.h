@@ -4,19 +4,20 @@
 //*
 //* Licensed under MIT, please see LICENSE for details
 //* https://opensource.org/license/mit
-//*
-//* Copyright 2024, North Carolina State University
+//* * Copyright 2024, North Carolina State University
 //* ALL RIGHTS RESERVED
 //*
 #pragma once
 
 #include "TypeNameHelper.h"
 #include <algorithm>
+#include <ios>
 #include <unordered_map>
 #include <any>
 #include <iomanip>
 #include <memory>
 #include <stdexcept>
+#include <unordered_set>
 #include "Parameter.h"
 #include "InputErrorHelper.h"
 
@@ -45,20 +46,82 @@ public:
   InputParameters(InputParameters &&) noexcept = default;
   InputParameters & operator=(InputParameters &&) noexcept = default;
 
-  const std::vector<std::unique_ptr<InputParameters>> & blocks(const std::string & name) const
-      noexcept(false);
+  [[nodiscard]] const std::vector<std::unique_ptr<InputParameters>> &
+  blocks(const std::string & name) const noexcept(false);
 
-  void addRepeatedBlock(const std::string & name, const InputParameters & params) noexcept(false);
+  void addRepeatedBlock(const std::string & name,
+                        const InputParameters & params,
+                        const std::string & file = "",
+                        const std::string & function = "",
+                        const int line = -1) noexcept(false);
+
+  void addRequiredRepeatedBlock(const std::string & name,
+                                const InputParameters & params,
+                                const std::string & file = "",
+                                const std::string & function = "",
+                                const int line = -1) noexcept(false);
 
   void addRepeatedTypedBlock(const std::string & name,
                              const std::string & type,
-                             const InputParameters & params) noexcept(false);
+                             const InputParameters & params,
+                             const std::string & file = "",
+                             const std::string & function = "",
+                             const int line = -1) noexcept(false);
+
+  void addRequiredRepeatedTypedBlock(const std::string & name,
+                                     const std::string & type,
+                                     const InputParameters & params,
+                                     const std::string & file = "",
+                                     const std::string & function = "",
+                                     const int line = -1) noexcept(false);
 
   void addDescription(const std::string & description) noexcept;
 
-  const std::string & description() const noexcept;
+  [[nodiscard]] const std::string & description() const noexcept;
 
-  void readFromNodes(const YAML::Node & node) noexcept(false);
+  /**
+   * Attempts to parse all of the declared input parameters within this object
+   * @param node the node from which you are reading input
+   * @param filepath the location of the file from which the nodes are beign read
+   * @returns a string containing all of the errors that were reported during parsing if there were
+   * no errors during parsing then the string will be empty
+   */
+  [[nodiscard]] const std::string readFromNodes(const YAML::Node & node,
+                                                const std::string & filepath) noexcept;
+
+  /**
+   * Checks the provided nodes to make sure that none of the parameters that have been declared are
+   * missing
+   * @param nodes the input file parsed as YAML::Nodes
+   */
+  [[nodiscard]] const std::string checkForRequiredParamsAndBlocks(
+      const YAML::Node & node,
+      std::unordered_map<std::string, unsigned int> provided_params) noexcept;
+
+  /**
+   * This checks that all of the highest levels keys in the input file are ones that are allowed to
+   * be there. Additionally, this checks to make sure that all of those keys are unique, no high
+   * level keys are allowed to be repeated.
+   * @param nodes the YAML::Node structure containing the parsed input file
+   */
+  const std::pair<std::unordered_map<std::string, unsigned int>, std::string>
+  invalidKeyAndDuplicateCheck(const YAML::Node & nodes) noexcept;
+
+  /**
+   * Attempts to parse all of the declared input parameters from the provided file
+   * @param filepath the path to the file which contains the yaml inputs
+   * @returns a string containing all of the errors that were reported during parsing. If there
+   * were no errors then the string will be empty
+   */
+  [[nodiscard]] const std::string parseInput(const std::string & filepath) noexcept;
+
+  /**
+   * Attempts to parse all of the declared input parameters from the provided stream
+   * @param stream the stream from which input will be read
+   * @returns a string containing all of the errors that were reported during parsing. If there were
+   * no errors then the string will be empty
+   */
+  [[nodiscard]] const std::string parseInput(std::istream & stream) noexcept;
 
   template <typename T>
   void
@@ -173,19 +236,25 @@ public:
     }
   }
 
-  std::unique_ptr<InputParameters> cloneTemplate() const noexcept;
+  [[nodiscard]] std::unique_ptr<InputParameters> cloneTemplate() const noexcept;
 
 private:
+  int _line;
+  std::string _description;
+  std::string _file;
+  std::string _function;
+  std::unordered_set<std::string> _required_blocks;
+  std::unordered_map<std::string, std::unordered_set<std::string>> _required_typed_blocks;
+
   std::unordered_map<std::string, std::unique_ptr<InputParameters>> _block_templates;
+  std::unordered_map<std::string, std::vector<std::unique_ptr<InputParameters>>> _blocks;
+
   std::unordered_map<std::string, std::unordered_map<std::string, std::unique_ptr<InputParameters>>>
       _typed_block_templates;
-
-  std::unordered_map<std::string, std::vector<std::unique_ptr<InputParameters>>> _blocks;
   std::unordered_map<std::string,
                      std::unordered_map<std::string, std::vector<std::unique_ptr<InputParameters>>>>
       _typed_blocks;
-  /// a description for the purpose of these input parameters
-  std::string _description;
+
   std::unordered_map<std::string, std::unique_ptr<ParameterBase>> _params;
 
   void duplicateParamChecker(const std::string & name) const noexcept(false);

@@ -36,20 +36,20 @@ public:
   virtual const outcome::result<void, std::string>
   setFromNode(const YAML::Node & node) noexcept = 0;
 
-  bool required() const noexcept;
-  const std::string & name() const noexcept;
-  const std::string & description() const noexcept;
-  const std::string & typeName() const noexcept;
-  const std::string & file() const noexcept;
-  const std::string & function() const noexcept;
-  int lineNumber() const noexcept;
+  [[nodiscard]] bool required() const noexcept;
+  [[nodiscard]] const std::string & name() const noexcept;
+  [[nodiscard]] const std::string & description() const noexcept;
+  [[nodiscard]] const std::string & typeName() const noexcept;
+  [[nodiscard]] const std::string & file() const noexcept;
+  [[nodiscard]] const std::string & function() const noexcept;
+  [[nodiscard]] int lineNumber() const noexcept;
   const outcome::result<std::any, std::string> value() const noexcept;
 
   /**
    * Method for copying all of the member variables into the new parameter except for the _value
    * member variable
    */
-  virtual std::unique_ptr<ParameterBase> cloneTemplate() const noexcept = 0;
+  [[nodiscard]] virtual std::unique_ptr<ParameterBase> cloneTemplate() const noexcept = 0;
 
 protected:
   ParameterBase(const std::string & name,

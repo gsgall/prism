@@ -1,8 +1,7 @@
 //* This file is a part of PRISM: Plasma Reaction Input SysteM,
 //* A library for parcing chemical reaction networks for plasma chemistry
 //* https://github.com/NCSU-ComPS-Group/prism
-//*
-//* Licensed under MIT, please see LICENSE for details
+//* * Licensed under MIT, please see LICENSE for details
 //* https://opensource.org/license/mit
 //*
 //* Copyright 2024, North Carolina State University
@@ -10,19 +9,17 @@
 //*
 #include "InputParameters.h"
 #include "InputErrorHelper.h"
-#include <algorithm>
-#include <boost/outcome/success_failure.hpp>
+
+#include <cstdlib>
+#include <exception>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <iterator>
-#include <locale>
+#include <istream>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
-#include <unistd.h>
-#include <unordered_map>
-#include <unordered_set>
-#include <yaml-cpp/emittermanip.h>
+#include <string>
 #include "TypeNameHelper.h"
 
 ///@{
@@ -31,6 +28,7 @@
 #include "yaml-cpp/node/iterator.h"
 #include "yaml-cpp/node/detail/impl.h"
 #include "yaml-cpp/node/emit.h"
+#include <yaml-cpp/node/parse.h>
 ///@}
 namespace inputs
 {
@@ -44,6 +42,8 @@ InputParameters::InputParameters(const InputParameters & other)
 
   for (const auto & [key, input_template] : other._block_templates)
     _block_templates[key] = input_template->cloneTemplate();
+
+  _required_blocks = other._required_blocks;
 }
 
 InputParameters &
@@ -56,6 +56,7 @@ InputParameters::operator=(const InputParameters & other)
   for (const auto & [key, input_template] : other._block_templates)
     _block_templates[key] = input_template->cloneTemplate();
 
+  _required_blocks = other._required_blocks;
   return *this;
 }
 
@@ -80,27 +81,36 @@ InputParameters::description() const noexcept
   return _description;
 }
 
-void
-InputParameters::readFromNodes(const YAML::Node & node) noexcept(false)
+const std::string
+InputParameters::parseInput(const std::string & filepath) noexcept
 {
-
-  if (!node.IsMap())
+  if (std::ifstream file(filepath); !file)
   {
-    std::stringstream msg;
-    msg << "The provided node must be a map and the provided node was a "
-        << utils::getNodeTypeString(node) << "\n\nContents\n"
-        << node;
-    throw std::invalid_argument("\n" + errorMessage(msg.str()));
+    return errorMessage("Unable to open file \"" + filepath + "\"");
   }
+  else
+    return readFromNodes(YAML::Load(file), filepath);
+}
 
-  std::stringstream errors;
-  // the first thing that we will do is check to make sure that there are no blocks provided that
-  // are no declared as valid inputs
-  // this will hold the parameter name and the line on which it was provided first
-  std::unordered_map<std::string, unsigned int> provided_keys;
-  for (const auto & input_pair : node)
+const std::string
+InputParameters::parseInput(std::istream & stream) noexcept
+{
+  if (!stream)
   {
-    const auto input_key = input_pair.first.as<std::string>();
+    return errorMessage("Bad stream provided");
+  }
+  else
+    return readFromNodes(YAML::Load(stream), "");
+}
+
+const std::pair<std::unordered_map<std::string, unsigned int>, std::string>
+InputParameters::invalidKeyAndDuplicateCheck(const YAML::Node & nodes) noexcept
+{
+  std::stringstream errors;
+  std::unordered_map<std::string, unsigned int> provided_keys;
+  for (const std::pair<YAML::Node, YAML::Node> & input_pair : nodes)
+  {
+    const auto & input_key = input_pair.first.as<std::string>();
 
     if (_params.count(input_key) == 0 && _block_templates.count(input_key) == 0 &&
         _typed_block_templates.count(input_key) == 0)
@@ -122,32 +132,178 @@ InputParameters::readFromNodes(const YAML::Node & node) noexcept(false)
       errors << errorMessage(msg.str()) << "\n\n";
     }
   }
-  std::cout << errors.str() << std::endl;
+
+  return std::make_pair(provided_keys, errors.str());
+}
+
+const std::string
+InputParameters::checkForRequiredParamsAndBlocks(
+    const YAML::Node & nodes, std::unordered_map<std::string, unsigned int> provided_keys) noexcept
+{
+  std::stringstream errors;
+  for (const auto & [name, param] : _params)
+  {
+    if (provided_keys.count(name) == 1 || !param->required())
+      continue;
+
+    std::stringstream msg;
+    msg << "Required parameter " << std::quoted(name) << " of type "
+        << std::quoted(param->typeName()) << " was not provided\n";
+    errors << errorMessage(msg.str());
+
+    if (!param->file().empty() && !param->function().empty() && param->lineNumber() != -1)
+      errors << errorWithContext("Required parameter \"" + name + "\" declaration location.\n",
+                                 param->file().c_str(),
+                                 param->lineNumber(),
+                                 param->function().c_str());
+  }
+
+  for (const auto & name : _required_blocks)
+  {
+    if (provided_keys.count(name) == 1)
+      continue;
+
+    std::stringstream msg;
+    msg << "Required block" << std::quoted(name) << " was not provided\n";
+    errors << errorMessage(msg.str());
+
+    if (!nodes[name].IsSequence())
+    {
+      std::stringstream msg;
+      msg << "Required block " << std::quoted(name) << " provided but was not a sequence\n";
+      errors << errorMessage(msg.str());
+      continue;
+    }
+  }
+
+  for (const auto & [name, types] : _required_typed_blocks)
+  {
+    if (provided_keys.count(name) == 0)
+    {
+      std::stringstream msg;
+      msg << "Required block " << std::quoted(name) << " was not provided\n";
+      errors << errorMessage(msg.str());
+      continue;
+    }
+    if (!nodes[name].IsSequence())
+    {
+      std::stringstream msg;
+      msg << "Required block " << std::quoted(name) << " provided but was not a sequence\n";
+      errors << errorMessage(msg.str());
+      continue;
+    }
+    for (const std::string & type : types)
+    {
+      bool found = false;
+      for (const YAML::Node & block : nodes[name])
+      {
+        if (!block["type"].IsDefined())
+        {
+          std::stringstream msg;
+          msg << "Block " << std::quoted(name)
+              << " was declared as a typed block but contains a subblock without the "
+              << std::quoted("type") << " key word.\n";
+          errors << errorMessage(msg.str());
+          continue;
+        }
+
+        if (types.count(block["type"].as<std::string>()) == 0)
+        {
+          std::stringstream msg;
+          msg << "Block " << std::quoted(name + "/" + type) << "was provided but "
+              << std::quoted(type) << " is not a registered type.\n";
+          errors << errorMessage(msg.str());
+          continue;
+        }
+        if (block["type"].as<std::string>() == type)
+        {
+          found = true;
+          break;
+        }
+      }
+      if (!found)
+      {
+        std::stringstream msg;
+        msg << "Parent block " << std::quoted(name)
+            << " provided, but required subblock of type: " << std::quoted(type) << " was not.\n";
+        errors << errorMessage(msg.str());
+      }
+    }
+  }
+  return errors.str();
+}
+
+const std::string
+InputParameters::readFromNodes(const YAML::Node & node, const std::string & filepath) noexcept
+{
+  std::stringstream errors;
+  if (!node.IsMap())
+  {
+    std::stringstream msg;
+    msg << "The provided node must be a map and the provided node was a "
+        << utils::getNodeTypeString(node) << "\n\nContents\n"
+        << node;
+    errors << errorMessage(msg.str());
+    return errors.str();
+  }
+  const auto [provided_keys, invalid_errors] = invalidKeyAndDuplicateCheck(node);
+  errors << invalid_errors;
+  errors << checkForRequiredParamsAndBlocks(node, provided_keys);
+
+  for (auto & [name, param] : _params)
+  {
+    // if the node was not provided and it's not required that's fine we'll return the default value
+    // when they ask for it
+    if (!node[name].IsDefined() && !param->required())
+      continue;
+    // if the parameter is required but it was not provided then we will also skip this since the
+    // error will have been reported by the requiredParams check
+    if (!node[name].IsDefined() && param->required())
+      continue;
+
+    const auto res = param->setFromNode(node);
+    if (res)
+      continue;
+
+    std::stringstream msg;
+    msg << "Error on line " << node[name].Mark().line + 1;
+    if (!filepath.empty())
+      msg << " of " << std::quoted(filepath) << ".";
+    errors << appendErrorMessage(res, msg.str());
+  }
+
+  if (errors.str().empty())
+    return "";
+
+  if (!errors.str().empty() && filepath.empty())
+    return errorMessage("Failed to parse input\n\n") + errors.str();
+
+  return errorMessage("Failed to parse inputs in file \"" + filepath + "\"\n\n") + errors.str();
 }
 
 void
 InputParameters::duplicateParamChecker(const std::string & name) const noexcept(false)
 {
+  if (_params.count(name) == 0)
+    return;
 
-  if (_params.count(name) != 0)
+  std::stringstream msg, msg2;
+
+  const auto & param = _params.at(name);
+  if (!param->file().empty() && !param->function().empty() && param->lineNumber() != -1)
   {
-    std::stringstream msg, msg2;
-
-    if (!_params.at(name)->file().empty() || _params.at(name)->lineNumber() != -1)
-    {
-      msg << "\n"
-          << errorWithContext("Previous parameter decleration location.",
-                              _params.at(name)->file().c_str(),
-                              _params.at(name)->lineNumber(),
-                              _params.at(name)->function().c_str());
-    }
-
-    msg2 << "Param with name " << std::quoted(name) << " and type "
-         << std::quoted(_params.at(name)->typeName()) << " already exists.";
-    msg << "\n" << errorWithContext(msg2.str(), __FILE__, __LINE__, __FUNCTION__);
-
-    throw std::invalid_argument(msg.str());
+    msg << "\n"
+        << errorWithContext("Previous parameter declaration location.",
+                            param->file().c_str(),
+                            param->lineNumber(),
+                            param->function().c_str());
   }
+
+  msg2 << "Param with name " << std::quoted(name) << " and type " << std::quoted(param->typeName())
+       << " already exists.";
+  msg << "\n" << errorWithContext(msg2.str(), __FILE__, __LINE__, __FUNCTION__);
+
+  throw std::invalid_argument(msg.str());
 }
 
 std::unique_ptr<InputParameters>
@@ -163,31 +319,120 @@ InputParameters::cloneTemplate() const noexcept
 }
 
 void
-InputParameters::addRepeatedBlock(const std::string & name, const InputParameters & params)
+InputParameters::addRepeatedBlock(const std::string & name,
+                                  const InputParameters & params,
+                                  const std::string & file,
+                                  const std::string & function,
+                                  const int line)
 {
-  // TODO: add more checking and validation here
-  // we should also probably add a check for required versus not
   if (_block_templates.count(name) != 0)
-    // TODO: add a better error message in this case
-    throw std::invalid_argument("blag");
+  {
+    auto & param = _block_templates[name];
+    std::string msg;
+    msg += "\n" + errorMessage("Unable to add repeated block with name \"" + name + "\"");
 
+    if (!file.empty() && !function.empty() && line != -1)
+      msg += "\n" + errorWithContext(
+                        "Attempted declaration location", file.c_str(), line, function.c_str());
+
+    if (!param->_file.empty() && !param->_function.empty() && param->_line != -1)
+      msg += ("\n" + errorWithContext("Previous declaration location",
+                                      param->_file.c_str(),
+                                      param->_line,
+                                      param->_function.c_str()));
+
+    throw std::invalid_argument(msg);
+  }
   _block_templates[name] = params.cloneTemplate();
+  _block_templates[name]->_file = file;
+  _block_templates[name]->_function = function;
+  _block_templates[name]->_line = line;
+}
+
+void
+InputParameters::addRequiredRepeatedBlock(const std::string & name,
+                                          const InputParameters & params,
+                                          const std::string & file,
+                                          const std::string & function,
+                                          const int line)
+{
+  try
+  {
+    addRepeatedBlock(name, params, file, function, line);
+    _required_blocks.insert(name);
+  }
+  catch (const std::exception & e)
+  {
+
+    throw std::invalid_argument(
+        "\n" + errorMessage("Unable to add required repeated typed block with name \"" + name +
+                            "\"" + e.what()));
+  }
 }
 
 void
 InputParameters::addRepeatedTypedBlock(const std::string & name,
                                        const std::string & type,
-                                       const InputParameters & params)
+                                       const InputParameters & params,
+                                       const std::string & file,
+                                       const std::string & function,
+                                       const int line)
 {
-  // TODO: add more checking and validation here
-  // we should also probably add a check for required versus not
   if (_typed_block_templates.count(name) != 0 && _typed_block_templates.at(name).count(type) != 0)
-    // TODO: add a better error message in this case
-    throw std::invalid_argument("sub block type already registered");
+  {
+    auto & param = _typed_block_templates[name][type];
+    std::string msg;
+    msg += "\n" + errorMessage("Unable to add repeated typed block with name \"" + name + "\"" +
+                               " and type \"" + type + "\"");
+
+    if (!file.empty() && !function.empty() && line != -1)
+      msg += "\n" + errorWithContext(
+                        "Attempted declaration location", file.c_str(), line, function.c_str());
+
+    if (!param->_file.empty() && !param->_function.empty() && param->_line != -1)
+      msg += ("\n" + errorWithContext("Previous declaration location",
+                                      param->_file.c_str(),
+                                      param->_line,
+                                      param->_function.c_str()));
+
+    throw std::invalid_argument(msg);
+  }
 
   _typed_block_templates.try_emplace(name);
-  _typed_block_templates.at(name).emplace(type, params.cloneTemplate());
-  _typed_block_templates.at(name).at(type)->addRequiredParam<std::string>(
-      "type", "the type for this block");
+  _typed_block_templates[name][type] = params.cloneTemplate();
+  _typed_block_templates[name][type]->addRequiredParam<std::string>("type",
+                                                                    "the type for this block");
+
+  _typed_block_templates[name][type]->_file = file;
+  _typed_block_templates[name][type]->_function = function;
+  _typed_block_templates[name][type]->_line = line;
+}
+
+void
+InputParameters::addRequiredRepeatedTypedBlock(const std::string & name,
+                                               const std::string & type,
+                                               const InputParameters & params,
+                                               const std::string & file,
+                                               const std::string & function,
+                                               const int line)
+{
+  // TODO: add some checks to make sure that they did not try to register a block within the untyped
+  // section typed and untyped blocks cannot share names
+  try
+  {
+    addRepeatedTypedBlock(name, type, params, file, function, line);
+    _required_blocks.insert(name);
+    _required_typed_blocks.try_emplace(name);
+    _required_typed_blocks[name].insert(type);
+  }
+  catch (const std::exception & e)
+  {
+
+    throw std::invalid_argument(
+        "\n" +
+        errorMessage("Unable to add required repeated typed block with name \"" + name + "\"" +
+                     " and type \"" + type + "\"") +
+        e.what());
+  }
 }
 }

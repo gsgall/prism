@@ -8,14 +8,26 @@
 //* Copyright 2024, North Carolina State University
 //* ALL RIGHTS RESERVED
 
-#define addParam(name, default, description, params, type)                                         \
+#define declareParam(name, default, description, params, type)                                     \
   params.addParam<type>(name, default, description, __FILE__, __FUNCTION__, __LINE__)
 
-#define addCheckedParam(name, default, description, validator, params, type)                       \
+#define declareCheckedParam(name, default, description, validator, params, type)                   \
   params.addParam<type>(name, default, description, validator, __FILE__, __FUNCTION__, __LINE__)
 
-#define addRequiredParam(name, description, params, type)                                          \
+#define declareRequiredParam(name, description, params, type)                                      \
   params.addRequiredParam<type>(name, description, __FILE__, __FUNCTION__, __LINE__)
 
-#define addRequiredCheckedParam(name, description, validator, params, type)                        \
+#define declareRequiredCheckedParam(name, description, validator, params, type)                    \
   params.addRequiredParam<type>(name, description, validator, __FILE__, __FUNCTION__, __LINE__)
+
+#define declareRepeatedTypedBlock(name, type, block_params, params)                                \
+  params.addRepeatedTypedBlock(name, type, block_params, __FILE__, __FUNCTION__, __LINE__)
+
+#define declareRequiredRepeatedTypedBlock(name, type, block_params, params)                        \
+  params.addRequiredRepeatedTypedBlock(name, type, block_params, __FILE__, __FUNCTION__, __LINE__)
+
+#define declareRepeatedBlock(name, block_params, params)                                           \
+  params.addRepeatedBlock(name, block_params, __FILE__, __FUNCTION__, __LINE__)
+
+#define declareRequiredRepeatedBlock(name, block_params, params)                                   \
+  params.addRequiredRepeatedBlock(name, block_params, __FILE__, __FUNCTION__, __LINE__)
