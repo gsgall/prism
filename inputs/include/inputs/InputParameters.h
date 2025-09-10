@@ -49,6 +49,9 @@ public:
   [[nodiscard]] const std::vector<std::unique_ptr<InputParameters>> &
   getBlocks(const std::string & name) const noexcept(false);
 
+  [[nodiscard]] const std::vector<std::unique_ptr<InputParameters>> &
+  getTypedBlocks(const std::string & name, const std::string & type) const noexcept(false);
+
   void addRepeatedBlock(const std::string & name,
                         const InputParameters & params,
                         const std::string & file = "",
@@ -87,10 +90,15 @@ public:
    * no errors during parsing then the string will be empty
    */
   [[nodiscard]] const std::string readFromNodes(const YAML::Node & node,
-                                                const std::string & filepath) noexcept;
+                                                const std::string & filepath,
+                                                const std::string & block_name) noexcept;
 
   [[nodiscard]] const std::string parseBlocks(const YAML::Node & node,
                                               const std::string & block_name) noexcept;
+
+  [[nodiscard]] const std::string parseTypedBlocks(const YAML::Node & node,
+                                                   const std::string & block_name,
+                                                   const std::string & block_type) noexcept;
   /**
    * Checks the provided nodes to make sure that none of the parameters that have been declared are
    * missing

@@ -66,13 +66,20 @@ const std::vector<std::unique_ptr<InputParameters>> &
 InputParameters::getBlocks(const std::string & name) const noexcept(false)
 {
   if (_block_templates.count(name) == 0)
-    throw std::invalid_argument("No subblock with name " + name + " declared");
-
-  if (_blocks.count(name) == 0)
-    throw std::invalid_argument("Block with name \"" + name +
-                                "\" was declared but was not provided as input");
+    throw std::invalid_argument("No block with name " + name + " declared.");
 
   return _blocks.at(name);
+}
+
+const std::vector<std::unique_ptr<InputParameters>> &
+InputParameters::getTypedBlocks(const std::string & name, const std::string & type) const
+    noexcept(false)
+{
+  if (_typed_block_templates.count(name) == 0 || _typed_block_templates.at(name).count(type) == 0)
+    throw std::invalid_argument("No typed block with name \"" + name + "\" and type \"" + type +
+                                "\" declared.");
+
+  return _typed_blocks.at(name).at(type);
 }
 
 void
@@ -95,7 +102,7 @@ InputParameters::parseInput(const std::string & filepath) noexcept
     return errorMessage("Unable to open file \"" + filepath + "\"");
   }
   else
-    return readFromNodes(YAML::Load(file), filepath);
+    return readFromNodes(YAML::Load(file), filepath, "");
 }
 
 const std::string
@@ -106,7 +113,7 @@ InputParameters::parseInput(std::istream & stream) noexcept
     return errorMessage("Bad stream provided");
   }
   else
-    return readFromNodes(YAML::Load(stream), "");
+    return readFromNodes(YAML::Load(stream), "input stream", "");
 }
 
 const std::pair<std::unordered_map<std::string, unsigned int>, std::string>
@@ -256,14 +263,41 @@ InputParameters::parseBlocks(const YAML::Node & node, const std::string & block_
   for (const YAML::Node input_block : node[block_name])
   {
     auto & block =
-        _blocks[block_name].emplace_back(_block_templates.at(block_name)->cloneTemplate());
-    errors << block->readFromNodes(input_block, "");
+        _blocks.at(block_name).emplace_back(_block_templates.at(block_name)->cloneTemplate());
+    errors << block->readFromNodes(input_block, "", block_name);
   }
   return errors.str();
 }
 
 const std::string
-InputParameters::readFromNodes(const YAML::Node & node, const std::string & filepath) noexcept
+InputParameters::parseTypedBlocks(const YAML::Node & node,
+                                  const std::string & block_name,
+                                  const std::string & block_type) noexcept
+{
+  std::stringstream errors;
+
+  // similarly to parseBlocks since other functions check for required blocks we will not do that
+  // here instead we'll just skip if the requested block does not exist
+  for (const YAML::Node input_block : node[block_name])
+  {
+    if (!input_block["type"].IsDefined())
+      continue;
+    if (input_block["type"].as<std::string>() != block_type)
+      continue;
+
+    auto & block =
+        _typed_blocks.at(block_name)
+            .at(block_type)
+            .emplace_back(_typed_block_templates.at(block_name).at(block_type)->cloneTemplate());
+    errors << block->readFromNodes(input_block, "", block_name + "/" + block_type);
+  }
+
+  return errors.str();
+}
+const std::string
+InputParameters::readFromNodes(const YAML::Node & node,
+                               const std::string & filepath,
+                               const std::string & block_name) noexcept
 {
   std::stringstream errors;
   if (!node.IsMap())
@@ -276,6 +310,9 @@ InputParameters::readFromNodes(const YAML::Node & node, const std::string & file
     return errors.str();
   }
   const auto [provided_keys, invalid_errors] = invalidKeyAndDuplicateCheck(node);
+  if (!invalid_errors.empty() && !block_name.empty())
+    errors << errorMessage("Invalid param detected when parsing block of type " + block_name +
+                           "\n");
   errors << invalid_errors;
   errors << checkForRequiredParamsAndBlocks(node, provided_keys);
 
@@ -306,11 +343,19 @@ InputParameters::readFromNodes(const YAML::Node & node, const std::string & file
     errors << parseBlocks(node, block_name);
   }
 
+  for (const auto & [block_name, typed_blocks] : _typed_block_templates)
+  {
+    for (const auto & [block_type, _] : typed_blocks)
+    {
+      errors << parseTypedBlocks(node, block_name, block_type);
+    }
+  }
+
   if (errors.str().empty())
     return "";
 
   if (!errors.str().empty() && filepath.empty())
-    return errorMessage("Failed to parse input\n\n") + errors.str();
+    return errors.str() + "\n";
 
   return errorMessage("Failed to parse inputs in file \"" + filepath + "\"\n\n") + errors.str();
 }
@@ -380,6 +425,7 @@ InputParameters::addRepeatedBlock(const std::string & name,
   _block_templates[name]->_file = file;
   _block_templates[name]->_function = function;
   _block_templates[name]->_line = line;
+  _blocks[name] = std::vector<std::unique_ptr<inputs::InputParameters>>{};
 }
 
 void
@@ -474,6 +520,7 @@ InputParameters::addRepeatedTypedBlock(const std::string & name,
   _typed_block_templates[name][type]->_file = file;
   _typed_block_templates[name][type]->_function = function;
   _typed_block_templates[name][type]->_line = line;
+  _typed_blocks[name][type] = std::vector<std::unique_ptr<InputParameters>>{};
 }
 
 void

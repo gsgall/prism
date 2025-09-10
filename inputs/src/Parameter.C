@@ -116,8 +116,8 @@ Parameter<T>::Parameter(
 {
   if (default_val.has_value())
   {
-    _default_value.emplace(default_val.value());
-    _value.emplace(default_val.value());
+    _default_value.emplace<T>(static_cast<T>(default_val.value()));
+    _value.emplace<T>(static_cast<T>(default_val.value()));
   }
 
   _additional_validater =
@@ -135,7 +135,7 @@ Parameter<T>::set(std::any value) noexcept
 {
   try
   {
-    _value = std::any_cast<T>(value);
+    _value.emplace<T>(std::any_cast<T>(value));
     return outcome::success();
   }
   catch (const std::bad_any_cast & e)
@@ -154,7 +154,7 @@ Parameter<T>::setFromNode(const YAML::Node & node) noexcept
   try
   {
     // At this point we will check to make sure we can parse the node as the intended type
-    _value = std::any(node[_name].template as<T>());
+    _value.emplace<T>(node[_name].template as<T>());
   }
   catch (const std::exception & e)
   {

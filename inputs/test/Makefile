@@ -1,4 +1,6 @@
-# flags for code coverage testing
+export UBSAN_OPTIONS := print_stacktrace=1:halt_on_error=1
+export ASAN_OPTIONS := abort_on_error=1:print_stats=1
+
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 # flags for memory leakage testing
 ASAN_FLAGS = -fsanitize=address -fno-omit-frame-pointer -fsanitize-address-use-after-scope -fsanitize=undefined
