@@ -199,6 +199,21 @@ public:
   }
 
   template <typename T>
+  void setParam(const std::string & name, const T value) noexcept(false)
+  {
+    if (_params.count(name) == 0)
+    {
+      throw std::invalid_argument("Unable to set parameter named \"" + name +
+                                  "\" no parameter with this name has been declared.");
+    }
+
+    if (const auto res = _params.at(name)->set(value); !res)
+    {
+      throw std::invalid_argument(res.error());
+    }
+  }
+
+  template <typename T>
   [[nodiscard]] T getParam(const std::string & name) noexcept(false)
   {
 

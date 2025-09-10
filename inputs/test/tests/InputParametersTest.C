@@ -303,3 +303,41 @@ TEST(InputParametersTest, CollidingParameterNames)
 
   EXPECT_THROW(declareParam("block2", -1, "an int", params, int), std::invalid_argument);
 }
+
+TEST(InputParametersTest, SetParametersWithParsing)
+{
+  // testing to make sure that we handle the case of duplicated keys in a map
+  auto params = inputs::InputParameters();
+
+  ASSERT_NO_THROW((declareParam("map", {}, "a map", params, std::unordered_map<std::string, int>)));
+  ASSERT_NO_THROW((declareRequiredParam("param", "a string param", params, std::string)));
+
+  std::istringstream input_stream("param: something");
+
+  const std::string errors = params.parseInput(input_stream);
+  ASSERT_TRUE(errors.empty());
+
+  const auto map = std::unordered_map<std::string, int>({{"A", 1}, {"B", 2}});
+  ASSERT_NO_THROW((params.setParam<std::unordered_map<std::string, int>>("map", map)));
+  EXPECT_THROW(params.setParam<int>("map", 1), std::invalid_argument);
+  EXPECT_THROW(params.setParam<int>("undefined-param", 1), std::invalid_argument);
+  EXPECT_EQ((params.getParam<std::unordered_map<std::string, int>>("map")), map);
+  EXPECT_EQ((params.getParam<std::string>("param")), "something");
+}
+
+TEST(InputParametersTest, SetParametersNoParsing)
+{
+  // testing to make sure that we handle the case of duplicated keys in a map
+  auto params = inputs::InputParameters();
+
+  ASSERT_NO_THROW((declareParam("map", {}, "a map", params, std::unordered_map<std::string, int>)));
+  ASSERT_NO_THROW((declareRequiredParam("param", "a string param", params, std::string)));
+
+  const auto map = std::unordered_map<std::string, int>({{"A", 1}, {"B", 2}});
+  ASSERT_NO_THROW((params.setParam<std::unordered_map<std::string, int>>("map", map)));
+  ASSERT_NO_THROW((params.setParam<std::string>("param", "something")));
+  EXPECT_THROW(params.setParam<int>("map", 1), std::invalid_argument);
+  EXPECT_THROW(params.setParam<int>("undefined-param", 1), std::invalid_argument);
+  EXPECT_EQ((params.getParam<std::unordered_map<std::string, int>>("map")), map);
+  EXPECT_EQ((params.getParam<std::string>("param")), "something");
+}
