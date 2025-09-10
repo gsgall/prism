@@ -341,3 +341,66 @@ TEST(InputParametersTest, SetParametersNoParsing)
   EXPECT_EQ((params.getParam<std::unordered_map<std::string, int>>("map")), map);
   EXPECT_EQ((params.getParam<std::string>("param")), "something");
 }
+
+struct SpeciesData
+{
+  /// the unique id for the species (guaranteed to be in the range 0-(n-1) where n in the number unique species)
+  unsigned int id;
+  /// the number of times the species occurs on a side of the reaction
+  unsigned int occurances;
+};
+
+namespace YAML
+{
+template <>
+struct convert<SpeciesData>
+{
+  static Node encode(const SpeciesData & rhs)
+  {
+    Node node;
+    node["id"] = rhs.id;
+    node["occurances"] = rhs.occurances;
+    return node;
+  }
+
+  static bool decode(const Node & node, SpeciesData & data)
+  {
+    if (!node.IsMap())
+      return false;
+    if (!node["id"].IsDefined() || !node["occurances"].IsDefined())
+      return false;
+
+    data.id = node["id"].as<unsigned int>();
+    data.occurances = node["occurances"].as<unsigned int>();
+    return true;
+  }
+};
+}
+namespace inputs
+{
+namespace utils
+{
+template <>
+std::string
+typeName<SpeciesData>()
+{
+  return "SpeciesData";
+}
+}
+}
+
+TEST(InputParametersTest, CustomStructTest)
+{
+
+  auto params = inputs::InputParameters();
+  ASSERT_NO_THROW(declareRequiredParam(
+      "species-data", "A custom struct needed for input", params, SpeciesData));
+
+  SpeciesData testData{0, 2};
+  ASSERT_NO_THROW((params.setParam<SpeciesData>("species-data", testData)));
+
+  const auto data = params.getParam<SpeciesData>("species-data");
+
+  EXPECT_EQ(data.id, static_cast<unsigned int>(0));
+  EXPECT_EQ(data.occurances, static_cast<unsigned int>(2));
+}

@@ -14,8 +14,11 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_set>
 
 #include "boost/outcome/result.hpp"
+#include "inputs/InputErrorHelper.h"
+#include "inputs/TypeNameHelper.h"
 namespace outcome = BOOST_OUTCOME_V2_NAMESPACE;
 
 namespace YAML
@@ -79,11 +82,95 @@ public:
             std::function<const outcome::result<void, std::string>(const T &)> validator,
             const std::string & file = "",
             const std::string & function = "",
-            const int line_number = -1);
+            const int line_number = -1)
+    : ParameterBase(name, description, utils::typeName<T>(), file, function, line_number)
+  {
+    if (default_val.has_value())
+    {
+      _default_value.emplace<T>(static_cast<T>(default_val.value()));
+      _value.emplace<T>(static_cast<T>(default_val.value()));
+    }
 
-  virtual std::unique_ptr<ParameterBase> cloneTemplate() const noexcept override;
-  virtual const outcome::result<void, std::string> set(std::any value) noexcept override;
-  virtual const outcome::result<void, std::string>
-  setFromNode(const YAML::Node & node) noexcept override;
+    _additional_validater =
+        [validator](const std::any & val) -> const outcome::result<void, std::string>
+    {
+      if (const auto res = validator(std::any_cast<T>(val)); !res)
+        return outcome::failure(errorMessage(res.error()));
+      return outcome::success();
+    };
+  }
+
+  const outcome::result<void, std::string> set(std::any value) noexcept
+  {
+    try
+    {
+      _value.emplace<T>(std::any_cast<T>(value));
+      return outcome::success();
+    }
+    catch (const std::bad_any_cast & e)
+    {
+      std::stringstream msg;
+      msg << "Unable to set parameter with provided value. Cast to type "
+          << std::quoted(utils::typeName<T>()) << " failed.";
+      return outcome::failure(errorMessage(msg.str()));
+    }
+  }
+
+  const outcome::result<void, std::string> setFromNode(const YAML::Node & node) noexcept
+  {
+    try
+    {
+      // At this point we will check to make sure we can parse the node as the intended type
+      _value.emplace<T>(node[_name].template as<T>());
+    }
+    catch (const std::exception & e)
+    {
+      std::stringstream msg;
+      msg << "Error on line " << node[_name].Mark().line + 1 << ". ";
+      msg << "Parameter " << std::quoted(_name) << " with contents \"" << node[_name]
+          << "\" is invalid.";
+      msg << " Could not parse as type " << std::quoted(utils::typeName<T>()) << std::endl;
+      return outcome::failure(errorMessage(msg.str()) + "\n");
+    }
+
+    // We still need to check for duplicate keys in map types since yaml-cpp does not
+    // handle this
+    if constexpr (std::is_same_v<T, std::unordered_map<std::string, int>> ||
+                  std::is_same_v<T, std::unordered_map<std::string, unsigned int>> ||
+                  std::is_same_v<T, std::unordered_map<std::string, double>> ||
+                  std::is_same_v<T, std::unordered_map<std::string, std::string>>)
+    {
+      std::unordered_set<std::string> keys;
+      for (const auto & pair : node[_name])
+      {
+        if (keys.count(pair.first.template as<std::string>()) != 0)
+        {
+          std::stringstream msg;
+          msg << "Duplicate key " << std::quoted(pair.first.template as<std::string>())
+              << " found in node \"" << node << "\".";
+          return outcome::failure(errorMessage(msg.str()));
+        }
+        keys.insert(pair.first.template as<std::string>());
+      }
+    }
+
+    if (const auto res = _additional_validater(_value.value()); !res)
+    {
+      std::stringstream msg;
+      msg << "Error on line " << node[_name].Mark().line + 1 << ". ";
+      msg << "Parameter " << std::quoted(_name) << " with contents \"" << node[_name]
+          << "\" is invalid.";
+      return outcome::failure(appendErrorMessage(res, msg.str()));
+    }
+
+    return outcome::success();
+  }
+
+  std::unique_ptr<ParameterBase> cloneTemplate() const noexcept
+  {
+    Parameter<T> cloned = *this;
+    cloned._value = cloned._default_value;
+    return std::make_unique<Parameter<T>>(cloned);
+  }
 };
 }
