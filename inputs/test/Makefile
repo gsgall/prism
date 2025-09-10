@@ -1,11 +1,19 @@
-# export flags for more detailed information when an error arises with sanitizers
+# export flags for more detailed information when an error arises
 #export UBSAN_OPTIONS := print_stacktrace=1:halt_on_error=1
 #export ASAN_OPTIONS := abort_on_error=1:print_stats=1
 
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 # flags for memory leakage testing
 
-ASAN_FLAGS = -fsanitize=undefined,unsigned-integer-overflow,implicit-conversion,leak,address,float-divide-by-zero,pointer-overflow  -fno-omit-frame-pointer -fsanitize-address-use-after-scope
+ASAN_FLAGS = -fsanitize=address,undefined,leak
+# this flag marks something in the stl in for string hashing so we cannot use it right now
+#ASAN_FLAGS += -fsanitize=integer
+ASAN_FLAGS += -fsanitize=implicit-conversion,nullability
+ASAN_FLAGS += -fsanitize=unsigned-integer-overflow
+ASAN_FLAGS += -fsanitize=bounds,local-bounds,pointer-overflow
+ASAN_FLAGS += -fsanitize=float-divide-by-zero,builtin
+ASAN_FLAGS += -fno-omit-frame-pointer -fsanitize-address-use-after-scope
+
 CXXFLAGS = -std=c++17 -g -Wall -Wextra -Wpedantic -Werror $(GCOV_FLAGS) $(ASAN_FLAGS) $(TESTING_FLAG)
 PROJECT_NAME = inputs
 PROJECT_SRC_DIR = ../src

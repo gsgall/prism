@@ -13,7 +13,7 @@
 namespace prism
 {
 Reaction::Reaction(const ReactionInitialData data)
-  : _id(data.id), _equation(data.equation), _reactants(data.reactants), _products(data.products)
+  : _id(data.id), _equation(data.equation), _reactants(data.reactants), _products(data.products),
 {
 }
 
