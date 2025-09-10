@@ -110,7 +110,7 @@ public:
     catch (const std::bad_any_cast & e)
     {
       std::stringstream msg;
-      msg << "Unable to set parameter with provided value. Cast to type "
+      msg << "Unable to set parameter with provided value. Could not cast value to type "
           << std::quoted(utils::typeName<T>()) << " failed.";
       return outcome::failure(errorMessage(msg.str()));
     }

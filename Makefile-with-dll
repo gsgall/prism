@@ -13,7 +13,8 @@ YAML_LINK = -lyaml-cpp
 FMT_LINK = -lfmt
 BOOST_LINK = -lboost
 PRISM_LINK = -lprism
-LINKS = $(YAML_LINK) $(FMT_LINK) $(BOOST_LINK) $(PRISM_LINK)
+INPUTS_LINK = -linputs
+LINKS = $(YAML_LINK) $(FMT_LINK) $(BOOST_LINK) $(PRISM_LINK) $(INPUTS_LINK)
 
 # build main with the rest of the code as a dll
 $(EXE):

@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "yaml-cpp/yaml.h"
+#include "inputs/TypeNameHelper.h"
 
 namespace prism
 {
@@ -18,7 +20,6 @@ struct SpeciesData
   /// the number of times the species occurs on a side of the reaction
   unsigned int occurances;
 };
-
 /**
  * Struct for a quick way to access which reactions the species is in
  * Since we keep track of rate_based and xsec_based reactions seperately
@@ -59,4 +60,60 @@ struct ReactionInitialData
   std::vector<SpeciesData> reactants;
   std::vector<SpeciesData> products;
 };
+}
+
+namespace YAML
+{
+template <>
+struct convert<prism::SpeciesData>
+{
+  static Node encode(const prism::SpeciesData & rhs)
+  {
+    Node node;
+    node["id"] = rhs.id;
+    node["occurances"] = rhs.occurances;
+    return node;
+  }
+
+  static bool decode(const Node & node, prism::SpeciesData & data)
+  {
+    if (!node.IsMap())
+      return false;
+    if (!node["id"].IsDefined() || !node["occurances"].IsDefined())
+      return false;
+
+    data.id = node["id"].as<unsigned int>();
+    data.occurances = node["occurances"].as<unsigned int>();
+    return true;
+  }
+};
+
+// TODO: actually implemtn these but we really don't need them since these should be private
+// parameters anway
+template <>
+struct convert<std::vector<prism::SpeciesData>>
+{
+  static Node encode(const std::vector<prism::SpeciesData> & /*rhs*/)
+  {
+    Node node;
+    return node;
+  }
+
+  static bool decode(const Node & /*node*/, std::vector<prism::SpeciesData> & /*data*/)
+  {
+    return true;
+  }
+};
+}
+
+namespace inputs
+{
+namespace utils
+{
+template <>
+std::string typeName<prism::SpeciesData>();
+
+template <>
+std::string typeName<std::vector<prism::SpeciesData>>();
+}
 }

@@ -20,9 +20,8 @@ INCLUDE_PATH = -I$(CONDA_PREFIX)/include
 LIBRARY_PATH = -L$(CONDA_PREFIX)/lib
 
 YAML_LINK = -lyaml-cpp
-FMT_LINK = -lfmt
 
-LINKS = $(YAML_LINK) $(FMT_LINK)
+LINKS = $(YAML_LINK)
 
 # Getting the os type
 UNAME_S := $(shell uname -s)

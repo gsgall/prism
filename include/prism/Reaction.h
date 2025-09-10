@@ -11,6 +11,7 @@
 #pragma once
 
 #include "PrismTypes.h"
+#include "inputs/InputParameters.h"
 
 namespace prism
 {
@@ -19,7 +20,9 @@ class Reaction
 {
 
 public:
-  Reaction(ReactionInitialData data);
+  static inputs::InputParameters validParams();
+
+  Reaction(const inputs::InputParameters & params);
 
   const std::string & equation() const noexcept;
   const std::vector<SpeciesData> & reactants() const noexcept;

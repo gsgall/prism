@@ -14,6 +14,7 @@
 #include "boost/outcome/success_failure.hpp"
 #include "StringHelper.h"
 #include "PrismErrorHelper.h"
+#include "inputs/InputParameters.h"
 #include <exception>
 #include <iomanip>
 #include <sstream>
@@ -54,7 +55,7 @@ ReactionManager::reactionId(const std::string & equation) noexcept
     return outcome::failure(errorMessage(msg.str()));
   }
 
-  auto reaction_input = ReactionInitialData();
+  auto reaction_input = Reaction::validParams();
   auto res = parseReactionSide(parts.front());
 
   if (!res)
@@ -64,7 +65,7 @@ ReactionManager::reactionId(const std::string & equation) noexcept
     return outcome::failure(appendErrorMessage(res, msg.str()));
   }
 
-  reaction_input.reactants = res.value();
+  reaction_input.setParam<std::vector<SpeciesData>>("reactants", res.value());
 
   res = parseReactionSide(parts.back());
   if (!res)
@@ -74,14 +75,13 @@ ReactionManager::reactionId(const std::string & equation) noexcept
     return outcome::failure(appendErrorMessage(res, msg.str()));
   }
 
-  reaction_input.products = res.value();
-
-  reaction_input.equation = equation;
-  reaction_input.id = _reactions.size();
+  reaction_input.setParam<std::vector<SpeciesData>>("products", res.value());
+  reaction_input.setParam<std::string>("equation", equation);
+  reaction_input.setParam<ReactionId>("id", static_cast<ReactionId>(_reactions.size()));
 
   _reactions.emplace_back(reaction_input);
 
-  return reaction_input.id;
+  return reaction_input.getParam<ReactionId>("id");
 }
 
 const outcome::result<std::vector<SpeciesData>, std::string>

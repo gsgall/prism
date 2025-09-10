@@ -169,21 +169,23 @@ splitByCapital(const std::string & s)
 }
 
 std::string
-formatScientific(const double val)
+formatScientific(const double /*val*/)
 {
-  int exponent = 0;
-
-  if (val == 0)
-    return "0.00";
-
-  exponent = static_cast<int>(std::floor(std::log10(std::abs(val))));
-
-  double mantissa = val / std::pow(static_cast<double>(10), static_cast<double>(exponent));
-
-  if (exponent > -2 && exponent < 2)
-    return fmt::format("{:0.2f}", val);
-
-  return fmt::format("{:.2f}", mantissa) + "$\\times 10^{" + fmt::format("{:d}", exponent) + "}$";
+  return "";
+  //  int exponent = 0;
+  //
+  //  if (val == 0)
+  //    return "0.00";
+  //
+  //  exponent = static_cast<int>(std::floor(std::log10(std::abs(val))));
+  //
+  //  double mantissa = val / std::pow(static_cast<double>(10), static_cast<double>(exponent));
+  //
+  //  if (exponent > -2 && exponent < 2)
+  //    return fmt::format("{:0.2f}", val);
+  //
+  //  return fmt::format("{:.2f}", mantissa) + "$\\times 10^{" + fmt::format("{:d}", exponent) +
+  //  "}$";
 }
 
 bool

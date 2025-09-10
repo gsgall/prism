@@ -1,4 +1,4 @@
-WARNING_FLAGS = -Wall -Wextra -Wpedantic -Werror 
+WARNING_FLAGS = -Wall -Wextra -Wpedantic -Werror
 CXXFLAGS = -std=c++17 $(WARNING_FLAGS) -g
 # Source file and executable name
 SRC = main.C
@@ -21,10 +21,8 @@ INCLUDE_PATH = -isystem$(CONDA_PREFIX)/include
 LIBRARY_PATH = -L$(CONDA_PREFIX)/lib
 
 YAML_LINK = -lyaml-cpp
-FMT_LINK = -lfmt
-BOOST_LINK = -lboost
-
-LINKS = $(YAML_LINK) $(FMT_LINK)
+INPUTS_LINK = -linputs
+LINKS = $(YAML_LINK) $(INPUTS_LINK)
 
 # build both reaction parser and yaml library
 all: $(EXE)

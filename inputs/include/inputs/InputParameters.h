@@ -214,7 +214,7 @@ public:
   }
 
   template <typename T>
-  [[nodiscard]] T getParam(const std::string & name) noexcept(false)
+  [[nodiscard]] T getParam(const std::string & name) const noexcept(false)
   {
 
     const auto error_message = [this, &name]() -> const std::string
