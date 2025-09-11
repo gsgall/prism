@@ -3,7 +3,6 @@ CXXFLAGS = -std=c++17 $(WARNING_FLAGS) -O2
 
 PROJECT = inputs
 
-LIBRARY_NAME = lib$(PROJECT).so
 
 # Directories
 SRCDIR = src
@@ -28,17 +27,19 @@ UNAME_S := $(shell uname -s)
 
 # Set linker flags based on OS
 ifeq ($(UNAME_S),Darwin)
-    # macOS
-    INSTALL_NAME_FLAG = -Wl,-install_name,@rpath/$(LIBRARY_NAME)
+	LIBRARY_NAME = lib$(PROJECT).dylib
+	INSTALL_NAME_FLAG = -Wl,-install_name,@rpath/$(LIBRARY_NAME)
+	SHARED_FLAG = -dynamiclib
 else
-    # Linux and other Unix-like systems
-    INSTALL_NAME_FLAG = -Wl,-soname,$(LIBRARY_NAME)
+	LIBRARY_NAME = lib$(PROJECT).so
+	INSTALL_NAME_FLAG = -Wl,-soname,$(LIBRARY_NAME)
+	SHARED_FLAG = -shared
 endif
 
 # Build the shared library
 $(LIBRARY_NAME): $(OBJECTS)
 	@echo "Building $(LIBRARY_NAME)"
-	@$(CXX) $(CXXFLAGS) -B$(CONDA_PREFIX)/bin $(INCLUDE_PATH) $(LIBRARY_PATH) -I$(INCDIR) -shared -o $@ $(OBJECTS) $(LINKS) $(INSTALL_NAME_FLAG)
+	@$(CXX) $(CXXFLAGS) $(INCLUDE_PATH) $(LIBRARY_PATH) $(SHARED_FLAG) -I$(INCDIR) -shared -o $@ $(OBJECTS) $(LINKS) $(INSTALL_NAME_FLAG)
 	@echo "$(LIBRARY_NAME) built successfully!"
 
 # Build all of the source files for the library
@@ -46,7 +47,7 @@ $(LIBRARY_NAME): $(OBJECTS)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.C
 	@mkdir -p $(@D)
 	@echo "Building $<"
-	@$(CXX) $(CXXFLAGS) -fPIC -I$(INCDIR)/$(PROJECT) $(INCLUDE_PATH) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -B$(CONDA_PREFIX)/bin -fPIC -I$(INCDIR)/$(PROJECT) $(INCLUDE_PATH) -c $< -o $@
 
 # Rule to create the library and executable
 all: $(LIBRARY_NAME)

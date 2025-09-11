@@ -17,10 +17,20 @@
 #include <unordered_set>
 
 #include "boost/outcome/result.hpp"
-#include "inputs/InputErrorHelper.h"
-#include "inputs/TypeNameHelper.h"
+#include "InputErrorHelper.h"
+#include "TypeNameHelper.h"
 namespace outcome = BOOST_OUTCOME_V2_NAMESPACE;
 
+/**
+ * Minimal list of required inscludes for all of the node functionality used
+ */
+///@{
+#include "yaml-cpp/node/node.h"
+#include "yaml-cpp/node/convert.h"
+#include "yaml-cpp/node/iterator.h"
+#include "yaml-cpp/node/detail/impl.h"
+#include "yaml-cpp/node/emit.h"
+///@}
 namespace YAML
 {
 class Node;
@@ -95,7 +105,7 @@ public:
         [validator](const std::any & val) -> const outcome::result<void, std::string>
     {
       if (const auto res = validator(std::any_cast<T>(val)); !res)
-        return outcome::failure(errorMessage(res.error()));
+        return outcome::failure(errorMessage(res.error() + "\n\n"));
       return outcome::success();
     };
   }
@@ -126,7 +136,6 @@ public:
     catch (const std::exception & e)
     {
       std::stringstream msg;
-      msg << "Error on line " << node[_name].Mark().line + 1 << ". ";
       msg << "Parameter " << std::quoted(_name) << " with contents \"" << node[_name]
           << "\" is invalid.";
       msg << " Could not parse as type " << std::quoted(utils::typeName<T>()) << std::endl;
@@ -157,7 +166,6 @@ public:
     if (const auto res = _additional_validater(_value.value()); !res)
     {
       std::stringstream msg;
-      msg << "Error on line " << node[_name].Mark().line + 1 << ". ";
       msg << "Parameter " << std::quoted(_name) << " with contents \"" << node[_name]
           << "\" is invalid.";
       return outcome::failure(appendErrorMessage(res, msg.str()));

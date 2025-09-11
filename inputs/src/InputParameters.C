@@ -332,9 +332,7 @@ InputParameters::readFromNodes(const YAML::Node & node,
       continue;
 
     std::stringstream msg;
-    msg << "Error on line " << node[name].Mark().line + 1;
-    if (!filepath.empty())
-      msg << " of " << std::quoted(filepath) << ".";
+    msg << "Error on line " << node[name].Mark().line + 1 << " of provided input.";
     errors << appendErrorMessage(res, msg.str());
   }
 

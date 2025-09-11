@@ -6,7 +6,6 @@ requirements:
   build:
     - boost=1.82.0*
     - make
-    - fmt
     - lcov
     - gtest
     - clang-format
@@ -28,7 +27,6 @@ requirements:
   run:
     - boost=1.82.0*
     - make
-    - fmt
     - lcov
     - gtest
     - clang-format

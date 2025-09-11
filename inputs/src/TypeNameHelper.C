@@ -10,8 +10,9 @@
 //*
 #include "TypeNameHelper.h"
 #include <unordered_map>
-#include <yaml-cpp/node/node.h>
-#include <yaml-cpp/node/type.h>
+// TODO: This includes more than is actually needed but I need to go back and figure out which set
+// of header files actually enables Node::Type() to be called when building the dynamic library
+#include "yaml-cpp/yaml.h"
 
 namespace inputs
 {

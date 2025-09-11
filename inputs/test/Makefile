@@ -31,9 +31,8 @@ CONDA_INCLUDE_DIR = $(CONDA_PREFIX)/include
 
 GTEST_LIBS = -lgtest -lgtest_main
 YAML_LINK = -lyaml-cpp
-FMT_LINK = -lfmt
 
-TEST_LINKS = $(YAML_LINK) $(FMT_LINK) $(GTEST_LIBS)
+TEST_LINKS = $(YAML_LINK) $(GTEST_LIBS)
 
 PROJECT_SOURCES := $(wildcard $(PROJECT_SRC_DIR)/*.C)
 PROJECT_OBJECTS := $(patsubst $(PROJECT_SRC_DIR)/%.C, $(TEST_BUILD_DIR)/%.o, $(PROJECT_SOURCES))
@@ -70,7 +69,7 @@ $(TEST_BUILD_DIR)/%.o: $(TEST_SRC_DIR)/%.C
 $(TEST_EXECUTABLE): $(TEST_OBJECTS) $(PROJECT_OBJECTS) $(HELPER_OBJECTS)
 	@rm -rf build/*.g*
 	@mkdir -p outputs
-	@$(CXX) $(CXXFLAGS) -B$(CONDA_PREFIX)/bin -I$(PROJECT_INCLUDE) -I$(HELPER_INCLUDE) -I$(CONDA_INCLUDE_DIR) -L$(CONDA_LIB_DIR) -lgtest -lgtest_main -lyaml-cpp -lfmt -o $@ $^ -Wl,-rpath,$(CONDA_PREFIX)/lib
+	@$(CXX) $(CXXFLAGS) -B$(CONDA_PREFIX)/bin -I$(PROJECT_INCLUDE) -I$(HELPER_INCLUDE) -I$(CONDA_INCLUDE_DIR) -L$(CONDA_LIB_DIR) $(TEST_LINKS) -o $@ $^ -Wl,-rpath,$(CONDA_PREFIX)/lib
 
 .PHONY: all clean coverage clean-coverage
 
@@ -94,7 +93,6 @@ coverage: all
 	lcov --remove coverage.info "*/v1/*" -o coverage.info
 	lcov --remove coverage.info "*/test/*" -o coverage.info
 	lcov --remove coverage.info "*/yaml-cpp/*" -o coverage.info
-	lcov --remove coverage.info "*/fmt/*" -o coverage.info
 	genhtml coverage.info --output-directory coverage_report
 	open coverage_report/index.html
 

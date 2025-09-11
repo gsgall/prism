@@ -11,24 +11,8 @@
 #include "Parameter.h"
 #include "InputErrorHelper.h"
 #include <iomanip>
-#include <iostream>
-#include <iostream>
-#include <memory>
 #include <optional>
 #include <sstream>
-#include <unordered_set>
-
-#include "TypeNameHelper.h"
-/**
- * Minimal list of required inscludes for all of the node functionality used
- */
-///@{
-#include "yaml-cpp/node/node.h"
-#include "yaml-cpp/node/convert.h"
-#include "yaml-cpp/node/iterator.h"
-#include "yaml-cpp/node/detail/impl.h"
-#include "yaml-cpp/node/emit.h"
-///@}
 
 namespace inputs
 {
