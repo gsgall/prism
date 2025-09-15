@@ -1,0 +1,7 @@
+bibliography: file.bib
+
+
+latex-overrides:
+  - species: []
+    latex: Ar
+

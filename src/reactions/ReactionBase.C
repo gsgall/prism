@@ -8,7 +8,7 @@
 //* copyright 2024, north carolina state university
 //* all rights reserved
 //*
-#include "Reaction.h"
+#include "ReactionBase.h"
 #include "inputs/InputParameters.h"
 #include "inputs/ParamMacros.h"
 
@@ -16,7 +16,7 @@ namespace prism
 {
 
 inputs::InputParameters
-Reaction::validParams()
+ReactionBase::validParams()
 {
   auto params = inputs::InputParameters();
   // TODO: once there is better support for private params these should all be private parameters
@@ -36,11 +36,21 @@ Reaction::validParams()
                "The species ids and number of occurances for species which are products",
                params,
                std::vector<SpeciesData>);
+  declareParam("notes",
+               {},
+               "Any information about this reaction which is important for others to know",
+               params,
+               std::vector<std::string>);
+  declareRequiredParam(
+      "references",
+      "The cite key(s) for the publications where this reaction and/or data was taken",
+      params,
+      std::vector<std::string>);
 
   return params;
 }
 
-Reaction::Reaction(const inputs::InputParameters & params)
+ReactionBase::ReactionBase(const inputs::InputParameters & params)
   : _id(params.getParam<ReactionId>("id")),
     _equation(params.getParam<std::string>("equation")),
     _reactants(params.getParam<std::vector<SpeciesData>>("reactants")),
@@ -49,19 +59,19 @@ Reaction::Reaction(const inputs::InputParameters & params)
 }
 
 const std::string &
-Reaction::equation() const noexcept
+ReactionBase::equation() const noexcept
 {
   return _equation;
 }
 
 const std::vector<SpeciesData> &
-Reaction::reactants() const noexcept
+ReactionBase::reactants() const noexcept
 {
   return _reactants;
 }
 
 const std::vector<SpeciesData> &
-Reaction::products() const noexcept
+ReactionBase::products() const noexcept
 {
   return _products;
 }

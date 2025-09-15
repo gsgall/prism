@@ -12,17 +12,20 @@
 
 #include "PrismTypes.h"
 #include "inputs/InputParameters.h"
+#include "inputs/ParamMacros.h"
 
 namespace prism
 {
 
-class Reaction
+class ReactionBase
 {
 
 public:
+  virtual ~ReactionBase() = default;
+
   static inputs::InputParameters validParams();
 
-  Reaction(const inputs::InputParameters & params);
+  ReactionBase(const inputs::InputParameters & params);
 
   const std::string & equation() const noexcept;
   const std::vector<SpeciesData> & reactants() const noexcept;

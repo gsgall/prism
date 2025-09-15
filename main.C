@@ -196,8 +196,7 @@
 // }
 //
 
-#include "prism/NetworkParser.h"
-#include "yaml-cpp/node/node.h"
+#include "prism/core/NetworkParser.h"
 #include "yaml-cpp/yaml.h"
 #include <cstdlib>
 #include <iostream>

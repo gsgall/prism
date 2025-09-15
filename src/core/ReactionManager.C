@@ -27,7 +27,7 @@ ReactionManager::ReactionManager(SpeciesManager & species_manager)
 {
 }
 
-const std::vector<Reaction> &
+const std::vector<ReactionBase> &
 ReactionManager::reactions() const noexcept
 {
   return _reactions;
@@ -55,7 +55,7 @@ ReactionManager::reactionId(const std::string & equation) noexcept
     return outcome::failure(errorMessage(msg.str()));
   }
 
-  auto reaction_input = Reaction::validParams();
+  auto reaction_input = ReactionBase::validParams();
   auto res = parseReactionSide(parts.front());
 
   if (!res)

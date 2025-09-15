@@ -10,7 +10,7 @@
 //*
 #pragma once
 #include "PrismTypes.h"
-#include "Reaction.h"
+#include "ReactionBase.h"
 
 #include "boost/outcome/result.hpp"
 
@@ -28,7 +28,7 @@ public:
 
   const outcome::result<ReactionId, std::string> reactionId(const std::string & equation) noexcept;
 
-  const std::vector<Reaction> & reactions() const noexcept;
+  const std::vector<ReactionBase> & reactions() const noexcept;
 
 private:
   const outcome::result<std::vector<SpeciesData>, std::string>
@@ -36,7 +36,7 @@ private:
 
   SpeciesManager & _species_manager;
 
-  std::vector<Reaction> _reactions;
+  std::vector<ReactionBase> _reactions;
 };
 
 }
