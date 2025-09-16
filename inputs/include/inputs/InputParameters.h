@@ -10,8 +10,7 @@
 #pragma once
 
 #include "TypeNameHelper.h"
-#include <algorithm>
-#include <ios>
+#include <iterator>
 #include <unordered_map>
 #include <any>
 #include <iomanip>
@@ -45,6 +44,8 @@ public:
 
   InputParameters(InputParameters &&) noexcept = default;
   InputParameters & operator=(InputParameters &&) noexcept = default;
+
+  [[nodiscard]] const std::string listParameters(const std::string & prefix = "") const noexcept;
 
   [[nodiscard]] const std::vector<std::unique_ptr<InputParameters>> &
   getBlocks(const std::string & name) const noexcept(false);
@@ -262,6 +263,8 @@ public:
   }
 
   [[nodiscard]] std::unique_ptr<InputParameters> cloneTemplate() const noexcept;
+
+  void addParams(const InputParameters & params);
 
 private:
   int _line;

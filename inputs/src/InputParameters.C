@@ -10,10 +10,8 @@
 #include "InputParameters.h"
 #include "InputErrorHelper.h"
 
-#include <boost/config/detail/suffix.hpp>
 #include <cstdlib>
 #include <exception>
-#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -549,4 +547,77 @@ InputParameters::addRequiredRepeatedTypedBlock(const std::string & name,
   }
 }
 
+void
+InputParameters::addParams(const InputParameters & params)
+{
+  for (const auto & [name, param] : params._params)
+    _params[name] = param->cloneTemplate();
+
+  for (const auto & name : params._required_blocks)
+    _required_blocks.insert(name);
+
+  for (const auto & [name, block_template_ptr] : params._block_templates)
+  {
+    _block_templates[name] = block_template_ptr->cloneTemplate();
+  }
+
+  for (const auto & [block, types] : params._required_typed_blocks)
+  {
+    for (const auto & type : types)
+    {
+      _required_typed_blocks[block].insert(type);
+    }
+  }
+
+  for (const auto & [block, type_template_map] : params._typed_block_templates)
+  {
+    for (const auto & [type, template_ptr] : type_template_map)
+    {
+      _typed_block_templates[block][type] = template_ptr->cloneTemplate();
+    }
+  }
+}
+const std::string
+InputParameters::listParameters(const std::string & prefix) const noexcept
+{
+  std::stringstream params;
+
+  if (!_params.empty())
+  {
+    params << prefix << "Available Parameters:\n";
+    for (const auto & [name, param_template] : _params)
+    {
+      params << prefix << "  " << name << " : " << param_template->typeName();
+      if (param_template->required())
+      {
+        params << " : required ";
+      }
+
+      params << "\n" << prefix << "    " << param_template->description() << "\n";
+    }
+  }
+
+  if (!_block_templates.empty())
+  {
+    params << prefix << "\n\nRepeated Blocks:\n";
+    for (const auto & [name, block_template] : _block_templates)
+    {
+      params << prefix << "  " << name << ":\n" << block_template->listParameters(prefix + "    ");
+    }
+  }
+
+  if (!_typed_block_templates.empty())
+  {
+    params << prefix << "\n\nTyped Blocks:";
+    for (const auto & [block_name, type_map] : _typed_block_templates)
+    {
+      for (const auto & [type_name, type_template] : type_map)
+      {
+        params << prefix << "\n  Type: " << type_name << "\n"
+               << type_template->listParameters(prefix + "    ");
+      }
+    }
+  }
+  return params.str();
+}
 }

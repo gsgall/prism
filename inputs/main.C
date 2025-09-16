@@ -29,6 +29,40 @@ main()
 {
   auto params = inputs::InputParameters();
 
+  auto custom_species = inputs::InputParameters();
+  declareRequiredCheckedParam(
+      "name",
+      "The species name which you are declaring, this must start with a capital letter",
+      (
+          [](const std::vector<std::string> & names) -> outcome::result<void, std::string>
+          {
+            for (const std::string & name : names)
+            {
+              if (std::islower(name.front()))
+                return outcome::failure("Custom species names must begin with upper case letters.");
+            }
+            return outcome::success();
+          }),
+      custom_species,
+      std::vector<std::string>);
+
+  declareRequiredCheckedParam(
+      "mass",
+      "The mass of the species which you are declaring",
+      (
+          [](const std::vector<double> & masses) -> outcome::result<void, std::string>
+          {
+            for (const double mass : masses)
+            {
+              if (mass <= 0)
+                return outcome::failure("Species masses must be non-zero positive numbers.");
+            }
+            return outcome::success();
+          }),
+      custom_species,
+      std::vector<double>);
+  declareRepeatedBlock("custom-species", custom_species, params);
+
   auto block_base = inputs::InputParameters();
 
   declareRequiredParam("common", "a parameter both need", block_base, std::vector<std::string>);
@@ -43,50 +77,36 @@ main()
   declareRepeatedTypedBlock("simple", "one", block_type1, params);
   declareRepeatedTypedBlock("simple", "two", block_type2, params);
 
-  std::istringstream input_stream(R"(
-simple:
-  - type: one
-    param-one: 1
-    common: [a string]
-  - type: two
-    param-two: a param
-    common: [a different string, and another])");
+  declareRequiredCheckedParam(
+      "bibliography",
+      "The file that contains the bibtex references for the mechanism",
+      [](const std::string & file)
+      {
+        std::cout << "We can examine the parameter and validate: " << file << std::endl;
+        return outcome::success();
+        //        return outcome::failure("Invalid file");
+      },
+      params,
+      std::string);
 
-  const std::string errors = params.parseInput(input_stream);
-  std::cout << errors << std::endl;
+  declareParam("data-path",
+               "./",
+               "The path to the folder where any input data for the mechanism is placed",
+               params,
+               std::string);
 
-  return 0;
-  //  auto params = inputs::InputParameters();
-  //
-  //  declareRequiredCheckedParam(
-  //      "bibliography",
-  //      "The file that contains the bibtex references for the mechanism",
-  //      [](const std::string & file)
-  //      {
-  //        std::cout << "We can examine the parameter and validate: " << file << std::endl;
-  //        return outcome::success();
-  //        //        return outcome::failure("Invalid file");
-  //      },
-  //      params,
-  //      std::string);
-  //
-  //  declareParam("data-path",
-  //               "./",
-  //               "The path to the folder where any input data for the mechanism is placed",
-  //               params,
-  //               std::string);
-  //
-  //  declareParam("data-delimiter",
-  //               ",",
-  //               "The tokens which seperate the columns in any data files provided",
-  //               params,
-  //               std::string);
-  //
-  //  declareParam("constant-species",
-  //               {},
-  //               "A list of species in the mechanism which are in the reaction mechanism but do
-  //               not " "evolve over time", params, std::vector<std::string>);
-  //
+  declareParam("data-delimiter",
+               ",",
+               "The tokens which seperate the columns in any data files provided",
+               params,
+               std::string);
+
+  declareParam("constant-species",
+               {},
+               "The species which will not evolve over the course of the simulation",
+               params,
+               std::vector<std::string>);
+
   //  auto override = inputs::InputParameters();
   //  override.addRequiredParam<std::vector<std::string>>("species",
   //                                                      "the species that needs a latex
@@ -175,6 +195,8 @@ simple:
   //  //
   //  return EXIT_SUCCESS;
   //
+
+  std::cout << params.listParameters() << std::endl;
 
   return EXIT_SUCCESS;
 }
