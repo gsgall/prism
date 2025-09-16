@@ -196,21 +196,35 @@
 // }
 //
 
-#include "prism/core/NetworkParser.h"
-#include "yaml-cpp/yaml.h"
 #include <cstdlib>
+#include <inputs/InputParameters.h>
+#include <iomanip>
 #include <iostream>
+#include <memory>
+#include <unordered_map>
+#include "ReactionRegistrar.h"
+#include "NetworkParser.h"
+#include "prism/reactions/RateReactionBase.h"
+#include "prism/reactions/ArrheniusRateReaction.h"
+
 int
 main()
+
 {
+  auto params = prism::ArrheniusRateReaction::validParams();
 
-  auto node = YAML::LoadFile("example_file.yaml");
+  params.setParam<std::vector<std::string>>("references", {});
+  params.setParam<std::unordered_map<std::string, double>>(
+      "rate-constants", {{"A", 1}, {"n_e", 0}, {"E_e", 0}, {"n_g", 0}, {"E_g", 0}});
 
-  // std::cout << node["bibliography"].as<std::string>() << std::endl;
+  std::vector<std::unique_ptr<prism::RateReactionBase>> reactions;
 
-  auto np = prism::NetworkParser();
+  reactions.push_back(
+      prism::ReactionRegistrar::instance().constructRateReaction("ArrheniusRateReaction", params));
 
-  std::cout << np.parseNetwork("example_file.yaml") << std::endl;
+  std::cout << reactions.front()->sampleRate(1, 1) << std::endl;
+
+  std::cout << prism::NetworkParser::validParams().listParameters() << std::endl;
 
   return EXIT_SUCCESS;
 }

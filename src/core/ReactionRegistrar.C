@@ -1,8 +1,11 @@
+#include "RateReactionBase.h"
 #include "ReactionRegistrar.h"
-#include "inputs/InputParameters.h"
+#include <inputs/InputParameters.h>
 
 namespace prism
 {
+
+ReactionRegistrar::ReactionRegistrar() : _params(inputs::InputParameters()) {}
 
 ReactionRegistrar &
 ReactionRegistrar::instance()
@@ -11,15 +14,29 @@ ReactionRegistrar::instance()
   return instance;
 }
 
-void
-ReactionRegistrar::registerRateReaction(const std::string & /*name*/,
-                                        const inputs::InputParameters & /*params*/)
+const inputs::InputParameters &
+ReactionRegistrar::validParams()
 {
+  return _params;
 }
 
-void
-ReactionRegistrar::registerXSecReaction(const std::string & /*name*/,
-                                        const inputs::InputParameters & /*params*/)
+char
+ReactionRegistrar::addRateReaction(
+    const std::string & name,
+    std::function<inputs::InputParameters()> param_func,
+    std::function<std::unique_ptr<RateReactionBase>(const inputs::InputParameters &)> constructor)
 {
+  _rate_parameters[name] = param_func;
+  _rate_constructors[name] = constructor;
+  declareRepeatedTypedBlock("rate-based", name, param_func(), _params);
+  return 0;
 }
+
+std::unique_ptr<RateReactionBase>
+ReactionRegistrar::constructRateReaction(const std::string & type,
+                                         const inputs::InputParameters & params)
+{
+  return _rate_constructors.at(type)(params);
+}
+
 }

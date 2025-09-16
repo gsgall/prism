@@ -9,8 +9,6 @@
 //* all rights reserved
 //*
 #include "ReactionBase.h"
-#include "inputs/InputParameters.h"
-#include "inputs/ParamMacros.h"
 
 namespace prism
 {
@@ -19,6 +17,9 @@ inputs::InputParameters
 ReactionBase::validParams()
 {
   auto params = inputs::InputParameters();
+  params.addDescription(
+      "This is the base reaction object which provides all of the common information across "
+      "reaction types for both rate-based reactions and cross-section based reaction.");
   // TODO: once there is better support for private params these should all be private parameters
   declareParam("id", 0, "The reaction id for this reaction", params, ReactionId);
   declareParam("equation",

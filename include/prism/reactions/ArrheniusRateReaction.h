@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RateReactionBase.h"
-#include "inputs/InputParameters.h"
 
 namespace prism
 {

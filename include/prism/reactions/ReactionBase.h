@@ -13,6 +13,8 @@
 #include "PrismTypes.h"
 #include "inputs/InputParameters.h"
 #include "inputs/ParamMacros.h"
+#include "RegistrationMacros.h"
+#include "ReactionRegistrar.h"
 
 namespace prism
 {

@@ -1,4 +1,5 @@
 #include "NetworkParser.h"
+#include "ReactionRegistrar.h"
 #include "boost/outcome/success_failure.hpp"
 #include "inputs/ParamMacros.h"
 
@@ -134,6 +135,8 @@ NetworkParser::validParams()
                        latex_overides,
                        std::vector<std::string>);
   declareRepeatedBlock("latex-overrides", latex_overides, params);
+
+  params.addParams(ReactionRegistrar::instance().validParams());
 
   return params;
 }

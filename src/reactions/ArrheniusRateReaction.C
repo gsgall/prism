@@ -1,15 +1,15 @@
 #include "ArrheniusRateReaction.h"
-#include "boost/outcome/success_failure.hpp"
-#include <unordered_map>
-#include <unordered_set>
 
 namespace prism
 {
+registerRateReaction(ArrheniusRateReaction);
+
 inputs::InputParameters
 ArrheniusRateReaction::validParams()
 {
   auto params = RateReactionBase::validParams();
-
+  params.addDescription(
+      "Reaction rate is in the form of the two temperature Arrhenius rate equation.");
   declareRequiredCheckedParam(
       "rate-constants",
       "A map containing all of the rate constants required to evaluate the two "
@@ -44,10 +44,10 @@ ArrheniusRateReaction::validParams()
 ArrheniusRateReaction::ArrheniusRateReaction(const inputs::InputParameters & params)
   : RateReactionBase(params),
     _A(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("A")),
-    _n_e(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("A")),
-    _E_e(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("A")),
-    _n_g(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("A")),
-    _E_g(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("A"))
+    _n_e(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("n_e")),
+    _E_e(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("E_e")),
+    _n_g(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("n_g")),
+    _E_g(params.getParam<std::unordered_map<std::string, double>>("rate-constants").at("E_g"))
 {
 }
 

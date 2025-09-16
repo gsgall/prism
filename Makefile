@@ -38,7 +38,7 @@ all: $(EXE)
 # Build just the reaction parser
 $(EXE): $(OBJECTS)
 	@echo "Building $(EXE)"
-	@$(CXX) -B$(CONDA_PREFIX)/bin $(CXXFLAGS) $(INCLUDE_PATH) $(LIBRARY_PATH) -I$(INCDIR) $(OBJECTS) $(SRC) -o $(EXE) $(LINKS) -Wl,-rpath,$(CONDA_PREFIX)/lib
+	@$(CXX) -B$(CONDA_PREFIX)/bin $(CXXFLAGS) $(INCLUDE_PATH) $(LIBRARY_PATH) -I$(INCDIR)/$(PROJECT)/core -I$(INCDIR)/$(PROJECT)/reactions -I$(INCDIR) $(OBJECTS) $(SRC) -o $(EXE) $(LINKS) -Wl,-rpath,$(CONDA_PREFIX)/lib
 	@echo "$(EXE) built successfully!"
 
 # Build all of the source files for the parser (handles subdirectories)

@@ -1,3 +1,4 @@
+#pragma once
 #include "ReactionBase.h"
 
 namespace prism
