@@ -10,11 +10,10 @@
 //*
 #pragma once
 #include "PrismTypes.h"
-#include "ReactionBase.h"
 
-#include "boost/outcome/result.hpp"
-
-namespace outcome = BOOST_OUTCOME_V2_NAMESPACE;
+#include "inputs/InputParameters.h"
+#include "RateReactionBase.h"
+#include <memory>
 
 namespace prism
 {
@@ -26,9 +25,10 @@ class ReactionManager
 public:
   ReactionManager(SpeciesManager & species_manager);
 
-  const outcome::result<ReactionId, std::string> reactionId(const std::string & equation) noexcept;
+  const outcome::result<ReactionId, std::string> reactionId(inputs::InputParameters & params,
+                                                            bool rate_reaction) noexcept;
 
-  const std::vector<ReactionBase> & reactions() const noexcept;
+  const std::vector<std::unique_ptr<RateReactionBase>> & rateReactions() const noexcept;
 
 private:
   const outcome::result<std::vector<SpeciesData>, std::string>
@@ -36,7 +36,7 @@ private:
 
   SpeciesManager & _species_manager;
 
-  std::vector<ReactionBase> _reactions;
+  std::vector<std::unique_ptr<RateReactionBase>> _rate_reactions;
 };
 
 }

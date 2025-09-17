@@ -213,6 +213,35 @@ simple:
             std::vector<std::string>({"a different string", "and another"}));
 }
 
+TEST(InputParametersTest, EmptyStringVector)
+{
+  auto params = inputs::InputParameters();
+  declareParam(
+      "notes", {}, "Any important information about a reaction", params, std::vector<std::string>);
+
+  declareRequiredCheckedParam(
+      "references",
+      "The cite key(s) for the publications where this reaction and/or data was taken",
+      (
+          [](const std::vector<std::string> & refs) -> outcome::result<void, std::string>
+          {
+            if (refs.empty())
+            {
+              return outcome::failure("The list of references for a reaction cannot be empty");
+            }
+            return outcome::success();
+          }),
+      params,
+      std::vector<std::string>);
+
+  params.setParam<std::vector<std::string>>("references", {});
+  const auto refs = params.getParam<std::vector<std::string>>("references");
+  ASSERT_TRUE(refs.empty());
+
+  const auto notes = params.getParam<std::vector<std::string>>("notes");
+  ASSERT_TRUE(notes.empty());
+}
+
 TEST(InputParametersTest, MissingRequiredBlock)
 {
   auto params = inputs::InputParameters();

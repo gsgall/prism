@@ -6,7 +6,8 @@
       ReactionRegistrar::instance().addRateReaction(                                               \
           #name,                                                                                   \
           []() { return name::validParams(); },                                                    \
-          [](const inputs::InputParameters & params) { return std::make_unique<name>(params); })
+          [](const inputs::InputParameters & params)                                               \
+          { return std::unique_ptr<RateReactionBase>(new name(params)); })
 
 #define registerXSecReaction(name)                                                                 \
   static char combineNames(rate_reaction_dummy_##name, __COUNTER__) =                              \

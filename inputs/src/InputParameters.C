@@ -584,7 +584,7 @@ InputParameters::listParameters(const std::string & prefix) const noexcept
 
   if (!_params.empty())
   {
-    params << prefix << "Available Parameters:\n";
+    params << prefix << "Parameters:\n";
     for (const auto & [name, param_template] : _params)
     {
       params << prefix << "  " << name << " : " << param_template->typeName();

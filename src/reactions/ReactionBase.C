@@ -9,6 +9,7 @@
 //* all rights reserved
 //*
 #include "ReactionBase.h"
+#include <boost/outcome/success_failure.hpp>
 
 namespace prism
 {
@@ -21,30 +22,35 @@ ReactionBase::validParams()
       "This is the base reaction object which provides all of the common information across "
       "reaction types for both rate-based reactions and cross-section based reaction.");
   // TODO: once there is better support for private params these should all be private parameters
-  declareParam("id", 0, "The reaction id for this reaction", params, ReactionId);
-  declareParam("equation",
+  declareParam("reaction",
                "",
                "The equation representing the process that occurs during the reaction",
                params,
                std::string);
-  declareParam("reactants",
-               {},
-               "The species ids and number of occurances for species which are reactants",
-               params,
-               std::vector<SpeciesData>);
-  declareParam("products",
-               {},
-               "The species ids and number of occurances for species which are products",
-               params,
-               std::vector<SpeciesData>);
   declareParam("notes",
                {},
                "Any information about this reaction which is important for others to know",
                params,
                std::vector<std::string>);
-  declareRequiredParam(
+  declareParam(
+      "delta-eps-e", 0.0, "The change in electron energy due to this reaction", params, double);
+  declareParam("delta-eps-g",
+               0.0,
+               "The change in background gas energy due to this reaction",
+               params,
+               double);
+  declareRequiredCheckedParam(
       "references",
       "The cite key(s) for the publications where this reaction and/or data was taken",
+      (
+          [](const std::vector<std::string> & refs) -> outcome::result<void, std::string>
+          {
+            if (refs.empty())
+            {
+              return outcome::failure("The list of references for a reaction cannot be empty");
+            }
+            return outcome::success();
+          }),
       params,
       std::vector<std::string>);
 
@@ -52,10 +58,13 @@ ReactionBase::validParams()
 }
 
 ReactionBase::ReactionBase(const inputs::InputParameters & params)
-  : _id(params.getParam<ReactionId>("id")),
-    _equation(params.getParam<std::string>("equation")),
-    _reactants(params.getParam<std::vector<SpeciesData>>("reactants")),
-    _products(params.getParam<std::vector<SpeciesData>>("products"))
+  : _delta_eps_e(params.getParam<double>("delta-eps-e")),
+    _delta_eps_g(params.getParam<double>("delta-eps-g")),
+    _equation(params.getParam<std::string>("reaction")),
+    _reactants({}),
+    _products({})
+//    _notes(params.getParam<std::vector<std::string>>("notes")),
+//    _references(params.getParam<std::vector<std::string>>("references"))
 {
 }
 

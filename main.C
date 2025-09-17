@@ -206,23 +206,31 @@
 #include "NetworkParser.h"
 #include "prism/reactions/RateReactionBase.h"
 #include "prism/reactions/ArrheniusRateReaction.h"
+#include "prism/reactions/ConstantRateReaction.h"
 
 int
 main()
 
 {
-  auto params = prism::ArrheniusRateReaction::validParams();
+  auto params1 = prism::ArrheniusRateReaction::validParams();
+  params1.addParam<std::string>("type", "", "");
+  params1.setParam<std::string>("type", "ArrheniusRateReaction");
+  params1.setParam<std::vector<std::string>>("references", {});
+  params1.setParam<std::unordered_map<std::string, double>>(
+      "rate-constants", {{"A", 1}, {"n_e", 1}, {"E_e", 1}, {"n_g", 1}, {"E_g", 1}});
 
-  params.setParam<std::vector<std::string>>("references", {});
-  params.setParam<std::unordered_map<std::string, double>>(
-      "rate-constants", {{"A", 1}, {"n_e", 0}, {"E_e", 0}, {"n_g", 0}, {"E_g", 0}});
-
+  auto params2 = prism::ConstantRateReaction::validParams();
+  params2.addParam<std::string>("type", "", "");
+  params2.setParam<std::string>("type", "ConstantRateReaction");
+  params2.setParam<std::vector<std::string>>("references", {});
+  params2.setParam<double>("rate", 2);
   std::vector<std::unique_ptr<prism::RateReactionBase>> reactions;
 
-  reactions.push_back(
-      prism::ReactionRegistrar::instance().constructRateReaction("ArrheniusRateReaction", params));
+  reactions.push_back(prism::ReactionRegistrar::instance().constructRateReaction(params1));
+  reactions.push_back(prism::ReactionRegistrar::instance().constructRateReaction(params2));
 
   std::cout << reactions.front()->sampleRate(1, 1) << std::endl;
+  std::cout << reactions.back()->sampleRate(1, 1) << std::endl;
 
   std::cout << prism::NetworkParser::validParams().listParameters() << std::endl;
 

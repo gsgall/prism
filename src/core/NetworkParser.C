@@ -6,7 +6,6 @@
 #include <fstream>
 #include <functional>
 #include <string>
-#include <type_traits>
 
 namespace prism
 {

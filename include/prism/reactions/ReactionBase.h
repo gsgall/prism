@@ -18,10 +18,9 @@
 
 namespace prism
 {
-
+class ReactionManager;
 class ReactionBase
 {
-
 public:
   virtual ~ReactionBase() = default;
 
@@ -34,8 +33,13 @@ public:
   const std::vector<SpeciesData> & products() const noexcept;
 
 protected:
-  const ReactionId _id;
+  friend ReactionManager;
+  ReactionId _id;
+  const double _delta_eps_e;
+  const double _delta_eps_g;
   const std::string _equation;
+  const std::vector<std::string> _notes;
+  const std::vector<std::string> _references;
   std::vector<SpeciesData> _reactants;
   std::vector<SpeciesData> _products;
 };

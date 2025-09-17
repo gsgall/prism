@@ -10,14 +10,16 @@
 //*
 
 #include "ReactionManager.h"
+
+#include "PrismTypes.h"
 #include "SpeciesManager.h"
-#include "boost/outcome/success_failure.hpp"
 #include "StringHelper.h"
 #include "PrismErrorHelper.h"
 #include "inputs/InputParameters.h"
 #include <exception>
 #include <iomanip>
 #include <sstream>
+#include "ReactionRegistrar.h"
 
 namespace prism
 {
@@ -27,15 +29,11 @@ ReactionManager::ReactionManager(SpeciesManager & species_manager)
 {
 }
 
-const std::vector<ReactionBase> &
-ReactionManager::reactions() const noexcept
-{
-  return _reactions;
-}
-
 const outcome::result<ReactionId, std::string>
-ReactionManager::reactionId(const std::string & equation) noexcept
+ReactionManager::reactionId(inputs::InputParameters & params, bool rate_reaction) noexcept
 {
+
+  const std::string equation = params.getParam<std::string>("reaction");
 
   const auto parts = splitByDelimiter(equation, " -> ");
 
@@ -57,7 +55,6 @@ ReactionManager::reactionId(const std::string & equation) noexcept
 
   auto reaction_input = ReactionBase::validParams();
   auto res = parseReactionSide(parts.front());
-
   if (!res)
   {
     std::stringstream msg;
@@ -65,7 +62,7 @@ ReactionManager::reactionId(const std::string & equation) noexcept
     return outcome::failure(appendErrorMessage(res, msg.str()));
   }
 
-  reaction_input.setParam<std::vector<SpeciesData>>("reactants", res.value());
+  std::vector<SpeciesData> product_data = res.value();
 
   res = parseReactionSide(parts.back());
   if (!res)
@@ -74,14 +71,15 @@ ReactionManager::reactionId(const std::string & equation) noexcept
     msg << "Failed to parse product side " << std::quoted(parts.back());
     return outcome::failure(appendErrorMessage(res, msg.str()));
   }
-
-  reaction_input.setParam<std::vector<SpeciesData>>("products", res.value());
-  reaction_input.setParam<std::string>("equation", equation);
-  reaction_input.setParam<ReactionId>("id", static_cast<ReactionId>(_reactions.size()));
-
-  _reactions.emplace_back(reaction_input);
-
-  return reaction_input.getParam<ReactionId>("id");
+  if (rate_reaction)
+  {
+    _rate_reactions.push_back(ReactionRegistrar::instance().constructRateReaction(params));
+    _rate_reactions.back()->_id = _rate_reactions.size() - 1;
+    _rate_reactions.back()->_products = product_data;
+    _rate_reactions.back()->_reactants = res.value();
+    return _rate_reactions.back()->_id;
+  }
+  return -1;
 }
 
 const outcome::result<std::vector<SpeciesData>, std::string>

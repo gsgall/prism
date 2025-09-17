@@ -5,7 +5,7 @@
 namespace prism
 {
 
-ReactionRegistrar::ReactionRegistrar() : _params(inputs::InputParameters()) {}
+ReactionRegistrar::ReactionRegistrar() {}
 
 ReactionRegistrar &
 ReactionRegistrar::instance()
@@ -17,7 +17,7 @@ ReactionRegistrar::instance()
 const inputs::InputParameters &
 ReactionRegistrar::validParams()
 {
-  return _params;
+  return params();
 }
 
 char
@@ -26,17 +26,16 @@ ReactionRegistrar::addRateReaction(
     std::function<inputs::InputParameters()> param_func,
     std::function<std::unique_ptr<RateReactionBase>(const inputs::InputParameters &)> constructor)
 {
-  _rate_parameters[name] = param_func;
-  _rate_constructors[name] = constructor;
-  declareRepeatedTypedBlock("rate-based", name, param_func(), _params);
+  rateParameters()[name] = param_func;
+  rateConstructors()[name] = constructor;
+  declareRepeatedTypedBlock("rate-based", name, param_func(), params());
   return 0;
 }
 
 std::unique_ptr<RateReactionBase>
-ReactionRegistrar::constructRateReaction(const std::string & type,
-                                         const inputs::InputParameters & params)
+ReactionRegistrar::constructRateReaction(const inputs::InputParameters & params)
 {
-  return _rate_constructors.at(type)(params);
+  return rateConstructors().at(params.getParam<std::string>("type"))(params);
 }
 
 }

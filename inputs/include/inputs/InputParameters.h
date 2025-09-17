@@ -204,8 +204,16 @@ public:
   {
     if (_params.count(name) == 0)
     {
-      throw std::invalid_argument("Unable to set parameter named \"" + name +
-                                  "\" no parameter with this name has been declared.");
+      throw std::invalid_argument(
+          "\n\n" + errorMessage("Unable to set parameter named \"" + name +
+                                "\" no parameter with this name has been declared."));
+    }
+
+    if (_params.at(name)->typeName() != utils::typeName<T>())
+    {
+      throw std::invalid_argument("\n\n" + errorMessage("Parameter \"" + name + "\" is a " +
+                                                        _params.at(name)->typeName() + " not a " +
+                                                        utils::typeName<T>()));
     }
 
     if (const auto res = _params.at(name)->set(value); !res)

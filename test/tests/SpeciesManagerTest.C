@@ -9,7 +9,7 @@
 //* ALL RIGHTS RESERVED
 //*
 #include "gtest/gtest.h"
-#include "prism/SpeciesManager.h"
+#include "prism/core/SpeciesManager.h"
 
 TEST(SpeciesManager, ValidSpeciesNames)
 {
