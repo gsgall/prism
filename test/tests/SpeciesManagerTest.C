@@ -11,6 +11,17 @@
 #include "gtest/gtest.h"
 #include "prism/core/SpeciesManager.h"
 
+TEST(SpeciesManager, CorrectModifiers)
+{
+  auto manager = prism::SpeciesManager();
+  ASSERT_TRUE(manager.speciesId("Ar(alpha)", false));
+
+  EXPECT_EQ(manager.speciesById(0).name(), "Ar");
+  EXPECT_EQ(manager.speciesById(0).modifier(), "");
+  EXPECT_EQ(manager.speciesById(1).name(), "Ar(alpha)");
+  EXPECT_EQ(manager.speciesById(1).modifier(), "(alpha)");
+}
+
 TEST(SpeciesManager, ValidSpeciesNames)
 {
   auto manager = prism::SpeciesManager();

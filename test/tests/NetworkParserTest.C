@@ -9,13 +9,12 @@
 //* ALL RIGHTS RESERVED
 //*
 #include "gtest/gtest.h"
-#include <exception>
 #include <memory>
 #include "PrismTypes.h"
 #include "RateReactionBase.h"
 #include "prism/core/NetworkParser.h"
 
-TEST(NetworkParserTest, ConstantSpecies)
+TEST(NetworkParserTest, ConsistentIndicies)
 {
   std::istringstream input(R"(
 bibliography: inputs/works.bib

@@ -16,8 +16,9 @@ Species::Species(const SpeciesInitialData & data)
   : _id(data.id),
     _charge(data.charge),
     _mass(data.mass),
-    _sub_species_data(data.sub_species_data),
-    _name(data.name)
+    _name(data.name),
+    _modifier(data.modifier),
+    _sub_species_data(data.sub_species_data)
 {
 }
 
@@ -25,6 +26,12 @@ const std::string &
 Species::name() const noexcept
 {
   return _name;
+}
+
+const std::string &
+Species::modifier() const noexcept
+{
+  return _modifier;
 }
 
 SpeciesId

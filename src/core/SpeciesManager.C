@@ -83,12 +83,12 @@ SpeciesManager::speciesId(const std::string & name, const bool constant) noexcep
 
   auto input_data = SpeciesInitialData();
   input_data.name = name;
+  input_data.modifier = "";
   // base case where we have no modifier on the species object
   // if there are only letters and there is only a single capital letter then we have a base case
   // where we can create the species directly
   if (findFirstNonLetter(name) == -1 && splitByCapital(name).size() == 1)
   {
-    input_data.modifier = "";
     input_data.charge = 0;
     input_data.sub_species_data = {};
     const auto it = _masses.find(input_data.name);
@@ -144,7 +144,6 @@ SpeciesManager::speciesId(const std::string & name, const bool constant) noexcep
   {
     input_data.mass += static_cast<double>(sub_data.sub_script) * _species[sub_data.id].molarMass();
   }
-
   // now change the mass by the mass of the electron for the charge state of the species
   input_data.mass -= static_cast<double>(input_data.charge) * _masses["e"];
   _species.emplace_back(input_data);

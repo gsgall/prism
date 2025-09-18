@@ -34,6 +34,7 @@ public:
    * @return the name of the current species
    */
   [[nodiscard]] const std::string & name() const noexcept;
+  [[nodiscard]] const std::string & modifier() const noexcept;
 
   [[nodiscard]] double charge() const noexcept;
   [[nodiscard]] int chargeNumber() const noexcept;
@@ -54,8 +55,9 @@ private:
   SpeciesId _id;
   const int _charge;
   const double _mass;
+  const std::string _name;
+  const std::string _modifier;
   std::vector<SubSpeciesData> _sub_species_data;
   std::vector<ReactionData> _reaction_data;
-  const std::string _name;
 };
 }
