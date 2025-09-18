@@ -43,7 +43,8 @@ public:
 
   void addReaction(const ReactionId,
                    const std::vector<SpeciesData> & reactants,
-                   const std::vector<SpeciesData> & products);
+                   const std::vector<SpeciesData> & products,
+                   const bool rate_reaction);
 
   const std::vector<Species> & species() const noexcept;
   Species & speciesById(const SpeciesId id);

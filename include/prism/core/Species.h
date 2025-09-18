@@ -35,20 +35,18 @@ public:
    */
   [[nodiscard]] const std::string & name() const noexcept;
   [[nodiscard]] const std::string & modifier() const noexcept;
-
   [[nodiscard]] double charge() const noexcept;
   [[nodiscard]] int chargeNumber() const noexcept;
-
   [[nodiscard]] double molarMass() const noexcept;
+  [[nodiscard]] const std::vector<ReactionData> & rateReactionData() const noexcept;
+  [[nodiscard]] const std::vector<ReactionData> & xsecReactionData() const noexcept;
 
   /**
    * Getter method for the name of a species object
    * @return the name of the current species
    */
   [[nodiscard]] SpeciesId id() const noexcept;
-
   [[nodiscard]] const std::vector<SubSpeciesData> & subSpeciesData() const noexcept;
-  [[nodiscard]] const std::vector<ReactionData> & reactionData() const noexcept;
 
 private:
   friend SpeciesManager;
@@ -58,6 +56,7 @@ private:
   const std::string _name;
   const std::string _modifier;
   std::vector<SubSpeciesData> _sub_species_data;
-  std::vector<ReactionData> _reaction_data;
+  std::vector<ReactionData> _rate_reaction_data;
+  std::vector<ReactionData> _xsec_reaction_data;
 };
 }

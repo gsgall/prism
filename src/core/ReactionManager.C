@@ -91,7 +91,7 @@ ReactionManager::reactionId(const std::unique_ptr<inputs::InputParameters> & par
     new_id = _rate_reactions.back()->_id;
   }
 
-  _species_manager.addReaction(new_id, reactant_data, res.value());
+  _species_manager.addReaction(new_id, reactant_data, res.value(), rate_reaction);
   return new_id;
 }
 

@@ -57,16 +57,16 @@ rate-based:
   EXPECT_EQ(constant_ids.front(), static_cast<prism::SpeciesId>(0));
   const auto ar = species[constant_ids.front()];
 
-  const std::vector<prism::ReactionData> & ar_rxn_data = ar.reactionData();
+  const std::vector<prism::ReactionData> & ar_rxn_data = ar.rateReactionData();
   EXPECT_EQ(ar.name(), "Ar");
   EXPECT_EQ(ar.id(), constant_ids.front());
   EXPECT_EQ(ar_rxn_data.front().id, static_cast<prism::SpeciesId>(0));
   EXPECT_EQ(ar_rxn_data.front().stoic_coeff, -1);
 
   const auto e = species[transient_ids.front()];
-  const std::vector<prism::ReactionData> & e_rxn_data = e.reactionData();
+  const std::vector<prism::ReactionData> & e_rxn_data = e.rateReactionData();
   const auto ar_v = species[transient_ids.back()];
-  const std::vector<prism::ReactionData> & ar_v_rxn_data = ar_v.reactionData();
+  const std::vector<prism::ReactionData> & ar_v_rxn_data = ar_v.rateReactionData();
 
   ASSERT_EQ(transient_ids.size(), static_cast<size_t>(2));
   EXPECT_EQ(transient_ids.front(), static_cast<prism::SpeciesId>(1));

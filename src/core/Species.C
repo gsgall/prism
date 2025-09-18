@@ -65,9 +65,15 @@ Species::molarMass() const noexcept
 }
 
 const std::vector<ReactionData> &
-Species::reactionData() const noexcept
+Species::rateReactionData() const noexcept
 {
-  return _reaction_data;
+  return _rate_reaction_data;
+}
+
+const std::vector<ReactionData> &
+Species::xsecReactionData() const noexcept
+{
+  return _xsec_reaction_data;
 }
 
 }

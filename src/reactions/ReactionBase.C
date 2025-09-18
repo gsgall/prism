@@ -61,10 +61,8 @@ ReactionBase::ReactionBase(const inputs::InputParameters & params)
   : _delta_eps_e(params.getParam<double>("delta-eps-e")),
     _delta_eps_g(params.getParam<double>("delta-eps-g")),
     _equation(params.getParam<std::string>("reaction")),
-    _reactants({}),
-    _products({})
-//    _notes(params.getParam<std::vector<std::string>>("notes")),
-//    _references(params.getParam<std::vector<std::string>>("references"))
+    _notes(params.getParam<std::vector<std::string>>("notes")),
+    _references(params.getParam<std::vector<std::string>>("references"))
 {
 }
 
@@ -74,16 +72,54 @@ ReactionBase::equation() const noexcept
   return _equation;
 }
 
+const std::vector<std::string> &
+ReactionBase::notes() const noexcept
+{
+  return _notes;
+}
+
+const std::vector<std::string> &
+ReactionBase::references() const noexcept
+{
+  return _references;
+}
+
+const std::string
+ReactionBase::referencesAsLatex() const noexcept
+{
+  std::string temp_refs = "\\cite{";
+  for (size_t i = 0; i < _references.size(); i++)
+  {
+    temp_refs += _references[i];
+    if (i != _references.size() - 1)
+      temp_refs += ", ";
+  }
+  temp_refs += "}";
+  return temp_refs;
+}
+
 const std::vector<SpeciesData> &
-ReactionBase::reactants() const noexcept
+ReactionBase::reactantData() const noexcept
 {
   return _reactants;
 }
 
 const std::vector<SpeciesData> &
-ReactionBase::products() const noexcept
+ReactionBase::productData() const noexcept
 {
   return _products;
+}
+
+double
+ReactionBase::deltaEnergyElectron() const noexcept
+{
+  return _delta_eps_e;
+}
+
+double
+ReactionBase::deltaEnergyGas() const noexcept
+{
+  return _delta_eps_g;
 }
 
 }

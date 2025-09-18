@@ -37,7 +37,8 @@ SpeciesManager::speciesById(const SpeciesId id)
 void
 SpeciesManager::addReaction(const ReactionId id,
                             const std::vector<SpeciesData> & reactants,
-                            const std::vector<SpeciesData> & products)
+                            const std::vector<SpeciesData> & products,
+                            const bool rate_reaction)
 {
   std::unordered_map<SpeciesId, int> stoic_map;
 
@@ -57,9 +58,18 @@ SpeciesManager::addReaction(const ReactionId id,
 
   for (const auto & [species_id, stoic_coeff] : stoic_map)
   {
-    auto & data = _species[species_id]._reaction_data.emplace_back();
-    data.id = id;
-    data.stoic_coeff = stoic_coeff;
+    if (rate_reaction)
+    {
+      auto & data = _species[species_id]._rate_reaction_data.emplace_back();
+      data.id = id;
+      data.stoic_coeff = stoic_coeff;
+    }
+    else
+    {
+      auto & data = _species[species_id]._xsec_reaction_data.emplace_back();
+      data.id = id;
+      data.stoic_coeff = stoic_coeff;
+    }
   }
 }
 

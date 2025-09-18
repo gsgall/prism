@@ -28,9 +28,14 @@ public:
 
   ReactionBase(const inputs::InputParameters & params);
 
-  const std::string & equation() const noexcept;
-  const std::vector<SpeciesData> & reactants() const noexcept;
-  const std::vector<SpeciesData> & products() const noexcept;
+  [[nodiscard]] const std::string & equation() const noexcept;
+  [[nodiscard]] const std::vector<std::string> & notes() const noexcept;
+  [[nodiscard]] const std::vector<std::string> & references() const noexcept;
+  [[nodiscard]] const std::string referencesAsLatex() const noexcept;
+  [[nodiscard]] const std::vector<SpeciesData> & reactantData() const noexcept;
+  [[nodiscard]] const std::vector<SpeciesData> & productData() const noexcept;
+  [[nodiscard]] double deltaEnergyElectron() const noexcept;
+  [[nodiscard]] double deltaEnergyGas() const noexcept;
 
 protected:
   friend ReactionManager;
