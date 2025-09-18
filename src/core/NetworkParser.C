@@ -5,6 +5,8 @@
 
 #include <fstream>
 #include <functional>
+#include <inputs/InputErrorHelper.h>
+#include <iostream>
 #include <string>
 
 namespace prism
@@ -140,7 +142,7 @@ NetworkParser::validParams()
   return params;
 }
 
-NetworkParser::NetworkParser() {}
+NetworkParser::NetworkParser() : _species_manager(), _reaction_manager(_species_manager) {}
 
 std::string
 NetworkParser::parseNetwork(const std::string & file_path)
@@ -161,7 +163,30 @@ NetworkParser::parseNetwork(std::istream & input_stream)
     return errorMessage("Bad stream provided");
   }
 
-  return NetworkParser::validParams().parseInput(input_stream);
+  auto params = validParams();
+
+  if (const auto parsing_errors = params.parseInput(input_stream); !parsing_errors.empty())
+  {
+    return parsing_errors;
+  }
+
+  std::stringstream errors;
+  for (const auto & species_name : params.getParam<std::vector<std::string>>("constant-species"))
+  {
+    if (const auto res = _species_manager.speciesId(species_name, true); !res)
+      errors << res.error();
+  }
+
+  for (const auto & type : ReactionRegistrar::instance().rateTypes())
+  {
+    for (const auto & block : params.getTypedBlocks("rate-based", type))
+    {
+      if (const auto res = _reaction_manager.reactionId(block, true); !res)
+        errors << res.error();
+    }
+  }
+
+  return errors.str();
 }
 
 }

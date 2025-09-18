@@ -30,10 +30,11 @@ ReactionManager::ReactionManager(SpeciesManager & species_manager)
 }
 
 const outcome::result<ReactionId, std::string>
-ReactionManager::reactionId(inputs::InputParameters & params, bool rate_reaction) noexcept
+ReactionManager::reactionId(const std::unique_ptr<inputs::InputParameters> & params,
+                            bool rate_reaction) noexcept
 {
 
-  const std::string equation = params.getParam<std::string>("reaction");
+  const std::string equation = params->getParam<std::string>("reaction");
 
   const auto parts = splitByDelimiter(equation, " -> ");
 
@@ -130,7 +131,7 @@ ReactionManager::parseReactionSide(const std::string & side) const noexcept
       }
     }
 
-    const auto res = _species_manager.speciesId(trimmed_species);
+    const auto res = _species_manager.speciesId(trimmed_species, false);
     if (!res)
     {
       std::stringstream msg;

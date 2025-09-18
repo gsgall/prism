@@ -14,29 +14,29 @@
 TEST(SpeciesManager, ValidSpeciesNames)
 {
   auto manager = prism::SpeciesManager();
-  EXPECT_TRUE(manager.speciesId("Ar"));
-  EXPECT_TRUE(manager.speciesId("Ar(alpha)"));
-  EXPECT_TRUE(manager.speciesId("Ar2(AAAA)"));
-  EXPECT_TRUE(manager.speciesId("Ar*(A)"));
-  EXPECT_TRUE(manager.speciesId("Ar*(2A*)"));
-  EXPECT_TRUE(manager.speciesId("Ar*(2A*)"));
-  EXPECT_TRUE(manager.speciesId("H3+4(test)"));
-  EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(test)"));
-  EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(T)"));
-  EXPECT_TRUE(manager.speciesId("H3-4(*T)"));
-  EXPECT_TRUE(manager.speciesId("e"));
-  EXPECT_TRUE(manager.speciesId("E"));
-  EXPECT_TRUE(manager.speciesId("hnu"));
+  EXPECT_TRUE(manager.speciesId("Ar", false));
+  EXPECT_TRUE(manager.speciesId("Ar(alpha)", false));
+  EXPECT_TRUE(manager.speciesId("Ar2(AAAA)", false));
+  EXPECT_TRUE(manager.speciesId("Ar*(A)", false));
+  EXPECT_TRUE(manager.speciesId("Ar*(2A*)", false));
+  EXPECT_TRUE(manager.speciesId("Ar*(2A*)", false));
+  EXPECT_TRUE(manager.speciesId("H3+4(test)", false));
+  EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(test)", false));
+  EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(T)", false));
+  EXPECT_TRUE(manager.speciesId("H3-4(*T)", false));
+  EXPECT_TRUE(manager.speciesId("e", false));
+  EXPECT_TRUE(manager.speciesId("E", false));
+  EXPECT_TRUE(manager.speciesId("hnu", false));
 }
 
 TEST(SpeciesManager, InvalidSpeciesNames)
 {
   auto manager = prism::SpeciesManager();
-  EXPECT_FALSE(manager.speciesId("Ar(A"));
-  EXPECT_FALSE(manager.speciesId("Ar2CF4H3+4*T"));
-  EXPECT_FALSE(manager.speciesId("Ar2C(test)F4H3+4(test)"));
-  EXPECT_FALSE(manager.speciesId("Ar2C*F4H3+4(test)"));
-  EXPECT_FALSE(manager.speciesId("Ar2CF4H3+4(test)lkasdf"));
-  EXPECT_FALSE(manager.speciesId("Ar2CF4H3+4ads(test)"));
-  EXPECT_FALSE(manager.speciesId("Z"));
+  EXPECT_FALSE(manager.speciesId("Ar(A", false));
+  EXPECT_FALSE(manager.speciesId("Ar2CF4H3+4*T", false));
+  EXPECT_FALSE(manager.speciesId("Ar2C(test)F4H3+4(test)", false));
+  EXPECT_FALSE(manager.speciesId("Ar2C*F4H3+4(test)", false));
+  EXPECT_FALSE(manager.speciesId("Ar2CF4H3+4(test)lkasdf", false));
+  EXPECT_FALSE(manager.speciesId("Ar2CF4H3+4ads(test)", false));
+  EXPECT_FALSE(manager.speciesId("Z", false));
 }

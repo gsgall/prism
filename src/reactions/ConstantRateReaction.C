@@ -15,7 +15,7 @@ ConstantRateReaction::validParams()
                               (
                                   [](const double & rate) -> outcome::result<void, std::string>
                                   {
-                                    if (rate >= 0)
+                                    if (rate <= 0)
                                     {
                                       return outcome::failure(
                                           "The provided reaction rate must be >= 0");

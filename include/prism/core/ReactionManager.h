@@ -19,14 +19,13 @@ namespace prism
 {
 
 class SpeciesManager;
-
 class ReactionManager
 {
 public:
   ReactionManager(SpeciesManager & species_manager);
 
-  const outcome::result<ReactionId, std::string> reactionId(inputs::InputParameters & params,
-                                                            bool rate_reaction) noexcept;
+  const outcome::result<ReactionId, std::string>
+  reactionId(const std::unique_ptr<inputs::InputParameters> & params, bool rate_reaction) noexcept;
 
   const std::vector<std::unique_ptr<RateReactionBase>> & rateReactions() const noexcept;
 

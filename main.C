@@ -212,27 +212,21 @@ int
 main()
 
 {
-  auto params1 = prism::ArrheniusRateReaction::validParams();
-  params1.addParam<std::string>("type", "", "");
-  params1.setParam<std::string>("type", "ArrheniusRateReaction");
-  params1.setParam<std::vector<std::string>>("references", {});
-  params1.setParam<std::unordered_map<std::string, double>>(
-      "rate-constants", {{"A", 1}, {"n_e", 1}, {"E_e", 1}, {"n_g", 1}, {"E_g", 1}});
 
-  auto params2 = prism::ConstantRateReaction::validParams();
-  params2.addParam<std::string>("type", "", "");
-  params2.setParam<std::string>("type", "ConstantRateReaction");
-  params2.setParam<std::vector<std::string>>("references", {});
-  params2.setParam<double>("rate", 2);
-  std::vector<std::unique_ptr<prism::RateReactionBase>> reactions;
+  std::istringstream input(R"(
+bibliography: works.bib
+constant-species: [Ar]
 
-  reactions.push_back(prism::ReactionRegistrar::instance().constructRateReaction(params1));
-  reactions.push_back(prism::ReactionRegistrar::instance().constructRateReaction(params2));
+rate-based:
+  - reaction: Ar + e -> Ar(r) + e
+    type: ConstantRateReaction
+    rate: 1
+    references: [ lymberopoulos1993fluid ]
+)");
 
-  std::cout << reactions.front()->sampleRate(1, 1) << std::endl;
-  std::cout << reactions.back()->sampleRate(1, 1) << std::endl;
+  auto np = prism::NetworkParser();
 
-  std::cout << prism::NetworkParser::validParams().listParameters() << std::endl;
+  const auto errors = np.parseNetwork(input);
 
-  return EXIT_SUCCESS;
+  return 0;
 }

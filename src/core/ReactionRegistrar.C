@@ -1,6 +1,7 @@
 #include "RateReactionBase.h"
 #include "ReactionRegistrar.h"
 #include <inputs/InputParameters.h>
+#include <memory>
 
 namespace prism
 {
@@ -24,7 +25,8 @@ char
 ReactionRegistrar::addRateReaction(
     const std::string & name,
     std::function<inputs::InputParameters()> param_func,
-    std::function<std::unique_ptr<RateReactionBase>(const inputs::InputParameters &)> constructor)
+    std::function<std::unique_ptr<RateReactionBase>(
+        const std::unique_ptr<inputs::InputParameters> &)> constructor)
 {
   rateParameters()[name] = param_func;
   rateConstructors()[name] = constructor;
@@ -33,9 +35,9 @@ ReactionRegistrar::addRateReaction(
 }
 
 std::unique_ptr<RateReactionBase>
-ReactionRegistrar::constructRateReaction(const inputs::InputParameters & params)
+ReactionRegistrar::constructRateReaction(const std::unique_ptr<inputs::InputParameters> & params)
 {
-  return rateConstructors().at(params.getParam<std::string>("type"))(params);
+  return rateConstructors().at(params->getParam<std::string>("type"))(params);
 }
 
 }

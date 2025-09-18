@@ -19,12 +19,24 @@ public:
   static ReactionRegistrar & instance();
 
   const inputs::InputParameters & validParams();
-  char
-  addRateReaction(const std::string & name,
-                  std::function<inputs::InputParameters()> param_func,
-                  std::function<std::unique_ptr<RateReactionBase>(const inputs::InputParameters &)>
-                      constructor) noexcept(false);
-  std::unique_ptr<RateReactionBase> constructRateReaction(const inputs::InputParameters & params);
+  char addRateReaction(
+      const std::string & name,
+      std::function<inputs::InputParameters()> param_func,
+      std::function<std::unique_ptr<RateReactionBase>(
+          const std::unique_ptr<inputs::InputParameters> &)> constructor) noexcept(false);
+  std::unique_ptr<RateReactionBase>
+  constructRateReaction(const std::unique_ptr<inputs::InputParameters> & params);
+
+  const std::vector<std::string> rateTypes()
+  {
+    std::vector<std::string> types;
+    types.reserve(rateParameters().size());
+    for (const auto & [type_name, _] : rateParameters())
+    {
+      types.push_back(type_name);
+    }
+    return types;
+  }
 
 private:
   ReactionRegistrar();
@@ -40,14 +52,14 @@ private:
     return rate_parameters;
   }
 
-  static std::map<
-      std::string,
-      std::function<std::unique_ptr<RateReactionBase>(const inputs::InputParameters &)>> &
+  static std::map<std::string,
+                  std::function<std::unique_ptr<RateReactionBase>(
+                      const std::unique_ptr<inputs::InputParameters> &)>> &
   rateConstructors()
   {
-    static std::map<
-        std::string,
-        std::function<std::unique_ptr<RateReactionBase>(const inputs::InputParameters &)>>
+    static std::map<std::string,
+                    std::function<std::unique_ptr<RateReactionBase>(
+                        const std::unique_ptr<inputs::InputParameters> &)>>
         rate_constructors;
     return rate_constructors;
   }

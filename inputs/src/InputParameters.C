@@ -558,6 +558,7 @@ InputParameters::addParams(const InputParameters & params)
 
   for (const auto & [name, block_template_ptr] : params._block_templates)
   {
+    _blocks[name] = std::vector<std::unique_ptr<inputs::InputParameters>>{};
     _block_templates[name] = block_template_ptr->cloneTemplate();
   }
 
@@ -574,6 +575,7 @@ InputParameters::addParams(const InputParameters & params)
     for (const auto & [type, template_ptr] : type_template_map)
     {
       _typed_block_templates[block][type] = template_ptr->cloneTemplate();
+      _typed_blocks[block][type] = std::vector<std::unique_ptr<InputParameters>>{};
     }
   }
 }

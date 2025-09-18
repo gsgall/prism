@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <exception>
+#include <iostream>
 #include <locale>
 #include <sstream>
 #include <iomanip>
@@ -26,8 +27,14 @@ namespace prism
 
 SpeciesManager::SpeciesManager() {}
 
+Species &
+SpeciesManager::speciesById(const SpeciesId id)
+{
+  return _species.at(id);
+}
+
 const outcome::result<const SpeciesId, const std::string>
-SpeciesManager::speciesId(const std::string & name) noexcept
+SpeciesManager::speciesId(const std::string & name, const bool constant) noexcept
 {
   const auto it = std::find_if(
       _species.begin(), _species.end(), [name](const Species & s) { return s.name() == name; });
@@ -65,6 +72,17 @@ SpeciesManager::speciesId(const std::string & name) noexcept
     input_data.mass = it->second;
     input_data.id = _species.size();
     _species.emplace_back(input_data);
+
+    if (constant &&
+        std::find(_constant_ids.begin(), _constant_ids.end(), input_data.id) == _constant_ids.end())
+    {
+      _constant_ids.push_back(input_data.id);
+      return _constant_ids.back();
+    }
+    // if the species was not already declared constant then we can add it
+    if (std::find(_constant_ids.begin(), _constant_ids.end(), input_data.id) == _constant_ids.end())
+      _transient_ids.push_back(input_data.id);
+
     return input_data.id;
   }
 
@@ -100,6 +118,16 @@ SpeciesManager::speciesId(const std::string & name) noexcept
   // now change the mass by the mass of the electron for the charge state of the species
   input_data.mass -= static_cast<double>(input_data.charge) * _masses["e"];
   _species.emplace_back(input_data);
+
+  if (constant &&
+      std::find(_constant_ids.begin(), _constant_ids.end(), input_data.id) == _constant_ids.end())
+  {
+    _constant_ids.push_back(input_data.id);
+    return _constant_ids.back();
+  }
+  // if the species was not already declared constant then we can add it
+  if (std::find(_constant_ids.begin(), _constant_ids.end(), input_data.id) == _constant_ids.end())
+    _transient_ids.push_back(input_data.id);
 
   return input_data.id;
 }
@@ -143,7 +171,7 @@ SpeciesManager::decomposeSpecies(const std::string & name)
   {
     auto & data = sub_data.emplace_back();
 
-    const auto res = speciesId(subSpeciesBase(sub_name));
+    const auto res = speciesId(subSpeciesBase(sub_name), false);
     if (!res)
     {
       std::stringstream msg;
@@ -281,6 +309,18 @@ const std::vector<Species> &
 SpeciesManager::species() const noexcept
 {
   return _species;
+}
+
+const std::vector<SpeciesId> &
+SpeciesManager::constantIds()
+{
+  return _constant_ids;
+}
+
+const std::vector<SpeciesId> &
+SpeciesManager::transientIds()
+{
+  return _transient_ids;
 }
 
 }

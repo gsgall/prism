@@ -52,6 +52,7 @@ private:
   const int _charge;
   const double _mass;
   std::vector<SubSpeciesData> _sub_species_data;
+  std::vector<ReactionData> _reaction_data;
   const std::string _name;
 };
 }

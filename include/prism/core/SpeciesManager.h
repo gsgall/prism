@@ -39,10 +39,14 @@ public:
    * @returns A result object which contains the id if it was able to be created or an error
    * message if it was not able to be created
    */
-  const outcome::result<const SpeciesId, const std::string>
-  speciesId(const std::string & name) noexcept;
+  const outcome::result<const SpeciesId, const std::string> speciesId(const std::string & name,
+                                                                      const bool constant) noexcept;
 
   const std::vector<Species> & species() const noexcept;
+  Species & speciesById(const SpeciesId id);
+
+  const std::vector<SpeciesId> & constantIds();
+  const std::vector<SpeciesId> & transientIds();
 
 private:
   outcome::result<std::tuple<std::string, std::string, int>, std::string>
@@ -56,6 +60,8 @@ private:
   decomposeSpecies(const std::string & name);
 
   std::vector<Species> _species;
+  std::vector<SpeciesId> _constant_ids;
+  std::vector<SpeciesId> _transient_ids;
   /// the mass of every species on the periodic table
   /// these are molar masses in g / mol
   std::unordered_map<std::string, double> _masses = {{"hnu", 0.0},
