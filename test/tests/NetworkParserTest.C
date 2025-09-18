@@ -39,19 +39,19 @@ rate-based:
 
   ASSERT_EQ(reactions.size(), static_cast<size_t>(1));
   EXPECT_EQ(reactions.front()->equation(), "Ar + e -> Ar(r) + e");
-  EXPECT_EQ(reactions.front()->reactants().size(), static_cast<size_t>(2));
-  EXPECT_EQ(reactions.front()->reactants().front().id, static_cast<prism::SpeciesId>(0));
-  EXPECT_EQ(reactions.front()->reactants().front().occurances, static_cast<unsigned int>(1));
-  EXPECT_EQ(reactions.front()->reactants().back().id, static_cast<prism::SpeciesId>(1));
-  EXPECT_EQ(reactions.front()->reactants().back().occurances, static_cast<unsigned int>(1));
+  EXPECT_EQ(reactions.front()->reactantData().size(), static_cast<size_t>(2));
+  EXPECT_EQ(reactions.front()->reactantData().front().id, static_cast<prism::SpeciesId>(0));
+  EXPECT_EQ(reactions.front()->reactantData().front().occurances, static_cast<unsigned int>(1));
+  EXPECT_EQ(reactions.front()->reactantData().back().id, static_cast<prism::SpeciesId>(1));
+  EXPECT_EQ(reactions.front()->reactantData().back().occurances, static_cast<unsigned int>(1));
 
-  // While the reaction does have the reactants in the opposite order we so sort them when we parse
-  // everything so that all of the ids are in sorted order
-  EXPECT_EQ(reactions.front()->products().size(), static_cast<size_t>(2));
-  EXPECT_EQ(reactions.front()->products().front().id, static_cast<prism::SpeciesId>(1));
-  EXPECT_EQ(reactions.front()->products().front().occurances, static_cast<unsigned int>(1));
-  EXPECT_EQ(reactions.front()->products().back().id, static_cast<prism::SpeciesId>(2));
-  EXPECT_EQ(reactions.front()->products().back().occurances, static_cast<unsigned int>(1));
+  // While the reaction does have the reactantData in the opposite order we so sort them when we
+  // parse everything so that all of the ids are in sorted order
+  EXPECT_EQ(reactions.front()->productData().size(), static_cast<size_t>(2));
+  EXPECT_EQ(reactions.front()->productData().front().id, static_cast<prism::SpeciesId>(1));
+  EXPECT_EQ(reactions.front()->productData().front().occurances, static_cast<unsigned int>(1));
+  EXPECT_EQ(reactions.front()->productData().back().id, static_cast<prism::SpeciesId>(2));
+  EXPECT_EQ(reactions.front()->productData().back().occurances, static_cast<unsigned int>(1));
 
   ASSERT_EQ(constant_ids.size(), static_cast<size_t>(1));
   EXPECT_EQ(constant_ids.front(), static_cast<prism::SpeciesId>(0));

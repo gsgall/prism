@@ -10,14 +10,12 @@
 //*
 #include "StringHelper.h"
 
-#include <cctype>
-#include <cmath>
 #include <iostream>
 #include <optional>
 
 namespace prism
 {
-const std::string WHITESPACE = " \n\r\t\f\v";
+static const std::string WHITESPACE = " \n\r\t\f\v";
 
 void
 ltrim(std::string & s)
@@ -263,6 +261,37 @@ clearBalancedSymbols(const std::string & s) noexcept
 }
 
 std::string
+latexParenthesis(const std::string & s) noexcept
+{
+  std::string latex_version;
+  std::vector<char> openers = {'(', '{', '['};
+  std::vector<char> closers = {')', '}', ']'};
+
+  for (const char curr : s)
+  {
+    for (const char o : openers)
+    {
+      if (curr == o)
+      {
+        latex_version += "\\left";
+        break;
+      }
+    }
+
+    for (const char c : closers)
+    {
+      if (curr == c)
+      {
+        latex_version += "\\right";
+        break;
+      }
+    }
+    latex_version += curr;
+  }
+
+  return latex_version;
+}
+std::string
 makeGreen(const std::string & s)
 {
   return "\033[32m" + s + "\033[0m";
@@ -272,18 +301,6 @@ std::string
 makeRed(const std::string & s)
 {
   return "\033[31m" + s + "\033[0m";
-}
-
-void
-printGreen(const std::string & s)
-{
-  std::cout << makeGreen(s);
-}
-
-void
-printRed(const std::string & s)
-{
-  std::cout << makeRed(s);
 }
 
 // std::vector<vector<double>>

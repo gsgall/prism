@@ -122,21 +122,6 @@ std::string formatScientific(const double val);
 void printGreen(const std::string & s);
 
 /**
- * Method add the red escape color to the std::string and prints
- * to standard output
- * @param s the std::string to print in red
- */
-void printRed(const std::string & s);
-
-/**
- * Adds the green escape color to the front of a std::string and
- * then adds the default color escape color the end of it so
- * no other text color is changed
- * @param s the std::string to add the characters to
- */
-std::string makeGreen(const std::string & s);
-
-/**
  * Adds the red escape color to the front of a std::string and
  * then adds the default color escape color the end of it so
  * no other text color is changed
@@ -161,6 +146,16 @@ bool balancedSymbols(const std::string & s);
  * success and an error if there is a mismatched set of symbols
  */
 std::optional<std::string> clearBalancedSymbols(const std::string & s) noexcept;
+
+/**
+ * This will take a string that contains a balanced set of parenthesis () or any other valid
+ * combination of this as defined by the rules in balancedSymbols and it will produce the proper
+ * latex version of this so for a single set of paranethsis it will end up being \left(\right)
+ * TODO: Do some error handling on this for the case where an unbalanced set is provided this shoudl
+ * not be a problem for prism since we validate that this is true for all species names but it might
+ * be a general feature that would be nice
+ */
+std::string latexParenthesis(const std::string & s) noexcept;
 /**
  * Colleces data from files which have columns of data seperated by a
  * delimiter

@@ -207,3 +207,23 @@ TEST(StringHelper, clearBalancedSymbols)
   EXPECT_TRUE(res);
   EXPECT_EQ(res.value(), "[{()}]");
 }
+
+TEST(StringHelper, latexParenthesis)
+{
+
+  std::string latex = prism::latexParenthesis("thadf(this is a test)");
+  EXPECT_EQ(latex, "thadf\\left(this is a test\\right)");
+
+  latex = prism::latexParenthesis("thadf");
+  EXPECT_EQ(latex, "thadf");
+
+  latex = prism::latexParenthesis("09430934{[](this is something)}eroreoijkl");
+  EXPECT_EQ(latex,
+            "09430934\\left{\\left[\\right]\\left(this is something\\right)\\right}eroreoijkl");
+
+  latex = prism::latexParenthesis("[()()]{}");
+  EXPECT_EQ(latex, "\\left[\\left(\\right)\\left(\\right)\\right]\\left{\\right}");
+
+  latex = prism::latexParenthesis("[lkjfd034{13498(adsf)AFLdA}8402LKsld]");
+  EXPECT_EQ(latex, "\\left[lkjfd034\\left{13498\\left(adsf\\right)AFLdA\\right}8402LKsld\\right]");
+}
