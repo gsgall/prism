@@ -6,6 +6,7 @@
 
 namespace prism
 {
+class RateReactionBase;
 class NetworkParser
 {
 public:
@@ -16,6 +17,10 @@ public:
   [[nodiscard]] std::string parseNetwork(const std::string & file_name);
   [[nodiscard]] std::string parseNetwork(std::istream & input_stream);
 
+  [[nodiscard]] const std::vector<std::unique_ptr<RateReactionBase>> & rateReactions()
+  {
+    return _reaction_manager.rateReactions();
+  }
   [[nodiscard]] const std::vector<Species> & species() { return _species_manager.species(); }
 
   [[nodiscard]] const std::vector<SpeciesId> & constantSpeciesIds()

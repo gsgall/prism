@@ -9,6 +9,7 @@
 //* all rights reserved
 //*
 
+#include "RateReactionBase.h"
 #include "ReactionManager.h"
 
 #include "PrismTypes.h"
@@ -18,6 +19,7 @@
 #include "inputs/InputParameters.h"
 #include <exception>
 #include <iomanip>
+#include <memory>
 #include <sstream>
 #include "ReactionRegistrar.h"
 
@@ -27,6 +29,12 @@ namespace prism
 ReactionManager::ReactionManager(SpeciesManager & species_manager)
   : _species_manager(species_manager)
 {
+}
+
+const std::vector<std::unique_ptr<RateReactionBase>> &
+ReactionManager::rateReactions() const noexcept
+{
+  return _rate_reactions;
 }
 
 const outcome::result<ReactionId, std::string>
@@ -63,7 +71,7 @@ ReactionManager::reactionId(const std::unique_ptr<inputs::InputParameters> & par
     return outcome::failure(appendErrorMessage(res, msg.str()));
   }
 
-  std::vector<SpeciesData> product_data = res.value();
+  std::vector<SpeciesData> reactant_data = res.value();
 
   res = parseReactionSide(parts.back());
   if (!res)
@@ -72,15 +80,19 @@ ReactionManager::reactionId(const std::unique_ptr<inputs::InputParameters> & par
     msg << "Failed to parse product side " << std::quoted(parts.back());
     return outcome::failure(appendErrorMessage(res, msg.str()));
   }
+
+  ReactionId new_id = 0;
   if (rate_reaction)
   {
     _rate_reactions.push_back(ReactionRegistrar::instance().constructRateReaction(params));
     _rate_reactions.back()->_id = _rate_reactions.size() - 1;
-    _rate_reactions.back()->_products = product_data;
-    _rate_reactions.back()->_reactants = res.value();
-    return _rate_reactions.back()->_id;
+    _rate_reactions.back()->_reactants = reactant_data;
+    _rate_reactions.back()->_products = res.value();
+    new_id = _rate_reactions.back()->_id;
   }
-  return -1;
+
+  _species_manager.addReaction(new_id, reactant_data, res.value());
+  return new_id;
 }
 
 const outcome::result<std::vector<SpeciesData>, std::string>

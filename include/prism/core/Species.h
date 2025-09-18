@@ -20,6 +20,7 @@ namespace prism
  * The species object which represents the products
  * and reactants in the reaction
  */
+class SpeciesManager;
 class Species
 {
 public:
@@ -32,22 +33,24 @@ public:
    * Getter method for the name of a species object
    * @return the name of the current species
    */
-  const std::string & name() const noexcept;
+  [[nodiscard]] const std::string & name() const noexcept;
 
-  double charge() const noexcept;
-  int chargeNumber() const noexcept;
+  [[nodiscard]] double charge() const noexcept;
+  [[nodiscard]] int chargeNumber() const noexcept;
 
-  double molarMass() const noexcept;
+  [[nodiscard]] double molarMass() const noexcept;
 
   /**
    * Getter method for the name of a species object
    * @return the name of the current species
    */
-  SpeciesId id() const noexcept;
+  [[nodiscard]] SpeciesId id() const noexcept;
 
-  const std::vector<SubSpeciesData> & subSpeciesData() const noexcept;
+  [[nodiscard]] const std::vector<SubSpeciesData> & subSpeciesData() const noexcept;
+  [[nodiscard]] const std::vector<ReactionData> & reactionData() const noexcept;
 
 private:
+  friend SpeciesManager;
   SpeciesId _id;
   const int _charge;
   const double _mass;

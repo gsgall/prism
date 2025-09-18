@@ -1,8 +1,7 @@
 //* This file is a part of PRISM: Plasma Reaction Input SysteM,
 //* A library for parcing chemical reaction networks for plasma chemistry
 //* https://github.com/NCSU-ComPS-Group/prism
-//*
-//* Licensed under MIT, please see LICENSE for details
+//* * Licensed under MIT, please see LICENSE for details
 //* https://opensource.org/license/mit
 //*
 //* Copyright 2024, North Carolina State University
@@ -41,6 +40,10 @@ public:
    */
   const outcome::result<const SpeciesId, const std::string> speciesId(const std::string & name,
                                                                       const bool constant) noexcept;
+
+  void addReaction(const ReactionId,
+                   const std::vector<SpeciesData> & reactants,
+                   const std::vector<SpeciesData> & products);
 
   const std::vector<Species> & species() const noexcept;
   Species & speciesById(const SpeciesId id);

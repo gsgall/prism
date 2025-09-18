@@ -27,7 +27,8 @@ public:
   const outcome::result<ReactionId, std::string>
   reactionId(const std::unique_ptr<inputs::InputParameters> & params, bool rate_reaction) noexcept;
 
-  const std::vector<std::unique_ptr<RateReactionBase>> & rateReactions() const noexcept;
+  [[nodiscard]] const std::vector<std::unique_ptr<RateReactionBase>> &
+  rateReactions() const noexcept;
 
 private:
   const outcome::result<std::vector<SpeciesData>, std::string>

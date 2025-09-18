@@ -9,6 +9,10 @@
 //* ALL RIGHTS RESERVED
 //*
 #include "gtest/gtest.h"
+#include <exception>
+#include <memory>
+#include "PrismTypes.h"
+#include "RateReactionBase.h"
 #include "prism/core/NetworkParser.h"
 
 TEST(NetworkParserTest, ConstantSpecies)
@@ -32,14 +36,50 @@ rate-based:
   const std::vector<prism::SpeciesId> & constant_ids = np.constantSpeciesIds();
   const std::vector<prism::SpeciesId> & transient_ids = np.transientSpeciesIds();
   const std::vector<prism::Species> & species = np.species();
+  const std::vector<std::unique_ptr<prism::RateReactionBase>> & reactions = np.rateReactions();
+
+  ASSERT_EQ(reactions.size(), static_cast<size_t>(1));
+  EXPECT_EQ(reactions.front()->equation(), "Ar + e -> Ar(r) + e");
+  EXPECT_EQ(reactions.front()->reactants().size(), static_cast<size_t>(2));
+  EXPECT_EQ(reactions.front()->reactants().front().id, static_cast<prism::SpeciesId>(0));
+  EXPECT_EQ(reactions.front()->reactants().front().occurances, static_cast<unsigned int>(1));
+  EXPECT_EQ(reactions.front()->reactants().back().id, static_cast<prism::SpeciesId>(1));
+  EXPECT_EQ(reactions.front()->reactants().back().occurances, static_cast<unsigned int>(1));
+
+  // While the reaction does have the reactants in the opposite order we so sort them when we parse
+  // everything so that all of the ids are in sorted order
+  EXPECT_EQ(reactions.front()->products().size(), static_cast<size_t>(2));
+  EXPECT_EQ(reactions.front()->products().front().id, static_cast<prism::SpeciesId>(1));
+  EXPECT_EQ(reactions.front()->products().front().occurances, static_cast<unsigned int>(1));
+  EXPECT_EQ(reactions.front()->products().back().id, static_cast<prism::SpeciesId>(2));
+  EXPECT_EQ(reactions.front()->products().back().occurances, static_cast<unsigned int>(1));
 
   ASSERT_EQ(constant_ids.size(), static_cast<size_t>(1));
   EXPECT_EQ(constant_ids.front(), static_cast<prism::SpeciesId>(0));
-  EXPECT_EQ(species[constant_ids.front()].name(), "Ar");
+  const auto ar = species[constant_ids.front()];
+
+  const std::vector<prism::ReactionData> & ar_rxn_data = ar.reactionData();
+  EXPECT_EQ(ar.name(), "Ar");
+  EXPECT_EQ(ar.id(), constant_ids.front());
+  EXPECT_EQ(ar_rxn_data.front().id, static_cast<prism::SpeciesId>(0));
+  EXPECT_EQ(ar_rxn_data.front().stoic_coeff, -1);
+
+  const auto e = species[transient_ids.front()];
+  const std::vector<prism::ReactionData> & e_rxn_data = e.reactionData();
+  const auto ar_v = species[transient_ids.back()];
+  const std::vector<prism::ReactionData> & ar_v_rxn_data = ar_v.reactionData();
 
   ASSERT_EQ(transient_ids.size(), static_cast<size_t>(2));
   EXPECT_EQ(transient_ids.front(), static_cast<prism::SpeciesId>(1));
-  EXPECT_EQ(species[transient_ids.front()].name(), "e");
   EXPECT_EQ(transient_ids.back(), static_cast<prism::SpeciesId>(2));
-  EXPECT_EQ(species[transient_ids.back()].name(), "Ar(r)");
+
+  EXPECT_EQ(e.name(), "e");
+  EXPECT_EQ(e.id(), transient_ids.front());
+  EXPECT_EQ(e_rxn_data.front().id, static_cast<prism::SpeciesId>(0));
+  EXPECT_EQ(e_rxn_data.front().stoic_coeff, 0);
+
+  EXPECT_EQ(ar_v.name(), "Ar(r)");
+  EXPECT_EQ(ar_v.id(), transient_ids.back());
+  EXPECT_EQ(ar_v_rxn_data.front().id, static_cast<prism::SpeciesId>(0));
+  EXPECT_EQ(ar_v_rxn_data.front().stoic_coeff, 1);
 }

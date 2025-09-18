@@ -20,6 +20,7 @@
 #include <locale>
 #include <sstream>
 #include <iomanip>
+#include <string>
 #include <tuple>
 
 namespace prism
@@ -31,6 +32,35 @@ Species &
 SpeciesManager::speciesById(const SpeciesId id)
 {
   return _species.at(id);
+}
+
+void
+SpeciesManager::addReaction(const ReactionId id,
+                            const std::vector<SpeciesData> & reactants,
+                            const std::vector<SpeciesData> & products)
+{
+  std::unordered_map<SpeciesId, int> stoic_map;
+
+  for (const SpeciesData & data : reactants)
+  {
+    if (stoic_map.count(data.id) == 0)
+      stoic_map[data.id] = 0;
+    stoic_map[data.id] -= static_cast<int>(data.occurances);
+  }
+
+  for (const SpeciesData & data : products)
+  {
+    if (stoic_map.count(data.id) == 0)
+      stoic_map[data.id] = 0;
+    stoic_map[data.id] += static_cast<int>(data.occurances);
+  }
+
+  for (const auto & [species_id, stoic_coeff] : stoic_map)
+  {
+    auto & data = _species[species_id]._reaction_data.emplace_back();
+    data.id = id;
+    data.stoic_coeff = stoic_coeff;
+  }
 }
 
 const outcome::result<const SpeciesId, const std::string>
