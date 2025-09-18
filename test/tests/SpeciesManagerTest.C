@@ -17,8 +17,11 @@ TEST(SpeciesManager, CorrectModifiers)
   ASSERT_TRUE(manager.speciesId("Ar(alpha)", false));
 
   EXPECT_EQ(manager.speciesById(0).name(), "Ar");
-  EXPECT_EQ(manager.speciesById(0).modifier(), "");
+  EXPECT_EQ(manager.speciesById(0).baseName(), "Ar");
+  EXPECT_TRUE(manager.speciesById(0).modifier().empty());
+
   EXPECT_EQ(manager.speciesById(1).name(), "Ar(alpha)");
+  EXPECT_EQ(manager.speciesById(1).baseName(), "Ar");
   EXPECT_EQ(manager.speciesById(1).modifier(), "(alpha)");
 }
 

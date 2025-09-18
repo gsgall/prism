@@ -49,6 +49,7 @@ struct SpeciesInitialData
   int charge;
   double mass;
   std::string name;
+  std::string base_name;
   std::string modifier;
   std::vector<SubSpeciesData> sub_species_data;
 };

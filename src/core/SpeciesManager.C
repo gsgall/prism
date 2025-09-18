@@ -93,6 +93,7 @@ SpeciesManager::speciesId(const std::string & name, const bool constant) noexcep
 
   auto input_data = SpeciesInitialData();
   input_data.name = name;
+  input_data.base_name = name;
   input_data.modifier = "";
   // base case where we have no modifier on the species object
   // if there are only letters and there is only a single capital letter then we have a base case
@@ -135,6 +136,7 @@ SpeciesManager::speciesId(const std::string & name, const bool constant) noexcep
   }
 
   input_data.mass = 0;
+  input_data.base_name = std::get<0>(res.value());
   input_data.modifier = std::get<1>(res.value());
   input_data.charge = std::get<2>(res.value());
 
