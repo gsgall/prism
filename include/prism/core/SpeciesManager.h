@@ -40,17 +40,21 @@ public:
    */
   const outcome::result<const SpeciesId, const std::string> speciesId(const std::string & name,
                                                                       const bool constant) noexcept;
+  const outcome::result<void, std::string>
+  addLatexOverride(const std::string & species_name, const std::string & latex_override) noexcept;
+
+  [[nodiscard]] std::string latex(const SpeciesId id) const noexcept(false);
 
   void addReaction(const ReactionId,
                    const std::vector<SpeciesData> & reactants,
                    const std::vector<SpeciesData> & products,
                    const bool rate_reaction);
 
-  const std::vector<Species> & species() const noexcept;
-  Species & speciesById(const SpeciesId id);
+  [[nodiscard]] const std::vector<Species> & species() const noexcept;
+  [[nodiscard]] const Species & species(const SpeciesId id) const noexcept(false);
 
-  const std::vector<SpeciesId> & constantIds();
-  const std::vector<SpeciesId> & transientIds();
+  [[nodiscard]] const std::vector<SpeciesId> & constantIds();
+  [[nodiscard]] const std::vector<SpeciesId> & transientIds();
 
 private:
   outcome::result<std::tuple<std::string, std::string, int>, std::string>
@@ -66,6 +70,7 @@ private:
   std::vector<Species> _species;
   std::vector<SpeciesId> _constant_ids;
   std::vector<SpeciesId> _transient_ids;
+  std::unordered_map<std::string, std::string> _latex_override;
   /// the mass of every species on the periodic table
   /// these are molar masses in g / mol
   std::unordered_map<std::string, double> _masses = {{"hnu", 0.0},

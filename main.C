@@ -213,20 +213,16 @@ main()
 
 {
 
-  std::istringstream input(R"(
-bibliography: works.bib
-constant-species: [Ar]
+  auto manager = prism::SpeciesManager();
+  auto species = manager.species();
 
-rate-based:
-  - reaction: Ar + e -> Ar(r) + e
-    type: ConstantRateReaction
-    rate: 1
-    references: [ lymberopoulos1993fluid ]
-)");
+  auto res0 = manager.speciesId("Ar", false);
+  auto res9 = manager.speciesId("e", false);
+  auto res10 = manager.speciesId("hnu", false);
 
-  auto np = prism::NetworkParser();
-
-  const auto errors = np.parseNetwork(input);
+  std::cout << species[res0.value()].latex() << std::endl;
+  std::cout << species[res9.value()].latex() << std::endl;
+  std::cout << species[res10.value()].latex() << std::endl;
 
   return 0;
 }

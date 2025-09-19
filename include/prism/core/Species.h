@@ -34,6 +34,7 @@ public:
    * @return the name of the current species
    */
   [[nodiscard]] const std::string & name() const noexcept;
+  [[nodiscard]] const std::string & latex() const noexcept;
   [[nodiscard]] const std::string & baseName() const noexcept;
   [[nodiscard]] const std::string & modifier() const noexcept;
   [[nodiscard]] double charge() const noexcept;
@@ -57,6 +58,7 @@ private:
   const std::string _name;
   const std::string _base_name;
   const std::string _modifier;
+  std::string _latex;
   std::vector<SubSpeciesData> _sub_species_data;
   std::vector<ReactionData> _rate_reaction_data;
   std::vector<ReactionData> _xsec_reaction_data;

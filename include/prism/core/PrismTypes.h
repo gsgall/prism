@@ -51,16 +51,10 @@ struct SpeciesInitialData
   std::string name;
   std::string base_name;
   std::string modifier;
+  std::string latex;
   std::vector<SubSpeciesData> sub_species_data;
 };
 
-struct ReactionInitialData
-{
-  ReactionId id;
-  std::string equation;
-  std::vector<SpeciesData> reactants;
-  std::vector<SpeciesData> products;
-};
 }
 
 namespace YAML

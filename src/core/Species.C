@@ -19,8 +19,15 @@ Species::Species(const SpeciesInitialData & data)
     _name(data.name),
     _base_name(data.base_name),
     _modifier(data.modifier),
+    _latex(data.latex),
     _sub_species_data(data.sub_species_data)
 {
+}
+
+const std::string &
+Species::latex() const noexcept
+{
+  return _latex;
 }
 
 const std::string &

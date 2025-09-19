@@ -11,18 +11,86 @@
 #include "gtest/gtest.h"
 #include "prism/core/SpeciesManager.h"
 
-TEST(SpeciesManager, CorrectModifiers)
+TEST(SpeciesManager, Modifiers)
 {
   auto manager = prism::SpeciesManager();
-  ASSERT_TRUE(manager.speciesId("Ar(alpha)", false));
+  auto res0 = manager.speciesId("Ar(alpha)", false);
+  ASSERT_TRUE(res0);
+  auto res1 = manager.speciesId("Ar+", false);
+  ASSERT_TRUE(res1);
+  auto res2 = manager.speciesId("Ar+(alpha)", false);
+  ASSERT_TRUE(res2);
+  auto res3 = manager.speciesId("Ar-(alpha)", false);
+  ASSERT_TRUE(res3);
+  auto res4 = manager.speciesId("Ar+2(alpha)", false);
+  ASSERT_TRUE(res4);
+  auto res5 = manager.speciesId("Ar+2*(alpha)", false);
+  ASSERT_TRUE(res5);
 
-  EXPECT_EQ(manager.speciesById(0).name(), "Ar");
-  EXPECT_EQ(manager.speciesById(0).baseName(), "Ar");
-  EXPECT_TRUE(manager.speciesById(0).modifier().empty());
+  EXPECT_EQ(manager.species(res0.value()).name(), "Ar(alpha)");
+  EXPECT_EQ(manager.species(res0.value()).baseName(), "Ar");
+  EXPECT_EQ(manager.species(res0.value()).modifier(), "(alpha)");
 
-  EXPECT_EQ(manager.speciesById(1).name(), "Ar(alpha)");
-  EXPECT_EQ(manager.speciesById(1).baseName(), "Ar");
-  EXPECT_EQ(manager.speciesById(1).modifier(), "(alpha)");
+  EXPECT_EQ(manager.species(res1.value()).name(), "Ar+");
+  EXPECT_EQ(manager.species(res1.value()).baseName(), "Ar");
+  EXPECT_EQ(manager.species(res1.value()).modifier(), "");
+
+  EXPECT_EQ(manager.species(res2.value()).name(), "Ar+(alpha)");
+  EXPECT_EQ(manager.species(res2.value()).baseName(), "Ar");
+  EXPECT_EQ(manager.species(res2.value()).modifier(), "(alpha)");
+
+  EXPECT_EQ(manager.species(res3.value()).name(), "Ar-(alpha)");
+  EXPECT_EQ(manager.species(res3.value()).baseName(), "Ar");
+  EXPECT_EQ(manager.species(res3.value()).modifier(), "(alpha)");
+
+  EXPECT_EQ(manager.species(res4.value()).name(), "Ar+2(alpha)");
+  EXPECT_EQ(manager.species(res4.value()).baseName(), "Ar");
+  EXPECT_EQ(manager.species(res4.value()).modifier(), "(alpha)");
+
+  EXPECT_EQ(manager.species(res5.value()).name(), "Ar+2*(alpha)");
+  EXPECT_EQ(manager.species(res5.value()).baseName(), "Ar");
+  EXPECT_EQ(manager.species(res5.value()).modifier(), "*(alpha)");
+}
+
+TEST(SpeciesManager, LaTeXRepresentations)
+{
+  auto manager = prism::SpeciesManager();
+  ASSERT_TRUE(manager.addLatexOverride("Ar(r)", "Ar^{r}"));
+  auto res0 = manager.speciesId("Ar", false);
+  ASSERT_TRUE(res0);
+  auto res1 = manager.speciesId("Ar(alpha)", false);
+  ASSERT_TRUE(res1);
+  auto res2 = manager.speciesId("Ar2(AAAA)", false);
+  ASSERT_TRUE(res2);
+  auto res3 = manager.speciesId("Ar*(A)", false);
+  ASSERT_TRUE(res3);
+  auto res4 = manager.speciesId("Ar+(2A*)", false);
+  ASSERT_TRUE(res4);
+  auto res5 = manager.speciesId("Ar-(2A*)", false);
+  ASSERT_TRUE(res5);
+  auto res6 = manager.speciesId("H3+4(test)", false);
+  ASSERT_TRUE(res6);
+  auto res7 = manager.speciesId("Ar2CF4H3-4(test)", false);
+  ASSERT_TRUE(res7);
+  auto res8 = manager.speciesId("Ar(r)", false);
+  ASSERT_TRUE(res8);
+  auto res9 = manager.speciesId("e", false);
+  ASSERT_TRUE(res9);
+  auto res10 = manager.speciesId("hnu", false);
+  ASSERT_TRUE(res10);
+
+  const auto & species = manager.species();
+  EXPECT_EQ(species[res0.value()].latex(), "Ar");
+  EXPECT_EQ(species[res1.value()].latex(), "Ar\\left(alpha\\right)");
+  EXPECT_EQ(species[res2.value()].latex(), "Ar_{2}\\left(AAAA\\right)");
+  EXPECT_EQ(species[res3.value()].latex(), "Ar^{*}\\left(A\\right)");
+  EXPECT_EQ(species[res4.value()].latex(), "Ar^{+}\\left(2A*\\right)");
+  EXPECT_EQ(species[res5.value()].latex(), "Ar^{-}\\left(2A*\\right)");
+  EXPECT_EQ(species[res6.value()].latex(), "H_{3}^{4+}\\left(test\\right)");
+  EXPECT_EQ(species[res7.value()].latex(), "Ar_{2}CF_{4}H_{3}^{4-}\\left(test\\right)");
+  EXPECT_EQ(species[res8.value()].latex(), "Ar^{r}");
+  EXPECT_EQ(species[res9.value()].latex(), "e");
+  EXPECT_EQ(species[res10.value()].latex(), "h$\\nu$");
 }
 
 TEST(SpeciesManager, ValidSpeciesNames)
@@ -38,6 +106,7 @@ TEST(SpeciesManager, ValidSpeciesNames)
   EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(test)", false));
   EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(T)", false));
   EXPECT_TRUE(manager.speciesId("H3-4(*T)", false));
+  EXPECT_TRUE(manager.speciesId("H3-4*(*T)", false));
   EXPECT_TRUE(manager.speciesId("e", false));
   EXPECT_TRUE(manager.speciesId("E", false));
   EXPECT_TRUE(manager.speciesId("hnu", false));
@@ -52,5 +121,8 @@ TEST(SpeciesManager, InvalidSpeciesNames)
   EXPECT_FALSE(manager.speciesId("Ar2C*F4H3+4(test)", false));
   EXPECT_FALSE(manager.speciesId("Ar2CF4H3+4(test)lkasdf", false));
   EXPECT_FALSE(manager.speciesId("Ar2CF4H3+4ads(test)", false));
+  EXPECT_FALSE(manager.speciesId("Armodifier", false));
   EXPECT_FALSE(manager.speciesId("Z", false));
+  // TODO: make some better rules so that this can be valid syntax
+  EXPECT_FALSE(manager.speciesId("Ar^r", false));
 }

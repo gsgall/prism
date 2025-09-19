@@ -8,12 +8,14 @@
 //* Copyright 2024, North Carolina State University
 //* ALL RIGHTS RESERVED
 //*
+#include "PrismTypes.h"
 #include "SpeciesManager.h"
 #include "StringHelper.h"
 #include "PrismErrorHelper.h"
 #include "boost/outcome/success_failure.hpp"
 
 #include <algorithm>
+#include <boost/smart_ptr/shared_ptr.hpp>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -26,12 +28,75 @@
 namespace prism
 {
 
-SpeciesManager::SpeciesManager() {}
+SpeciesManager::SpeciesManager() { static_cast<void>(addLatexOverride("hnu", "h$\\nu$")); }
 
-Species &
-SpeciesManager::speciesById(const SpeciesId id)
+const Species &
+SpeciesManager::species(const SpeciesId id) const noexcept(false)
 {
   return _species.at(id);
+}
+
+const outcome::result<void, std::string>
+SpeciesManager::addLatexOverride(const std::string & species_name,
+                                 const std::string & latex_override) noexcept
+{
+  _latex_override[species_name] = latex_override;
+  return outcome::success();
+}
+
+std::string
+SpeciesManager::latex(const SpeciesId id) const noexcept(false)
+{
+
+  const auto & species = _species.at(id);
+
+  if (_latex_override.count(species.name()) != 0)
+  {
+    return _latex_override.at(species.name());
+  }
+
+  if (species.subSpeciesData().empty())
+  {
+    return species.name();
+  }
+
+  std::string latex = "";
+  for (const auto & sub_data : species._sub_species_data)
+  {
+    latex += _species.at(sub_data.id).name();
+    if (sub_data.sub_script == 1)
+      continue;
+
+    latex += "_{" + std::to_string(sub_data.sub_script) + "}";
+  }
+
+  std::string potential_modifier = latexParenthesis(species.modifier());
+
+  const size_t slash_idx = potential_modifier.find("\\");
+  if (species.chargeNumber() != 0 || slash_idx != 0)
+  {
+    latex += "^{";
+
+    if (species.chargeNumber() != 0)
+    {
+      latex += species.chargeNumber() < -1 || species.chargeNumber() > 1
+                   ? std::to_string(std::abs(species.chargeNumber()))
+                   : "";
+      latex += species.chargeNumber() > 0 ? "+" : "-";
+    }
+
+    if (slash_idx != std::string::npos)
+    {
+      latex += potential_modifier.substr(0, slash_idx);
+      potential_modifier = potential_modifier.substr(slash_idx);
+    }
+
+    latex += "}";
+  }
+
+  latex += potential_modifier;
+
+  return latex;
 }
 
 void
@@ -159,6 +224,7 @@ SpeciesManager::speciesId(const std::string & name, const bool constant) noexcep
   // now change the mass by the mass of the electron for the charge state of the species
   input_data.mass -= static_cast<double>(input_data.charge) * _masses["e"];
   _species.emplace_back(input_data);
+  _species.back()._latex = latex(input_data.id);
 
   if (constant &&
       std::find(_constant_ids.begin(), _constant_ids.end(), input_data.id) == _constant_ids.end())
@@ -274,7 +340,7 @@ SpeciesManager::trimSpeciesModifier(const std::string & name) const noexcept
   auto modifier = name.substr(special_idx, name.size());
 
   // we need to keep a copy of this for the sake of error messages later on
-  const auto full_modifier = modifier;
+  auto full_modifier = modifier;
   const auto res = clearBalancedSymbols(modifier);
 
   if (!res)
@@ -309,13 +375,18 @@ SpeciesManager::trimSpeciesModifier(const std::string & name) const noexcept
     charge = modifier.front() == '+' ? 1 : -1;
 
     modifier = modifier.substr(1, modifier.length());
+    full_modifier = full_modifier.substr(1, full_modifier.length());
 
     const auto charge_end = findFirstNonNumber(modifier);
     if (charge_end != -1)
     {
       try
       {
-        charge *= std::stoi(modifier.substr(0, charge_end));
+        const std::string charge_str = modifier.substr(0, charge_end);
+        if (!charge_str.empty())
+        {
+          charge *= std::stoi(charge_str);
+        }
       }
       catch (const std::exception & e)
       {
@@ -327,6 +398,7 @@ SpeciesManager::trimSpeciesModifier(const std::string & name) const noexcept
       }
 
       modifier = modifier.substr(charge_end, modifier.length());
+      full_modifier = full_modifier.substr(charge_end, full_modifier.length());
     }
   }
 
