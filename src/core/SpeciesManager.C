@@ -166,6 +166,9 @@ SpeciesManager::speciesId(const std::string & name, const bool constant) noexcep
   if (findFirstNonLetter(name) == -1 && splitByCapital(name).size() == 1)
   {
     input_data.charge = 0;
+
+    if (name.compare("e") == 0 || name.compare("E") == 0)
+      input_data.charge = -1;
     input_data.sub_species_data = {};
     const auto it = _masses.find(input_data.name);
     if (it == _masses.end())
@@ -178,6 +181,7 @@ SpeciesManager::speciesId(const std::string & name, const bool constant) noexcep
     input_data.mass = it->second;
     input_data.id = _species.size();
     _species.emplace_back(input_data);
+    _species.back()._latex = latex(input_data.id);
 
     if (constant &&
         std::find(_constant_ids.begin(), _constant_ids.end(), input_data.id) == _constant_ids.end())
@@ -329,7 +333,7 @@ SpeciesManager::trimSpeciesModifier(const std::string & name) const noexcept
     return std::make_tuple(name, "", 0);
 
   if (name.compare("e") == 0 || name.compare("E") == 0)
-    return std::make_tuple(name, "", 1);
+    return std::make_tuple(name, "", -1);
 
   auto special_idx = findFirstSpecial(name);
 
@@ -370,6 +374,7 @@ SpeciesManager::trimSpeciesModifier(const std::string & name) const noexcept
   // at this point we will remove any charge in formation that is potentailly on the front of the
   // string
   int charge = 0;
+
   if (modifier.front() == '+' || modifier.front() == '-')
   {
     charge = modifier.front() == '+' ? 1 : -1;

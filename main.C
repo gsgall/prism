@@ -214,11 +214,11 @@ main()
 {
 
   auto manager = prism::SpeciesManager();
-  auto species = manager.species();
 
   auto res0 = manager.speciesId("Ar", false);
   auto res9 = manager.speciesId("e", false);
   auto res10 = manager.speciesId("hnu", false);
+  auto species = manager.species();
 
   std::cout << species[res0.value()].latex() << std::endl;
   std::cout << species[res9.value()].latex() << std::endl;

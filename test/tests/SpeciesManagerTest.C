@@ -96,20 +96,58 @@ TEST(SpeciesManager, LaTeXRepresentations)
 TEST(SpeciesManager, ValidSpeciesNames)
 {
   auto manager = prism::SpeciesManager();
-  EXPECT_TRUE(manager.speciesId("Ar", false));
-  EXPECT_TRUE(manager.speciesId("Ar(alpha)", false));
-  EXPECT_TRUE(manager.speciesId("Ar2(AAAA)", false));
-  EXPECT_TRUE(manager.speciesId("Ar*(A)", false));
-  EXPECT_TRUE(manager.speciesId("Ar*(2A*)", false));
-  EXPECT_TRUE(manager.speciesId("Ar*(2A*)", false));
-  EXPECT_TRUE(manager.speciesId("H3+4(test)", false));
-  EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(test)", false));
-  EXPECT_TRUE(manager.speciesId("Ar2CF4H3+4(T)", false));
-  EXPECT_TRUE(manager.speciesId("H3-4(*T)", false));
-  EXPECT_TRUE(manager.speciesId("H3-4*(*T)", false));
-  EXPECT_TRUE(manager.speciesId("e", false));
-  EXPECT_TRUE(manager.speciesId("E", false));
-  EXPECT_TRUE(manager.speciesId("hnu", false));
+  auto res0 = manager.speciesId("Ar", false);
+  auto res1 = manager.speciesId("Ar(alpha)", false);
+  auto res2 = manager.speciesId("Ar2(AAAA)", false);
+  auto res3 = manager.speciesId("Ar*(A)", false);
+  auto res4 = manager.speciesId("Ar*(2A*)", false);
+  auto res5 = manager.speciesId("Ar*(2A*)", false);
+  auto res6 = manager.speciesId("H3+4(test)", false);
+  auto res7 = manager.speciesId("Ar2CF4H3+4(test)", false);
+  auto res8 = manager.speciesId("Ar2CF4H3+4(T)", false);
+  auto res9 = manager.speciesId("H3-4(*T)", false);
+  auto res10 = manager.speciesId("H3-4*(*T)", false);
+  auto res11 = manager.speciesId("e", false);
+  auto res12 = manager.speciesId("E", false);
+  auto res13 = manager.speciesId("hnu", false);
+  auto res14 = manager.speciesId("H+", false);
+  auto res15 = manager.speciesId("H-", false);
+
+  const auto species = manager.species();
+
+  ASSERT_TRUE(res0);
+  ASSERT_TRUE(res1);
+  ASSERT_TRUE(res2);
+  ASSERT_TRUE(res3);
+  ASSERT_TRUE(res4);
+  ASSERT_TRUE(res5);
+  ASSERT_TRUE(res6);
+  ASSERT_TRUE(res7);
+  ASSERT_TRUE(res8);
+  ASSERT_TRUE(res9);
+  ASSERT_TRUE(res10);
+  ASSERT_TRUE(res11);
+  ASSERT_TRUE(res12);
+  ASSERT_TRUE(res13);
+  ASSERT_TRUE(res14);
+  ASSERT_TRUE(res15);
+
+  EXPECT_EQ(species[res0.value()].chargeNumber(), 0);
+  EXPECT_EQ(species[res1.value()].chargeNumber(), 0);
+  EXPECT_EQ(species[res2.value()].chargeNumber(), 0);
+  EXPECT_EQ(species[res3.value()].chargeNumber(), 0);
+  EXPECT_EQ(species[res4.value()].chargeNumber(), 0);
+  EXPECT_EQ(species[res5.value()].chargeNumber(), 0);
+  EXPECT_EQ(species[res6.value()].chargeNumber(), 4);
+  EXPECT_EQ(species[res7.value()].chargeNumber(), 4);
+  EXPECT_EQ(species[res8.value()].chargeNumber(), 4);
+  EXPECT_EQ(species[res9.value()].chargeNumber(), -4);
+  EXPECT_EQ(species[res10.value()].chargeNumber(), -4);
+  EXPECT_EQ(species[res11.value()].chargeNumber(), -1);
+  EXPECT_EQ(species[res12.value()].chargeNumber(), -1);
+  EXPECT_EQ(species[res13.value()].chargeNumber(), 0);
+  EXPECT_EQ(species[res14.value()].chargeNumber(), 1);
+  EXPECT_EQ(species[res15.value()].chargeNumber(), -1);
 }
 
 TEST(SpeciesManager, InvalidSpeciesNames)
