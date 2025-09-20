@@ -8,8 +8,8 @@
 //* copyright 2024, north carolina state university
 //* all rights reserved
 //*
+#include "PrismTypes.h"
 #include "ReactionBase.h"
-#include <boost/outcome/success_failure.hpp>
 
 namespace prism
 {
@@ -64,6 +64,12 @@ ReactionBase::ReactionBase(const inputs::InputParameters & params)
     _notes(params.getParam<std::vector<std::string>>("notes")),
     _references(params.getParam<std::vector<std::string>>("references"))
 {
+}
+
+ReactionId
+ReactionBase::id() const noexcept
+{
+  return _id;
 }
 
 const std::string &

@@ -101,8 +101,8 @@ SpeciesManager::latex(const SpeciesId id) const noexcept(false)
 
 void
 SpeciesManager::addReaction(const ReactionId id,
-                            const std::vector<SpeciesData> & reactants,
-                            const std::vector<SpeciesData> & products,
+                            std::vector<SpeciesData> & reactants,
+                            std::vector<SpeciesData> & products,
                             const bool rate_reaction)
 {
   std::unordered_map<SpeciesId, int> stoic_map;
@@ -135,6 +135,16 @@ SpeciesManager::addReaction(const ReactionId id,
       data.id = id;
       data.stoic_coeff = stoic_coeff;
     }
+  }
+
+  for (SpeciesData & data : reactants)
+  {
+    data.stoic_coeff = stoic_map[data.id];
+  }
+
+  for (SpeciesData & data : products)
+  {
+    data.stoic_coeff = stoic_map[data.id];
   }
 }
 

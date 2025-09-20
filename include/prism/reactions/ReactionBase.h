@@ -28,6 +28,7 @@ public:
 
   ReactionBase(const inputs::InputParameters & params);
 
+  [[nodiscard]] ReactionId id() const noexcept;
   [[nodiscard]] const std::string & equation() const noexcept;
   [[nodiscard]] const std::vector<std::string> & notes() const noexcept;
   [[nodiscard]] const std::vector<std::string> & references() const noexcept;

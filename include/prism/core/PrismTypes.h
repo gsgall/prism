@@ -19,6 +19,8 @@ struct SpeciesData
   SpeciesId id;
   /// the number of times the species occurs on a side of the reaction
   unsigned int occurances;
+  /// The stoiciometic coefficient of the species for the reaction which owns the Species Data struct.
+  int stoic_coeff;
 };
 /**
  * Struct for a quick way to access which reactions the species is in

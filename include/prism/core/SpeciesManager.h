@@ -46,8 +46,8 @@ public:
   [[nodiscard]] std::string latex(const SpeciesId id) const noexcept(false);
 
   void addReaction(const ReactionId,
-                   const std::vector<SpeciesData> & reactants,
-                   const std::vector<SpeciesData> & products,
+                   std::vector<SpeciesData> & reactants,
+                   std::vector<SpeciesData> & products,
                    const bool rate_reaction);
 
   [[nodiscard]] const std::vector<Species> & species() const noexcept;

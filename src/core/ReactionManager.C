@@ -13,6 +13,7 @@
 #include "ReactionManager.h"
 
 #include "PrismTypes.h"
+#include "Species.h"
 #include "SpeciesManager.h"
 #include "StringHelper.h"
 #include "PrismErrorHelper.h"
@@ -35,6 +36,12 @@ const std::vector<std::unique_ptr<RateReactionBase>> &
 ReactionManager::rateReactions() const noexcept
 {
   return _rate_reactions;
+}
+
+const std::unique_ptr<RateReactionBase> &
+ReactionManager::rateReaction(const ReactionId id) const noexcept(false)
+{
+  return _rate_reactions.at(id);
 }
 
 const outcome::result<ReactionId, std::string>
@@ -89,9 +96,12 @@ ReactionManager::reactionId(const std::unique_ptr<inputs::InputParameters> & par
     _rate_reactions.back()->_reactants = reactant_data;
     _rate_reactions.back()->_products = res.value();
     new_id = _rate_reactions.back()->_id;
+    _species_manager.addReaction(new_id,
+                                 _rate_reactions.back()->_reactants,
+                                 _rate_reactions.back()->_products,
+                                 rate_reaction);
   }
 
-  _species_manager.addReaction(new_id, reactant_data, res.value(), rate_reaction);
   return new_id;
 }
 
