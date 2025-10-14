@@ -1,7 +1,7 @@
 #include "InputErrorHelper.h"
 #include <sstream>
 
-const std::string
+std::string
 errorWithContext(const std::string & message, const char * file, int line, const char * function)
 {
   std::stringstream msg;

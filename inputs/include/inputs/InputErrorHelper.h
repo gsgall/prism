@@ -23,5 +23,5 @@
  */
 #define errorMessage(message) errorWithContext(message, __FILE__, __LINE__, __FUNCTION__)
 
-const std::string
+std::string
 errorWithContext(const std::string & message, const char * file, int line, const char * function);
