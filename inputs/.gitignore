@@ -35,3 +35,6 @@ osx-arm64
 *.xml
 *.gz*
 *old*
+zig-out
+.zig-cache
+.cache
