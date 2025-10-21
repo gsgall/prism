@@ -9,7 +9,6 @@
 //* ALL RIGHTS RESERVED
 //*
 #include "TypeNameHelper.h"
-#include <unordered_map>
 // TODO: This includes more than is actually needed but I need to go back and figure out which set
 // of header files actually enables Node::Type() to be called when building the dynamic library
 #include "yaml-cpp/yaml.h"
@@ -19,77 +18,6 @@ namespace inputs
 
 namespace utils
 {
-template <typename T>
-std::string
-typeName()
-{
-  if constexpr (std::is_same_v<T, int>)
-  {
-    return "int";
-  }
-  else if constexpr (std::is_same_v<T, bool>)
-  {
-    return "bool";
-  }
-  else if constexpr (std::is_same_v<T, double>)
-  {
-    return "double";
-  }
-  if constexpr (std::is_same_v<T, unsigned int>)
-  {
-    return "unsigned int";
-  }
-  else if constexpr (std::is_same_v<T, std::string>)
-  {
-    return "std::string";
-  }
-  else if constexpr (std::is_same_v<T, std::vector<int>>)
-  {
-    return "std::vector<int>";
-  }
-  else if constexpr (std::is_same_v<T, std::vector<double>>)
-  {
-    return "std::vector<double>";
-  }
-  else if constexpr (std::is_same_v<T, std::vector<unsigned int>>)
-  {
-    return "std::vector<unsigned int>";
-  }
-  else if constexpr (std::is_same_v<T, std::vector<std::string>>)
-  {
-    return "std::vector<std::string>";
-  }
-  else if constexpr (std::is_same_v<T, std::unordered_map<std::string, int>>)
-  {
-    return "std::unordered_map<std::string, int>";
-  }
-  else if constexpr (std::is_same_v<T, std::unordered_map<std::string, double>>)
-  {
-    return "std::unordered_map<std::string, double>";
-  }
-  else if constexpr (std::is_same_v<T, std::unordered_map<std::string, std::string>>)
-  {
-    return "std::unordered_map<std::string, std::string>";
-  }
-  else if constexpr (std::is_same_v<T, std::unordered_map<std::string, unsigned int>>)
-  {
-    return "std::unordered_map<std::string, unsigned int>";
-  }
-}
-// Explicit instantiations for all types being used
-template std::string typeName<std::string>();
-template std::string typeName<int>();
-template std::string typeName<unsigned int>();
-template std::string typeName<double>();
-template std::string typeName<bool>();
-template std::string typeName<std::vector<int>>();
-template std::string typeName<std::vector<unsigned int>>();
-template std::string typeName<std::vector<double>>();
-template std::string typeName<std::vector<std::string>>();
-template std::string typeName<std::unordered_map<std::string, int>>();
-template std::string typeName<std::unordered_map<std::string, unsigned int>>();
-template std::string typeName<std::unordered_map<std::string, double>>();
-template std::string typeName<std::unordered_map<std::string, std::string>>();
 
 const std::string
 getNodeTypeString(const YAML::Node & node) noexcept

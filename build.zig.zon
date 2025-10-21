@@ -2,18 +2,16 @@
     .name = .yaml_cpp,
     .version = "0.16.0-dev.368+2a97e0af6",
     .dependencies = .{
+        //
         .compile_commands = .{
             .url = "https://github.com/the-argus/zig-compile-commands/archive/70fb439897e12cae896c071717d7c9c382918689.tar.gz",
             .hash = "zig_compile_commands-0.0.1-OZg5-ULBAABTh3NXO3WXoSUX1474ez0EouuoT2yDANhz",
         },
-        .@"yaml-cpp" = .{
-            .url = "https://github.com/JacobCrabill/zig-yaml-cpp/archive/7d18debb87bf2d14ca8d751404607a82c4867b37.tar.gz",
-            .hash = "zig_yaml_cpp-0.2.0-BiTzHoIQAAAdK92L5skbeTvFtD7tCaTgVCzW6ZAdl7RB",
+        .inputs = .{
+            .path = "inputs",
         },
     },
-    .paths = .{
-        "build.zig",
-        "build.zig.zon",
-    },
+
+    .paths = .{""},
     .fingerprint = 0xb591f60c551e77e2,
 }

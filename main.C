@@ -197,16 +197,8 @@
 //
 
 #include <cstdlib>
-#include <inputs/InputParameters.h>
-#include <iomanip>
 #include <iostream>
-#include <memory>
-#include <unordered_map>
-#include "ReactionRegistrar.h"
-#include "NetworkParser.h"
-#include "prism/reactions/RateReactionBase.h"
-#include "prism/reactions/ArrheniusRateReaction.h"
-#include "prism/reactions/ConstantRateReaction.h"
+#include "prism/core/SpeciesManager.h"
 
 int
 main()
@@ -224,5 +216,5 @@ main()
   std::cout << species[res9.value()].latex() << std::endl;
   std::cout << species[res10.value()].latex() << std::endl;
 
-  return 0;
+  return EXIT_SUCCESS;
 }

@@ -5,19 +5,19 @@ SRC = main.C
 EXE = main
 
 # adding include to look in the conda environment
-#INCLUDE_PATH = -I$(CONDA_PREFIX)/include
-INCLUDE_PATH = -Izig-out/include
+INCLUDE_PATH = -I$(CONDA_PREFIX)/include
 # link instructions to look in the conda environment
-LIBRARY_PATH = -Lzig-out/lib
+LIBRARY_PATH = -L$(CONDA_PREFIX)/lib
 
 YAML_LINK = -lyaml-cpp
+FMT_LINK = -lfmt
 INPUT_LINK = -linputs
-LINKS = $(YAML_LINK) $(INPUT_LINK)
+LINKS = $(YAML_LINK) $(FMT_LINK) $(INPUT_LINK)
 
 # build main with the rest of the code as a dll
 $(EXE):
 	@echo "Building $(EXE)"
-	@$(CXX) -B$(CONDA_PREFIX)/bin $(CXXFLAGS) $(INCLUDE_PATH) $(LIBRARY_PATH) $(SRC) -o $(EXE) $(LINKS) -Wl,-rpath,zig-out/lib
+	@$(CXX) -B$(CONDA_PREFIX)/bin $(CXXFLAGS) $(INCLUDE_PATH) $(LIBRARY_PATH) $(SRC) -o $(EXE) $(LINKS) -Wl,-rpath,$(CONDA_PREFIX)/lib
 	@echo "$(EXE) built successfully!"
 # clean up the parser
 clean:

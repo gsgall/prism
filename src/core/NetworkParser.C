@@ -1,4 +1,5 @@
 #include "NetworkParser.h"
+#include "PrismErrorHelper.h"
 #include "ReactionRegistrar.h"
 #include "boost/outcome/success_failure.hpp"
 #include "inputs/ParamMacros.h"
