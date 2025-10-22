@@ -7,10 +7,12 @@
             .url = "https://github.com/the-argus/zig-compile-commands/archive/70fb439897e12cae896c071717d7c9c382918689.tar.gz",
             .hash = "zig_compile_commands-0.0.1-OZg5-ULBAABTh3NXO3WXoSUX1474ez0EouuoT2yDANhz",
         },
-        .@"yaml-cpp" = .{
-            .url = "https://github.com/gsgall/zig-yaml-cpp/archive/e19f497e63efdfbb4258c31dafb70437a1582002.tar.gz",
-            .hash = "zig_yaml_cpp-0.2.0-BiTzHo4QAACqXXYerSUcJKTbSuNPq5N3HMeoGpfxdatn",
+        .googletest = .{
+            //
+            .url = "https://github.com/google/googletest/releases/download/v1.17.0/googletest-1.17.0.tar.gz",
+            .hash = "N-V-__8AAEV8PgDOBc81AuVJQ9XhGo46f-4dlQ7sXar_M0_i",
         },
+        .inputs = .{ .path = "../" },
     },
     .paths = .{
         "build.zig",

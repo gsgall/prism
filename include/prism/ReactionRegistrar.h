@@ -1,7 +1,6 @@
 #pragma once
 #include "inputs/InputParameters.h"
 #include <functional>
-#include <inputs/InputParameters.h>
 #include <memory>
 #include <string>
 

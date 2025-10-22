@@ -10,9 +10,9 @@
 //*
 #include "gtest/gtest.h"
 #include <memory>
-#include "PrismTypes.h"
-#include "RateReactionBase.h"
-#include "prism/core/NetworkParser.h"
+#include "prism/PrismTypes.h"
+#include "prism/RateReactionBase.h"
+#include "prism/NetworkParser.h"
 
 TEST(NetworkParserTest, ConsistentIndicies)
 {

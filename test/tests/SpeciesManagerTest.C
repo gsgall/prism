@@ -9,7 +9,7 @@
 //* ALL RIGHTS RESERVED
 //*
 #include "gtest/gtest.h"
-#include "prism/core/SpeciesManager.h"
+#include "prism/SpeciesManager.h"
 
 TEST(SpeciesManager, Modifiers)
 {

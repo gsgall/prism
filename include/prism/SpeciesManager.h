@@ -8,7 +8,6 @@
 //* ALL RIGHTS RESERVED
 //*
 #pragma once
-#include "PrismTypes.h"
 #include "Species.h"
 
 #include <string>

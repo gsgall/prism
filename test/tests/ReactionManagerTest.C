@@ -1,10 +1,9 @@
 #include "gtest/gtest.h"
 #include <memory>
-#include "PrismTypes.h"
 #include "inputs/InputParameters.h"
-#include "prism/core/SpeciesManager.h"
-#include "prism/core/ReactionManager.h"
-#include "prism/reactions/ConstantRateReaction.h"
+#include "prism/SpeciesManager.h"
+#include "prism/ReactionManager.h"
+#include "prism/ConstantRateReaction.h"
 
 TEST(ReactionManager, ValidEquations)
 {

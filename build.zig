@@ -18,10 +18,10 @@ pub fn build(b: *std.Build) !void {
         .root_module = b.createModule(.{ .target = target, .optimize = optimize }),
     });
 
-    lib_prism.addIncludePath(b.path("include/prism/core"));
-    lib_prism.addIncludePath(b.path("include/prism/reactions"));
+    lib_prism.addIncludePath(b.path("include/prism"));
     lib_prism.addIncludePath(inputs.path("include"));
     lib_prism.installHeadersDirectory(b.path("include"), "", .{});
+    lib_prism.root_module.addCMacro("YAML_CPP_STATIC_DEFINE", "");
     lib_prism.addCSourceFiles(.{
         .root = b.path("src/core"),
         .files = &.{
@@ -34,7 +34,10 @@ pub fn build(b: *std.Build) !void {
             "SpeciesManager.C",
             "StringHelper.C",
         },
-        .flags = &.{ "-std=c++17", "-g", "-fPIC" },
+        .flags = &.{
+            "-std=c++17",
+            "-g",
+        },
     });
     lib_prism.addCSourceFiles(.{
         .root = b.path("src/reactions"),
@@ -46,7 +49,10 @@ pub fn build(b: *std.Build) !void {
             "ReactionBase.C",
             "XSecReactionBase.C",
         },
-        .flags = &.{ "-std=c++17", "-g", "-fPIC" },
+        .flags = &.{
+            "-std=c++17",
+            "-g",
+        },
     });
 
     lib_prism.linkLibrary(lib_yaml_cpp);
@@ -58,6 +64,7 @@ pub fn build(b: *std.Build) !void {
             .target = target,
             .optimize = optimize,
         }) });
+        exe.root_module.addCMacro("YAML_CPP_STATIC_DEFINE", "");
         exe.addIncludePath(inputs.path("include"));
         exe.linkLibrary(lib_inputs);
         exe.linkLibrary(lib_yaml_cpp);

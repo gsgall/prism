@@ -9,7 +9,6 @@
 //* all rights reserved
 //*
 #pragma once
-#include "PrismTypes.h"
 
 #include "inputs/InputParameters.h"
 #include "RateReactionBase.h"

@@ -14,6 +14,7 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
     const lib_yaml_cpp = yaml_cpp.artifact("yaml-cpp");
+    lib_yaml_cpp.root_module.addCMacro("YAML_CPP_STATIC_DEFINE", "");
     // Build and install the actual library
     const lib_inputs = b.addLibrary(.{
         .name = "inputs",
@@ -33,7 +34,7 @@ pub fn build(b: *std.Build) !void {
             "Parameter.C",
             "InputParameters.C",
         },
-        .flags = &.{ "-std=c++17", "-g", "-fPIC" },
+        .flags = &.{ "-std=c++17", "-g" },
     });
     lib_inputs.linkLibrary(lib_yaml_cpp);
     lib_inputs.linkLibCpp();
@@ -44,6 +45,7 @@ pub fn build(b: *std.Build) !void {
             .optimize = optimize,
         }) });
 
+        exe.root_module.addCMacro("YAML_CPP_STATIC_DEFINE", "");
         exe.linkLibrary(lib_inputs);
         exe.linkLibrary(lib_yaml_cpp);
         exe.addCSourceFiles(.{

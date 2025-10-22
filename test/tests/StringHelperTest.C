@@ -10,7 +10,7 @@
 //*
 #include <string>
 #include "gtest/gtest.h"
-#include "prism/core/StringHelper.h"
+#include "prism/StringHelper.h"
 
 TEST(StringHelper, ltrim)
 {
